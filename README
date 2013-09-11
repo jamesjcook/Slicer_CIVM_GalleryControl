@@ -1,0 +1,6 @@
+Slicer_CIVM_GalleryControl
+
+This is a container project to fetch different bits and compile them with our copy of slicer. 
+
+There isnt any real module code in here, all the work is contined in the external projects.
+
