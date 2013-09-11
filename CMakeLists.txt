@@ -18,9 +18,9 @@ include(${Slicer_USE_FILE})
 
 #-----------------------------------------------------------------------------
 #add_subdirectory(CIVM_GalleryControl)
-#add_subdirectory(CIVM_RatDevAtlas)
+add_subdirectory(CIVM_RatDevAtlas)
 #add_subdirectory(LoadableModuleTemplate)
-
+add_subdirectory(CIVM_AdultRatPGR)
 
 #-----------------------------------------------------------------------------
 include(${Slicer_EXTENSION_CPACK})
