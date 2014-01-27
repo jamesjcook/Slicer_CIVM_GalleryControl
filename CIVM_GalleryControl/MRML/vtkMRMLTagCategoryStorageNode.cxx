@@ -3,7 +3,7 @@
 // categories are collections of strings which nodes could be tagged with using tagtables.
 
 // Slicer Includes
-#include "qSlicerApplication.h" // not found by default have to add dependency to cmake?
+//#include <qSlicerApplication.h> // not found by default have to add dependency to cmake?
 
 
 // MRML includes
@@ -23,6 +23,9 @@
 #include <limits>
 #include <sstream>
 #include <string> 
+#include <algorithm>
+// STD C includes
+#include <regex.h>
 
 
 //----------------------------------------------------------------------------
@@ -82,6 +85,86 @@ vtkMRMLTagCategoryStorageNode::~vtkMRMLTagCategoryStorageNode(void)
 
 
 //----------------------------------------------------------------------------
+int vtkMRMLTagCategoryStorageNode::RegexMatch(regex_t regExp, const char * data)
+{
+  if ( regexec(&regExp, data, 0, NULL , 0) == 0)
+    {
+      regfree(&regExp);
+      printf("%s", data);
+      return 0;
+    }
+  else
+    {
+      regfree(&regExp);
+      return 1;
+    }
+}
+// std::vector<std::string> vtkMRMLTagCategoryStorageNode::StringSplit(const std::string& str,const char * delim)
+// {
+//   unsigned found = str.find_first_of(delim);
+//   std::string temp=str;
+//   std::vector<std::string> parts;
+  
+//   parts.push_back(temp.substr(0,found));
+//   parts.push_back(temp.substr(found+1));
+//   return parts;
+// }
+
+std::vector<std::string> & vtkMRMLTagCategoryStorageNode::split(const std::string &s, char delim, std::vector<std::string> &elems) 
+{
+    std::stringstream ss(s);
+    std::string item;
+    while (std::getline(ss, item, delim)) {
+        elems.push_back(item);
+    }
+    return elems;
+}
+
+std::vector<std::string> vtkMRMLTagCategoryStorageNode::split(const std::string &s, char delim) 
+{
+    std::vector<std::string> elems;
+    split(s, delim, elems);
+    return elems;
+}
+
+
+std::string  vtkMRMLTagCategoryStorageNode::StrJoin(std::vector<std::string> &elems,char delim) 
+{
+//   std::stringstream ss(s);
+//   std::string item;
+//   while (std::getline(ss, item, delim)) {
+//     elems.push_back(item);
+//   }
+  std::string outstring(elems[0]);
+  for(std::vector<std::string>::iterator it = elems.begin()+1; it != elems.end(); ++it) {
+    outstring.append(*it);
+  }
+  return outstring;
+}
+std::string  vtkMRMLTagCategoryStorageNode::FilenameRmExt(std::string fileName )
+{
+  std::vector<std::string> fileNameParts=split(fileName.c_str(),'.'); 
+  // 	      vector<T>::const_iterator first = myVec.begin() + 100000;
+  // 	      vector<T>::const_iterator last = myVec.begin() + 101000;
+  // 	      vector<T> newVec(first, last);
+  std::vector<std::string> filenamev(fileNameParts.begin(),fileNameParts.end()-1);
+  std::string currentFilename(StrJoin(filenamev,'.'));
+  return currentFilename;
+}
+
+// std::vector<std::string> vtkMRMLTagCategoryStorageNode::StringSplit(const std::string& str,const char * delim)
+// {
+//   unsigned found = str.find_first_of(delim);
+//   std::string temp=str;
+//   std::vector<std::string> parts;
+  
+//   parts.push_back(temp.substr(0,found));
+//   parts.push_back(temp.substr(found+1));
+//   return parts;
+// }
+
+
+//----------------------------------------------------------------------------
 void vtkMRMLTagCategoryStorageNode::BuildTagCategoryStorage(std::string DataPath) 
 {
   // get directory listing, 
@@ -95,11 +178,35 @@ void vtkMRMLTagCategoryStorageNode::BuildTagCategoryStorage(std::string DataPath
     { 
       for (int fn=0;fn<dir->GetNumberOfFiles() ; fn++) 
 	{  // for entry in directyory 
-	  const char * currentFile = dir->GetFile(fn);
-	  if(!dir->FileIsDirectory(currentFile) ) 
+	  std::string currentFile(dir->GetFile(fn));
+	  std::vector<std::string> fileList ;
+	  if(!dir->FileIsDirectory(currentFile.c_str()))
 	    {
-	      // if not mrml, 
-	      // if nii or nrrd
+	      std::string img_regular_expression("^.*[nii|nhdr]$"); //[nii|nrrd|nhdr]
+	      std::string mrml_regular_expression("^.*_tags.mrml$");
+	      regex_t temp;
+	      regcomp(&temp, img_regular_expression.c_str(),REG_EXTENDED);
+	      //std::vector<std::string> x = split("one:two::three", ':');
+	      ////
+	      // if file is a nii or nhdr
+	      ////
+	      if(RegexMatch(temp,currentFile.c_str()) ) 
+		{ 
+		  std::string fileName=FilenameRmExt(currentFile);
+		  std::string fileNameTag=fileName.append("_tags.mrml");
+		  if (std::find(fileList.begin(), fileList.end(), "fileName") != fileList.end())
+		    {
+		      fileList.push_back(fileName);
+		    }
+		  //push filename into a check list
+		  if ( 0 ) {
+		    std::vector<std::string> filename_parts=split(currentFile,'.'); 
+		    // 	      vector<T>::const_iterator first = myVec.begin() + 100000;
+		    // 	      vector<T>::const_iterator last = myVec.begin() + 101000;
+		    // 	      vector<T> newVec(first, last);
+		    std::vector<std::string> filenamev(filename_parts.begin(),filename_parts.end()-1);
+		    std::string currentFilename(StrJoin(filenamev,'.'));
+		  }
 	      //   if imgname_tags exist  //check for image tags
 	      //   load scene   // read image tags	      
 // 	      qSlicerApplication * app = qSlicerApplication::application();
@@ -107,6 +214,11 @@ void vtkMRMLTagCategoryStorageNode::BuildTagCategoryStorage(std::string DataPath
 	      // 
 	      //   for each attribute of img check/add
 	      //     check in CategoryNames, 
+
+		}
+	      // if not mrml, 
+		  
+
 	    } 
 	  else 
 	    {
@@ -124,185 +236,185 @@ void vtkMRMLTagCategoryStorageNode::BuildTagCategoryStorage(std::string DataPath
  
 }
 
-//----------------------------------------------------------------------------
-void vtkMRMLTagCategoryStorageNode::WriteXML(ostream& of, int nIndent)
-{
-  // Write all attributes not equal to their defaults
-  this->Superclass::WriteXML(of, nIndent);
+// //----------------------------------------------------------------------------
+// void vtkMRMLTagCategoryStorageNode::WriteXML(ostream& of, int nIndent)
+// {
+//   // Write all attributes not equal to their defaults
+//   this->Superclass::WriteXML(of, nIndent);
 
-  //vtkIndent indent(nIndent);
-//   of << " interpolation=\"" <<this->TagCategoryStorage->GetInterpolationType()<< "\"";
-//   of << " shade=\"" <<this->TagCategoryStorage->GetShade()<< "\"";
-//   of << " diffuse=\"" <<this->TagCategoryStorage->GetDiffuse()<< "\"";
-//   of << " ambient=\"" <<this->TagCategoryStorage->GetAmbient()<< "\"";
-//   of << " specular=\"" <<this->TagCategoryStorage->GetSpecular()<< "\"";
-//   of << " specularPower=\"" <<this->TagCategoryStorage->GetSpecularPower()<<"\"";
-//   of << " scalarOpacity=\"" << this->GetPiecewiseFunctionString(this->TagCategoryStorage->GetScalarOpacity())  << "\"";
-//   of << " gradientOpacity=\"" <<this->GetPiecewiseFunctionString(this->TagCategoryStorage->GetGradientOpacity())<< "\"";
-//   of << " colorTransfer=\"" <<this->GetColorTransferFunctionString(this->TagCategoryStorage->GetRGBTransferFunction())<< "\"";
+//   //vtkIndent indent(nIndent);
+// //   of << " interpolation=\"" <<this->TagCategoryStorage->GetInterpolationType()<< "\"";
+// //   of << " shade=\"" <<this->TagCategoryStorage->GetShade()<< "\"";
+// //   of << " diffuse=\"" <<this->TagCategoryStorage->GetDiffuse()<< "\"";
+// //   of << " ambient=\"" <<this->TagCategoryStorage->GetAmbient()<< "\"";
+// //   of << " specular=\"" <<this->TagCategoryStorage->GetSpecular()<< "\"";
+// //   of << " specularPower=\"" <<this->TagCategoryStorage->GetSpecularPower()<<"\"";
+// //   of << " scalarOpacity=\"" << this->GetPiecewiseFunctionString(this->TagCategoryStorage->GetScalarOpacity())  << "\"";
+// //   of << " gradientOpacity=\"" <<this->GetPiecewiseFunctionString(this->TagCategoryStorage->GetGradientOpacity())<< "\"";
+// //   of << " colorTransfer=\"" <<this->GetColorTransferFunctionString(this->TagCategoryStorage->GetRGBTransferFunction())<< "\"";
 
-}
+// }
 
-//----------------------------------------------------------------------------
-void vtkMRMLTagCategoryStorageNode::ReadXMLAttributes(const char** atts)
-{
-  int disabledModify = this->StartModify();
+// //----------------------------------------------------------------------------
+// void vtkMRMLTagCategoryStorageNode::ReadXMLAttributes(const char** atts)
+// {
+//   int disabledModify = this->StartModify();
 
-  this->Superclass::ReadXMLAttributes(atts);
+//   this->Superclass::ReadXMLAttributes(atts);
 
-  const char* attName;
-  const char* attValue;
-  while (*atts!=NULL)
-    {
-    attName= *(atts++);
-    attValue= *(atts++);
-    if(!strcmp(attName,"scalarOpacity"))
-      {
-//       vtkPiecewiseFunction *scalarOpacity=vtkPiecewiseFunction::New();
-//       this->GetPiecewiseFunctionFromString(attValue,scalarOpacity);
-//       this->SetScalarOpacity(scalarOpacity);
-//       scalarOpacity->Delete();
-      }
-    else if(!strcmp(attName,"gradientOpacity"))
-      {
-//       vtkPiecewiseFunction *gradientOpacity=vtkPiecewiseFunction::New();
-//       this->GetPiecewiseFunctionFromString(attValue,gradientOpacity);
-//       this->SetGradientOpacity(gradientOpacity);
-//       gradientOpacity->Delete();
-      }
-    else if(!strcmp(attName,"colorTransfer"))
-      {
-//       vtkColorTransferFunction *colorTransfer=vtkColorTransferFunction::New();
-//       this->GetColorTransferFunctionFromString(attValue,colorTransfer);
-//       this->SetColor(colorTransfer);
-//       colorTransfer->Delete();
-      }
-    else if(!strcmp(attName,"interpolation"))
-      {
-//       int interpolation;
-//       std::stringstream ss;
-//       ss <<attValue;
-//       ss>>interpolation;
-//       this->TagCategoryStorage->SetInterpolationType(interpolation);
-      }
-    else if(!strcmp(attName,"shade"))
-      {
-//       int shade;
-//       std::stringstream ss;
-//       ss <<attValue;
-//       ss>>shade;
-//       this->TagCategoryStorage->SetShade(shade);
-      }
-    else if(!strcmp(attName,"diffuse"))
-      {
-//       double diffuse;
-//       std::stringstream ss;
-//       ss<<attValue;
-//       ss>>diffuse;
-//       this->TagCategoryStorage->SetDiffuse(diffuse);
-      }
-    else if(!strcmp(attName,"ambient"))
-      {
-//       double ambient;
-//       std::stringstream ss;
-//       ss<<attValue;
-//       ss>>ambient;
-//       this->TagCategoryStorage->SetAmbient(ambient);
-      }
-    else if(!strcmp(attName,"specular"))
-      {
-//       double specular;
-//       std::stringstream ss;
-//       ss<<attValue;
-//       ss>>specular;
-//       this->TagCategoryStorage->SetSpecular(specular);
-      }
-    else if(!strcmp(attName,"specularPower"))
-      {
-//       int specularPower;
-//       std::stringstream ss;
-//       ss<<attValue;
-//       ss>>specularPower;
-//       this->TagCategoryStorage->SetSpecularPower(specularPower);
-      }//else if
-    }//while
-
-  this->EndModify(disabledModify);
-}
-
-//----------------------------------------------------------------------------
-// Copy the node's attributes to this object.
-// Does NOT copy: ID, FilePrefix, Name, ID
-void vtkMRMLTagCategoryStorageNode::Copy(vtkMRMLNode *anode)
-{
-  int disabledModify = this->StartModify();
-
-  this->Superclass::Copy(anode);
-
-  this->CopyParameterSet(anode);
-  
-  this->EndModify(disabledModify);
-}
-
-//----------------------------------------------------------------------------
-void vtkMRMLTagCategoryStorageNode::CopyParameterSet(vtkMRMLNode *anode)
-{
-  //cast
-  vtkMRMLTagCategoryStorageNode *node = (vtkMRMLTagCategoryStorageNode *) anode;
-
-//   this->TagCategoryStorage->SetIndependentComponents(
-//     node->TagCategoryStorage->GetIndependentComponents());
-//   this->TagCategoryStorage->SetInterpolationType(
-//     node->TagCategoryStorage->GetInterpolationType());
-
-//   //TagCategoryStorage
-//   for (int i=0;i<VTK_MAX_VRCOMP;i++)
+//   const char* attName;
+//   const char* attValue;
+//   while (*atts!=NULL)
 //     {
-//     this->TagCategoryStorage->SetComponentWeight(
-//       i,node->GetTagCategoryStorage()->GetComponentWeight(i));
-//     //TODO problem no set method
-//     // vtkPiecewiseFunction *gray=node->GetTagCategoryStorage()->GetGrayTransferFunction=());L
-//     //   this->TagCategoryStorage->SetGry
-//     //TODO problem no set ColorChannels Method
-//     //this->TagCategoryStorage->SetCGetColorChannels(
-//     //mapping functions
-//     vtkColorTransferFunction *rgbTransfer=vtkColorTransferFunction::New();
-//     rgbTransfer->DeepCopy(
-//       node->GetTagCategoryStorage()->GetRGBTransferFunction(i));
-//     this->SetColor(rgbTransfer, i);
-//     rgbTransfer->Delete();
+//     attName= *(atts++);
+//     attValue= *(atts++);
+//     if(!strcmp(attName,"scalarOpacity"))
+//       {
+// //       vtkPiecewiseFunction *scalarOpacity=vtkPiecewiseFunction::New();
+// //       this->GetPiecewiseFunctionFromString(attValue,scalarOpacity);
+// //       this->SetScalarOpacity(scalarOpacity);
+// //       scalarOpacity->Delete();
+//       }
+//     else if(!strcmp(attName,"gradientOpacity"))
+//       {
+// //       vtkPiecewiseFunction *gradientOpacity=vtkPiecewiseFunction::New();
+// //       this->GetPiecewiseFunctionFromString(attValue,gradientOpacity);
+// //       this->SetGradientOpacity(gradientOpacity);
+// //       gradientOpacity->Delete();
+//       }
+//     else if(!strcmp(attName,"colorTransfer"))
+//       {
+// //       vtkColorTransferFunction *colorTransfer=vtkColorTransferFunction::New();
+// //       this->GetColorTransferFunctionFromString(attValue,colorTransfer);
+// //       this->SetColor(colorTransfer);
+// //       colorTransfer->Delete();
+//       }
+//     else if(!strcmp(attName,"interpolation"))
+//       {
+// //       int interpolation;
+// //       std::stringstream ss;
+// //       ss <<attValue;
+// //       ss>>interpolation;
+// //       this->TagCategoryStorage->SetInterpolationType(interpolation);
+//       }
+//     else if(!strcmp(attName,"shade"))
+//       {
+// //       int shade;
+// //       std::stringstream ss;
+// //       ss <<attValue;
+// //       ss>>shade;
+// //       this->TagCategoryStorage->SetShade(shade);
+//       }
+//     else if(!strcmp(attName,"diffuse"))
+//       {
+// //       double diffuse;
+// //       std::stringstream ss;
+// //       ss<<attValue;
+// //       ss>>diffuse;
+// //       this->TagCategoryStorage->SetDiffuse(diffuse);
+//       }
+//     else if(!strcmp(attName,"ambient"))
+//       {
+// //       double ambient;
+// //       std::stringstream ss;
+// //       ss<<attValue;
+// //       ss>>ambient;
+// //       this->TagCategoryStorage->SetAmbient(ambient);
+//       }
+//     else if(!strcmp(attName,"specular"))
+//       {
+// //       double specular;
+// //       std::stringstream ss;
+// //       ss<<attValue;
+// //       ss>>specular;
+// //       this->TagCategoryStorage->SetSpecular(specular);
+//       }
+//     else if(!strcmp(attName,"specularPower"))
+//       {
+// //       int specularPower;
+// //       std::stringstream ss;
+// //       ss<<attValue;
+// //       ss>>specularPower;
+// //       this->TagCategoryStorage->SetSpecularPower(specularPower);
+//       }//else if
+//     }//while
 
-//     vtkPiecewiseFunction *scalar=vtkPiecewiseFunction::New();
-//     scalar->DeepCopy(node->GetTagCategoryStorage()->GetScalarOpacity(i));
-//     this->SetScalarOpacity(scalar, i);
-//     scalar->Delete();
-//     this->TagCategoryStorage->SetScalarOpacityUnitDistance(
-//       i,this->TagCategoryStorage->GetScalarOpacityUnitDistance(i));
+//   this->EndModify(disabledModify);
+// }
 
-//     vtkPiecewiseFunction *gradient=vtkPiecewiseFunction::New();
-//     gradient->DeepCopy(node->GetTagCategoryStorage()->GetGradientOpacity(i));
-//     this->SetGradientOpacity(gradient, i);
-//     gradient->Delete();
+// //----------------------------------------------------------------------------
+// // Copy the node's attributes to this object.
+// // Does NOT copy: ID, FilePrefix, Name, ID
+// void vtkMRMLTagCategoryStorageNode::Copy(vtkMRMLNode *anode)
+// {
+//   int disabledModify = this->StartModify();
 
-//     //TODO Copy default gradient?
-//     this->TagCategoryStorage->SetDisableGradientOpacity(
-//       i,node->GetTagCategoryStorage()->GetDisableGradientOpacity(i));
-//     this->TagCategoryStorage->SetShade(i,node->GetTagCategoryStorage()->GetShade(i));
-//     this->TagCategoryStorage->SetAmbient(i, node->TagCategoryStorage->GetAmbient(i));
-//     this->TagCategoryStorage->SetDiffuse(i, node->TagCategoryStorage->GetDiffuse(i));
-//     this->TagCategoryStorage->SetSpecular(i, node->TagCategoryStorage->GetSpecular(i));
-//     this->TagCategoryStorage->SetSpecularPower(
-//       i, node->TagCategoryStorage->GetSpecularPower(i));
-//     }
-}
+//   this->Superclass::Copy(anode);
 
-//----------------------------------------------------------------------------
-void vtkMRMLTagCategoryStorageNode::PrintSelf(ostream& os, vtkIndent indent)
-{
-  this->Superclass::PrintSelf(os,indent);
-//   os<<indent<<"TagCategoryStorage: ";
-//   this->TagCategoryStorage->PrintSelf(os,indent.GetNextIndent());
-}
+//   this->CopyParameterSet(anode);
+  
+//   this->EndModify(disabledModify);
+// }
+
+// //----------------------------------------------------------------------------
+// void vtkMRMLTagCategoryStorageNode::CopyParameterSet(vtkMRMLNode *anode)
+// {
+//   //cast
+//   vtkMRMLTagCategoryStorageNode *node = (vtkMRMLTagCategoryStorageNode *) anode;
+
+// //   this->TagCategoryStorage->SetIndependentComponents(
+// //     node->TagCategoryStorage->GetIndependentComponents());
+// //   this->TagCategoryStorage->SetInterpolationType(
+// //     node->TagCategoryStorage->GetInterpolationType());
+
+// //   //TagCategoryStorage
+// //   for (int i=0;i<VTK_MAX_VRCOMP;i++)
+// //     {
+// //     this->TagCategoryStorage->SetComponentWeight(
+// //       i,node->GetTagCategoryStorage()->GetComponentWeight(i));
+// //     //TODO problem no set method
+// //     // vtkPiecewiseFunction *gray=node->GetTagCategoryStorage()->GetGrayTransferFunction=());L
+// //     //   this->TagCategoryStorage->SetGry
+// //     //TODO problem no set ColorChannels Method
+// //     //this->TagCategoryStorage->SetCGetColorChannels(
+// //     //mapping functions
+// //     vtkColorTransferFunction *rgbTransfer=vtkColorTransferFunction::New();
+// //     rgbTransfer->DeepCopy(
+// //       node->GetTagCategoryStorage()->GetRGBTransferFunction(i));
+// //     this->SetColor(rgbTransfer, i);
+// //     rgbTransfer->Delete();
+
+// //     vtkPiecewiseFunction *scalar=vtkPiecewiseFunction::New();
+// //     scalar->DeepCopy(node->GetTagCategoryStorage()->GetScalarOpacity(i));
+// //     this->SetScalarOpacity(scalar, i);
+// //     scalar->Delete();
+// //     this->TagCategoryStorage->SetScalarOpacityUnitDistance(
+// //       i,this->TagCategoryStorage->GetScalarOpacityUnitDistance(i));
+
+// //     vtkPiecewiseFunction *gradient=vtkPiecewiseFunction::New();
+// //     gradient->DeepCopy(node->GetTagCategoryStorage()->GetGradientOpacity(i));
+// //     this->SetGradientOpacity(gradient, i);
+// //     gradient->Delete();
+
+// //     //TODO Copy default gradient?
+// //     this->TagCategoryStorage->SetDisableGradientOpacity(
+// //       i,node->GetTagCategoryStorage()->GetDisableGradientOpacity(i));
+// //     this->TagCategoryStorage->SetShade(i,node->GetTagCategoryStorage()->GetShade(i));
+// //     this->TagCategoryStorage->SetAmbient(i, node->TagCategoryStorage->GetAmbient(i));
+// //     this->TagCategoryStorage->SetDiffuse(i, node->TagCategoryStorage->GetDiffuse(i));
+// //     this->TagCategoryStorage->SetSpecular(i, node->TagCategoryStorage->GetSpecular(i));
+// //     this->TagCategoryStorage->SetSpecularPower(
+// //       i, node->TagCategoryStorage->GetSpecularPower(i));
+// //     }
+// }
+
+// //----------------------------------------------------------------------------
+// void vtkMRMLTagCategoryStorageNode::PrintSelf(ostream& os, vtkIndent indent)
+// {
+//   this->Superclass::PrintSelf(os,indent);
+// //   os<<indent<<"TagCategoryStorage: ";
+// //   this->TagCategoryStorage->PrintSelf(os,indent.GetNextIndent());
+// }
 
 //---------------------------------------------------------------------------
 void vtkMRMLTagCategoryStorageNode::ProcessMRMLEvents ( vtkObject *caller,
@@ -325,65 +437,65 @@ void vtkMRMLTagCategoryStorageNode::ProcessMRMLEvents ( vtkObject *caller,
     }
 }
 
-//---------------------------------------------------------------------------
-std::string vtkMRMLTagCategoryStorageNode
-::DataToString(double* data, int size)
-{
-  std::stringstream resultStream;
-  double *it = data;
-  // Write header
-  resultStream << size;
-  resultStream.precision(std::numeric_limits<double>::digits10);
-  for (int i=0; i < size; ++i)
-    {
-    resultStream << " ";
-    resultStream << *it;
-    it++;
-    }
-  return resultStream.str();
-}
+// //---------------------------------------------------------------------------
+// std::string vtkMRMLTagCategoryStorageNode
+// ::DataToString(double* data, int size)
+// {
+//   std::stringstream resultStream;
+//   double *it = data;
+//   // Write header
+//   resultStream << size;
+//   resultStream.precision(std::numeric_limits<double>::digits10);
+//   for (int i=0; i < size; ++i)
+//     {
+//     resultStream << " ";
+//     resultStream << *it;
+//     it++;
+//     }
+//   return resultStream.str();
+// }
 
-//---------------------------------------------------------------------------
-int vtkMRMLTagCategoryStorageNode
-::DataFromString(const std::string& dataString, double* &data)
-{
-  std::stringstream stream;
-  stream << dataString;
+// //---------------------------------------------------------------------------
+// int vtkMRMLTagCategoryStorageNode
+// ::DataFromString(const std::string& dataString, double* &data)
+// {
+//   std::stringstream stream;
+//   stream << dataString;
 
-  int size=0;
-  stream >> size;
-  if (size==0)
-    {
-    return 0;
-    }
-  data = new double[size];
-  for(int i=0; i < size; ++i)
-    {
-    std::string s;
-    stream >> s;
-    data[i] = atof(s.c_str());
-    }
-  return size;
-}
+//   int size=0;
+//   stream >> size;
+//   if (size==0)
+//     {
+//     return 0;
+//     }
+//   data = new double[size];
+//   for(int i=0; i < size; ++i)
+//     {
+//     std::string s;
+//     stream >> s;
+//     data[i] = atof(s.c_str());
+//     }
+//   return size;
+// }
 
-//---------------------------------------------------------------------------
-int vtkMRMLTagCategoryStorageNode
-::NodesFromString(const std::string& dataString, double* &nodes, int nodeSize)
-{
-  int size = vtkMRMLTagCategoryStorageNode::DataFromString(dataString, nodes);
-  if (size % nodeSize)
-    {
-    std::cerr << "Error parsing data string" << std::endl;
-    return 0;
-    }
-  // Ensure uniqueness
-  double previous = VTK_DOUBLE_MIN;
-  for (int i = 0; i < size; i+= nodeSize)
-    {
-//     nodes[i] = vtkMRMLTagCategoryStorageNode::HigherAndUnique(nodes[i], previous);
-    }
-  return size / nodeSize;
-}
+// //---------------------------------------------------------------------------
+// int vtkMRMLTagCategoryStorageNode
+// ::NodesFromString(const std::string& dataString, double* &nodes, int nodeSize)
+// {
+//   int size = vtkMRMLTagCategoryStorageNode::DataFromString(dataString, nodes);
+//   if (size % nodeSize)
+//     {
+//     std::cerr << "Error parsing data string" << std::endl;
+//     return 0;
+//     }
+//   // Ensure uniqueness
+//   double previous = VTK_DOUBLE_MIN;
+//   for (int i = 0; i < size; i+= nodeSize)
+//     {
+// //     nodes[i] = vtkMRMLTagCategoryStorageNode::HigherAndUnique(nodes[i], previous);
+//     }
+//   return size / nodeSize;
+// }
 
 // //---------------------------------------------------------------------------
 // std::string vtkMRMLTagCategoryStorageNode

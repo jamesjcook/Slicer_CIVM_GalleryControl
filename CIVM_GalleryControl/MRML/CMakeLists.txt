@@ -1,15 +1,10 @@
-project(vtkSlicer${EXTENSION_NAME}ExtensionMRML)
+project(vtkSlicer${MODULE_NAME}ModuleMRML)
 
-string(TOUPPER ${EXTENSION_NAME} EXTENSION_NAME_UPPER)
-set(KIT ${EXTENSION_NAME})
-#set(MODULE_NAME CIVM_GALLERYCONTROL)
-set(${KIT}_EXPORT_DIRECTIVE "VTK_SLICER_${EXTENSION_NAME_UPPER}_MODULE_MRML_EXPORT")
+set(KIT ${PROJECT_NAME})
 
-find_package(Slicer REQUIRED)
-include(${Slicer_USE_FILE})
+set(${KIT}_EXPORT_DIRECTIVE "VTK_MRML_EXPORT")
+
 set(${KIT}_INCLUDE_DIRECTORIES
-  ${Slicer_DIR}
-  ${Slicer_INCLUDE_DIRECTORIES}
   )
 
 set(${KIT}_SRCS
@@ -20,10 +15,24 @@ set(${KIT}_SRCS
 set(${KIT}_TARGET_LIBRARIES
   ${ITK_LIBRARIES}
   ${MRML_LIBRARIES}
-#  ${SLICER_LIBRARIES}
+  ${SLICER_LIBRARIES}
+  ${VTK_LIBRARIES}
 #  vtkRendering
 #  vtkSlicerAnnotationsModuleMRML
   )
+#add_library( libvtkMRMLNode SHARED IMPORTED )
+#add_llibrary( libvtk
+# if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU")
+#     execute_process(
+#         COMMAND ${CMAKE_CXX_COMPILER} -dumpversion OUTPUT_VARIABLE GCC_VERSION)
+#     if (NOT (GCC_VERSION VERSION_GREATER 4.7 OR GCC_VERSION VERSION_EQUAL 4.7))
+#         message(FATAL_ERROR "${PROJECT_NAME} requires g++ 4.7 or greater.")
+#     endif ()
+# elseif ("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
+#     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
+# else ()
+#     message(FATAL_ERROR "Your C++ compiler does not support C++11.")
+# endif ()
 
 #-----------------------------------------------------------------------------
 SlicerMacroBuildModuleMRML(

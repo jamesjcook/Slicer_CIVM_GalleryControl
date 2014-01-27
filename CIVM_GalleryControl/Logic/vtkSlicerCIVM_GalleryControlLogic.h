@@ -37,7 +37,7 @@
 
 /// \ingroup Slicer_QtModules_ExtensionTemplate
 class VTK_SLICER_CIVM_GALLERYCONTROL_MODULE_LOGIC_EXPORT vtkSlicerCIVM_GalleryControlLogic :
-  public vtkSlicerModuleLogic
+public vtkSlicerModuleLogic
 {
 public:
 

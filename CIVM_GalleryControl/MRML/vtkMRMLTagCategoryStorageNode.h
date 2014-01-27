@@ -8,14 +8,17 @@
 
 // VTK includes
 class vtkIntArray;
+#include <vtkIntArray.h>
 //class vtkTagCategoryStorage;
 
 // STD includes
 #include <string>
 #include <vtksys/stl/vector>
 
+#include <regex.h>
+
 //VTK_SLICER_VOLUMERENDERING_MODULE_MRML_EXPORT
-class VTK_SLICER_CIVM_DATALIBRARYMANAGER_EXTENSION_MRML_EXPORT vtkMRMLTagCategoryStorageNode
+class VTK_MRML_EXPORT vtkMRMLTagCategoryStorageNode
 //class vtkMRMLTagCategoryStorageNode
  : public vtkMRMLStorableNode
 {
@@ -27,7 +30,7 @@ public:
   /// Create a new vtkMRMLTagCategoryStorageNode
   static vtkMRMLTagCategoryStorageNode *New();
   vtkTypeMacro(vtkMRMLTagCategoryStorageNode,vtkMRMLStorableNode);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  // void PrintSelf(ostream& os, vtkIndent indent);
 
   // the names of the categorys.
   std::vector<std::string> CategoryNames;
@@ -116,23 +119,30 @@ public:
   /// \sa NextHigher()
   //static double HigherAndUnique(double value, double & previousValue);
 
+
+  int RegexMatch(regex_t , const char * );
+  //  std::vector<std::string> StringSplit(const std::string& ,const char * );
+  std::vector<std::string> &split(const std::string &, char , std::vector<std::string> &) ;
+  std::vector<std::string> split(const std::string &, char ) ;
+  std::string StrJoin(std::vector<std::string> &,char ) ;
+  std::string FilenameRmExt(std::string  );
   //--------------------------------------------------------------------------
   /// MRMLNode methods
   //--------------------------------------------------------------------------
   virtual vtkMRMLNode* CreateNodeInstance();
 
   /// Set node attributes
-  virtual void ReadXMLAttributes( const char** atts);
+  // virtual void ReadXMLAttributes( const char** atts);
 
   /// Write this node's information to a MRML file in XML format.
-  virtual void WriteXML(ostream& of, int indent);
+  //  virtual void WriteXML(ostream& of, int indent);
 
   /// Copy the node's attributes to this object
-  virtual void Copy(vtkMRMLNode *node);
+  // virtual void Copy(vtkMRMLNode *node);
 
   /// Copy only the parameterset (like Volume Propertys, Piecewiesefunctions
   /// etc. as deep copy,but no references etc.)
-  void CopyParameterSet(vtkMRMLNode *node);
+  // void CopyParameterSet(vtkMRMLNode *node);
 
   /// Get node XML tag name (like Volume, Model)
   virtual const char* GetNodeTagName() {return "TagCategoryStorage";};
@@ -155,9 +165,9 @@ protected:
   /// Use ->Delete() to delete object
   ~vtkMRMLTagCategoryStorageNode(void);
 
-  static int NodesFromString(const std::string& dataString, double* &data, int nodeSize);
-  static int DataFromString(const std::string& dataString, double* &data);
-  static std::string DataToString(double* data, int size);
+  // static int NodesFromString(const std::string& dataString, double* &data, int nodeSize);
+  // static int DataFromString(const std::string& dataString, double* &data);
+  // static std::string DataToString(double* data, int size);
 
   /// Events observed on the transfer functions
   vtkIntArray* ObservedEvents;
