@@ -2,6 +2,10 @@
 // hold a linked list of Category definitions. 
 // categories are collections of strings which nodes could be tagged with using tagtables.
 
+// Slicer Includes
+#include "qSlicerApplication.h" // not found by default have to add dependency to cmake?
+
+
 // MRML includes
 #include <vtkMRMLTagCategoryStorageNode.h>
 
@@ -11,18 +15,31 @@
 #include <vtkIntArray.h>
 #include <vtkObjectFactory.h>
 #include <vtkNew.h>
-#include <vtkMRMLStorageNode.h>
+//#include <vtkMRMLStorageNode.h>
+#include <vtkDirectory.h>
 
 // STD includes
 #include <cassert>
 #include <limits>
 #include <sstream>
+#include <string> 
+
 
 //----------------------------------------------------------------------------
 vtkMRMLNodeNewMacro(vtkMRMLTagCategoryStorageNode);
-
-//----------------------------------------------------------------------------
 vtkMRMLTagCategoryStorageNode::vtkMRMLTagCategoryStorageNode(void)
+{
+  this->SetHideFromEditors(0);
+  this->ObservedEvents = vtkIntArray::New();
+  this->ObservedEvents->InsertNextValue(vtkCommand::StartEvent);
+  this->ObservedEvents->InsertNextValue(vtkCommand::ModifiedEvent);
+  this->ObservedEvents->InsertNextValue(vtkCommand::EndEvent);
+  this->ObservedEvents->InsertNextValue(vtkCommand::StartInteractionEvent);
+  this->ObservedEvents->InsertNextValue(vtkCommand::InteractionEvent);
+  this->ObservedEvents->InsertNextValue(vtkCommand::EndInteractionEvent);
+}
+//----------------------------------------------------------------------------
+vtkMRMLTagCategoryStorageNode::vtkMRMLTagCategoryStorageNode(std::string DataRoot)
 {
   this->ObservedEvents = vtkIntArray::New();
   this->ObservedEvents->InsertNextValue(vtkCommand::StartEvent);
@@ -44,6 +61,9 @@ vtkMRMLTagCategoryStorageNode::vtkMRMLTagCategoryStorageNode(void)
 //   this->SetScalarOpacity(node->GetScalarOpacity());
 //   this->SetGradientOpacity(node->GetGradientOpacity());
 
+  this->BuildTagCategoryStorage(DataRoot);
+
+
   this->SetHideFromEditors(0);
 }
 
@@ -58,6 +78,50 @@ vtkMRMLTagCategoryStorageNode::~vtkMRMLTagCategoryStorageNode(void)
 //     vtkSetAndObserveMRMLObjectMacro(this->TagCategoryStorage, NULL);
 //     }
 //   this->ObservedEvents->Delete();
+}
+
+
+//----------------------------------------------------------------------------
+void vtkMRMLTagCategoryStorageNode::BuildTagCategoryStorage(std::string DataPath) 
+{
+  // get directory listing, 
+  //vtkGlobfileNames
+//   vtkGlobfileNames* dir = vtkGlobfileNames::New();
+//   dir->SetDirectory(DataPath.c_str());
+//   dir->AddFilnames("*");
+  vtkDirectory * dir = vtkDirectory::New();
+  int goodPath = dir->Open(DataPath.c_str());
+  if(goodPath) 
+    { 
+      for (int fn=0;fn<dir->GetNumberOfFiles() ; fn++) 
+	{  // for entry in directyory 
+	  const char * currentFile = dir->GetFile(fn);
+	  if(!dir->FileIsDirectory(currentFile) ) 
+	    {
+	      // if not mrml, 
+	      // if nii or nrrd
+	      //   if imgname_tags exist  //check for image tags
+	      //   load scene   // read image tags	      
+// 	      qSlicerApplication * app = qSlicerApplication::application();
+// 	      app->ioManager()->loadScene(DataPath+dir,false);  
+	      // 
+	      //   for each attribute of img check/add
+	      //     check in CategoryNames, 
+	    } 
+	  else 
+	    {
+	      // if is dir 
+	      //   BuildTagCategoryStorage(DatPath/dir)
+	      this->BuildTagCategoryStorage(std::string(currentFile));
+	    }
+
+	}
+    } 
+  else 
+    { 
+      // dir failed.
+    }
+ 
 }
 
 //----------------------------------------------------------------------------

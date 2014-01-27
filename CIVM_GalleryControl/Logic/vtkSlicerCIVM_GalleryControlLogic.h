@@ -44,11 +44,12 @@ public:
   static vtkSlicerCIVM_GalleryControlLogic *New();
   vtkTypeMacro(vtkSlicerCIVM_GalleryControlLogic, vtkSlicerModuleLogic);
   void PrintSelf(ostream& os, vtkIndent indent);
-
+  //put some data container here for library data. just one i think, we'll presume only one libraray is looked at at a time if libraries cross that should be determined by their disk layout, allowing libraries to be sub collecitons via using the data root 
+  
 protected:
   vtkSlicerCIVM_GalleryControlLogic();
   virtual ~vtkSlicerCIVM_GalleryControlLogic();
-
+  
   virtual void SetMRMLSceneInternal(vtkMRMLScene* newScene);
   /// Register MRML Node classes to Scene. Gets called automatically when the MRMLScene is attached to this logic class.
   virtual void RegisterNodes();

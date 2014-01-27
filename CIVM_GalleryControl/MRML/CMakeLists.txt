@@ -1,10 +1,15 @@
-project(vtkSlicer${MODULE_NAME}ModuleMRML)
+project(vtkSlicer${EXTENSION_NAME}ExtensionMRML)
 
-set(KIT ${PROJECT_NAME})
+string(TOUPPER ${EXTENSION_NAME} EXTENSION_NAME_UPPER)
+set(KIT ${EXTENSION_NAME})
+#set(MODULE_NAME CIVM_GALLERYCONTROL)
+set(${KIT}_EXPORT_DIRECTIVE "VTK_SLICER_${EXTENSION_NAME_UPPER}_MODULE_MRML_EXPORT")
 
-set(${KIT}_EXPORT_DIRECTIVE "VTK_SLICER_${MODULE_NAME_UPPER}_MODULE_MRML_EXPORT")
-
+find_package(Slicer REQUIRED)
+include(${Slicer_USE_FILE})
 set(${KIT}_INCLUDE_DIRECTORIES
+  ${Slicer_DIR}
+  ${Slicer_INCLUDE_DIRECTORIES}
   )
 
 set(${KIT}_SRCS
@@ -15,8 +20,9 @@ set(${KIT}_SRCS
 set(${KIT}_TARGET_LIBRARIES
   ${ITK_LIBRARIES}
   ${MRML_LIBRARIES}
-  vtkRendering
-  vtkSlicerAnnotationsModuleMRML
+#  ${SLICER_LIBRARIES}
+#  vtkRendering
+#  vtkSlicerAnnotationsModuleMRML
   )
 
 #-----------------------------------------------------------------------------
