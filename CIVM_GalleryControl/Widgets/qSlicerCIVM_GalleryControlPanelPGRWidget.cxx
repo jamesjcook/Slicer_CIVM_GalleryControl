@@ -101,6 +101,7 @@ protected:
   qSlicerCIVM_GalleryControlPanelPGRWidget* const q_ptr;
 
 public:
+  QList<vtkInteractorObserver*> ObservedInteractorStyles;
   qSlicerCIVM_GalleryControlPanelPGRWidgetPrivate(
     qSlicerCIVM_GalleryControlPanelPGRWidget& object);
   virtual void setupUi(qSlicerCIVM_GalleryControlPanelPGRWidget*);
@@ -1061,7 +1062,7 @@ void qSlicerCIVM_GalleryControlPanelPGRWidget::SetMouseWatcherStatus()
   this->PrintMethod("SetMouseWatcherStatus");
   QTextStream test(stdout);  
   bool status=d->WatchMousePositionCheckBox->isChecked();
-/* PGR REMOVAL COMMENT
+// /* PGR REMOVAL COMMENT
   qSlicerApplication *        s_app_obj = qSlicerApplication::application(); //set application linking.
   qSlicerLayoutManager *  layoutManager = s_app_obj->layoutManager();
   QList<vtkInteractorObserver*> interactorStyles;
@@ -1106,8 +1107,8 @@ void qSlicerCIVM_GalleryControlPanelPGRWidget::SetMouseWatcherStatus()
       this->PrintText("Un-setting crosshair");
       cNode->SetCrosshairMode(vtkMRMLCrosshairNode::NoCrosshair);
       vtkMRMLInteractionNode *interactionNode =
-        this->logic()->GetMRMLApplicationLogic() ? this->logic()->GetMRMLApplicationLogic()->GetInteractionNode() : 0;
-      vtkMRMLSelectionNode *selectionNode = this->logic()->GetMRMLApplicationLogic()->GetSelectionNode();//= d->MRMLAppLogic->GetSelectionNode();
+        qSlicerApplication::application()->applicationLogic() ? qSlicerApplication::application()->applicationLogic()->GetInteractionNode() : 0;
+      vtkMRMLSelectionNode *selectionNode = qSlicerApplication::application()->applicationLogic()->GetSelectionNode();//= d->MRMLAppLogic->GetSelectionNode();
       if (interactionNode&& selectionNode)
         {
         interactionNode->SwitchToSinglePlaceMode();
@@ -1143,8 +1144,8 @@ void qSlicerCIVM_GalleryControlPanelPGRWidget::SetMouseWatcherStatus()
       cNode->SetCrosshairToFine();
       cNode->SetCrosshairMode(vtkMRMLCrosshairNode::ShowBasic);
       vtkMRMLInteractionNode *interactionNode =
-        this->logic()->GetMRMLApplicationLogic() ? this->logic()->GetMRMLApplicationLogic()->GetInteractionNode() : 0;
-      vtkMRMLSelectionNode *selectionNode = this->logic()->GetMRMLApplicationLogic()->GetSelectionNode();
+        qSlicerApplication::application()->applicationLogic() ? qSlicerApplication::application()->applicationLogic()->GetInteractionNode() : 0;
+      vtkMRMLSelectionNode *selectionNode = qSlicerApplication::application()->applicationLogic()->GetSelectionNode();
       if (interactionNode && selectionNode)
         {
         selectionNode->SetReferenceActivePlaceNodeClassName("vtkMRMLMarkupsFiducialNode");
@@ -1161,7 +1162,7 @@ void qSlicerCIVM_GalleryControlPanelPGRWidget::SetMouseWatcherStatus()
   // set placement to on fiducial.
   this->setPersistence(status);// sets our persistence to follow our checkbox, 
   vtkMRMLInteractionNode *interactionNode =
-    this->logic()->GetMRMLApplicationLogic() ? this->logic()->GetMRMLApplicationLogic()->GetInteractionNode() : 0;
+    qSlicerApplication::application()->applicationLogic() ? qSlicerApplication::application()->applicationLogic()->GetInteractionNode() : 0;
   //interactionNode->SwitchToPersistentPlaceMode();
   if (interactionNode)
     {
@@ -1173,7 +1174,7 @@ void qSlicerCIVM_GalleryControlPanelPGRWidget::SetMouseWatcherStatus()
     else
       this->PrintText("Set interaction node, perstience off");
     }
-*/
+// */
   this->PrintText("SetMouseWatcherSuccess");
   return;
 }
@@ -1223,9 +1224,9 @@ void qSlicerCIVM_GalleryControlPanelPGRWidget::OnMRMLSceneNodeAdded(vtkMRMLNode 
 void qSlicerCIVM_GalleryControlPanelPGRWidget::setPersistence(bool persistent)
 {
   Q_D(qSlicerCIVM_GalleryControlPanelPGRWidget);
-//this->logic()->GetMRMLApplicationLogic()
+//qSlicerApplication::application()->applicationLogic()
   vtkMRMLInteractionNode *interactionNode =
-    this->logic()->GetMRMLApplicationLogic() ? this->logic()->GetMRMLApplicationLogic()->GetInteractionNode() : 0;
+    qSlicerApplication::application()->applicationLogic() ? qSlicerApplication::application()->applicationLogic()->GetInteractionNode() : 0;
 
   if (interactionNode)
     {
@@ -1831,7 +1832,7 @@ void qSlicerCIVM_GalleryControlPanelPGRWidget::LabelAtPosition() //vtkMRMLNode *
     //qMRMLSliceView::convertRAStoXYZ()
   vtkMRMLSliceNode * sliceNode = NULL;
   vtkMRMLSliceLogic * sliceLogic = NULL;
-  vtkMRMLApplicationLogic *mrmlAppLogic = this->logic()->GetMRMLApplicationLogic();
+  vtkMRMLApplicationLogic *mrmlAppLogic = qSlicerApplication::application()->applicationLogic();
   vtkMRMLScene* currentScene = qSlicerApplication::application()->mrmlScene();
 //  vtkMRMLNode * node = NULL;
   //vtkMRMLSelectionNode * selectionNode = NULL; 
