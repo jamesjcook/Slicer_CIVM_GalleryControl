@@ -90,7 +90,7 @@ QIcon qSlicerCIVM_GalleryControlModule::icon()const
 //-----------------------------------------------------------------------------
 QStringList qSlicerCIVM_GalleryControlModule::categories() const
 {
-  return QStringList() << "Examples";
+  return QStringList() << "Work in Progress";
 }
 
 //-----------------------------------------------------------------------------

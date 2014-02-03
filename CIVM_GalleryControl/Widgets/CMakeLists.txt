@@ -10,23 +10,39 @@ set(${KIT}_INCLUDE_DIRECTORIES
 set(${KIT}_SRCS
   qSlicer${MODULE_NAME}FooBarWidget.cxx
   qSlicer${MODULE_NAME}FooBarWidget.h
+  qSlicer${MODULE_NAME}PanelPGRWidget.cxx
+  qSlicer${MODULE_NAME}PanelPGRWidget.h
   )
 
 set(${KIT}_MOC_SRCS
   qSlicer${MODULE_NAME}FooBarWidget.h
+  qSlicer${MODULE_NAME}PanelPGRWidget.h
   )
 
 set(${KIT}_UI_SRCS
   ../Resources/UI/qSlicer${MODULE_NAME}FooBarWidget.ui
+  ../Resources/UI/qSlicer${MODULE_NAME}PanelPGRWidget.ui
   )
 
 set(${KIT}_RESOURCES
   ../Resources/UI/qSlicer${MODULE_NAME}FooBarWidget.ui
+  ../Resources/UI/qSlicer${MODULE_NAME}PanelPGRWidget.ui
   )
 
 set(${KIT}_TARGET_LIBRARIES
   vtkSlicer${MODULE_NAME}ModuleLogic
+  vtkSlicerMarkupsModuleMRML
   )
+
+link_directories(/Applications/SegmentationSoftware/build/Slicer_multi/release_v4.3.1/Slicer-build/lib/Slicer-4.3/qt-loadable-modules/)
+#libvtkSlicerMarkupsModuleMRML.dylib
+# add fiducial library in markups
+#add_library( release_v4.3.1/Slicer-build/lib/Slicer-4.3/qt-loadable-modul
+add_library( libvtkSlicerMarkupsModuleMRML SHARED IMPORTED )
+#${CMAKE_BINARY_DIR}
+set_target_properties( libvtkSlicerMarkupsModuleMRML PROPERTIES IMPORTED_LOCATION ($CMAKE_BINARY_DIR ) )
+#TARGET_LINK_LIBRARIES( qSlicer${MODULE_NAME}ModuleWidgets libvtkSlicerMarkupsModuleMRML)
+#TARGET_LINK_LIBRARIES( vtkSlicer${MODULE_NAME}ModuleLogic libvtkSlicerMarkupsModuleMRML)
 
 #-----------------------------------------------------------------------------
 SlicerMacroBuildModuleWidgets(

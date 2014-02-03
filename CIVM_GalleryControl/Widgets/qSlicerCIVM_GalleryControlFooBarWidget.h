@@ -40,7 +40,7 @@ public:
   virtual ~qSlicerCIVM_GalleryControlFooBarWidget();
 
 protected slots:
-
+  void ButtonTest();
 protected:
   QScopedPointer<qSlicerCIVM_GalleryControlFooBarWidgetPrivate> d_ptr;
 

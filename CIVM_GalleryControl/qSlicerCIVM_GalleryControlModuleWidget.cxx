@@ -59,5 +59,158 @@ void qSlicerCIVM_GalleryControlModuleWidget::setup()
   Q_D(qSlicerCIVM_GalleryControlModuleWidget);
   d->setupUi(this);
   this->Superclass::setup();
+#ifdef WIN32 
+  this->ps=('\\');
+  this->DataRoot=QString("L:"+ps+"DataLibraries");
+#else
+  this->ps=('/');
+  this->DataRoot=QString(""+ps+"DataLibraries");
+#endif
+  QStringList libraries=this->GetLibraries(DataRoot);
+  // populate our dropdown
+  // need to setCollapsed true on gallery selection and gallery control during init,
+  //d->DocumentationArea->setCollapsed(false);
+  d->GalleryArea->setCollapsed(true);
+  d->ControlArea->setCollapsed(true);
+  d->LibrarySelectorDropList->setDefaultText("Select Data");
+  d->LibrarySelectorDropList->insertItems(0,libraries);
+  //connect LibrarySelectDropList to BuildGallery
+  connect(d->LibrarySelectorDropList,SIGNAL(currentIndexChanged(int)),SLOT(BuildGallery()));
+  //d->ComboBoxA->currentText();
+}
+
+//-----------------------------------------------------------------------------
+QStringList qSlicerCIVM_GalleryControlModuleWidget::GetLibraries(QString dataRoot) {
+  // called on module start to populate our list of libraries.
+  int maxDepth=1;
+  QStringList libraries=GetLibraries(dataRoot,maxDepth);
+  return libraries;
+}
+
+//-----------------------------------------------------------------------------
+QStringList qSlicerCIVM_GalleryControlModuleWidget::GetLibraries(QString dataRoot,int maxDepth) {
+  // get library locations starting at dataroot, this should return a listing of all relevent libraries we could look.
+  // That list should include the leaf libraries, the maxDepth integer is a limiter for how deep we will traverse
+  // the real work is not done yet in this function, we just return one library for now. 
+  QStringList libraries;
+  
+  // get directory listing at dataRoot including all subdirs, add each (sorted somehow) to libraries list and return
+  QStringList timepointList;
+  timepointList<< "00006912000";
+  QStringList speciesList;
+  speciesList << "Rat:Wistar" << "Human" << "Rhesus_macaque" << "Mouse" ;
+  for (int snum=0;snum<speciesList.size(); snum++)
+    {
+
+//libraries << "Brain:Rat:Wistar:Average_SPECCODE:00006912000";    
+    libraries << speciesList[snum];
+    }
+
+  return libraries;
+}
+
+//-----------------------------------------------------------------------------
+QString qSlicerCIVM_GalleryControlModuleWidget::GetLibrary() {
+  // called BuildGallery to get the name of the library from the index'd drop down.
+  Q_D(qSlicerCIVM_GalleryControlModuleWidget);
+  //d->ComboBoxA->currentText();
+  
+  QString library="Rat";
+  library=d->LibrarySelectorDropList->currentText();
+  return library;
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerCIVM_GalleryControlModuleWidget::BuildGallery () {
+  QString library=this->GetLibrary();
+  this->BuildGallery(library);
+  return;
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerCIVM_GalleryControlModuleWidget::BuildGallery (QString library) {
+  // polls our data storage for the display protocols for a given library
+  // this should be fired by any change to the library, eg connected to the drop down list of libraries.
+  // insert a button into our gallery zone for each return value from GetDisplayProtocols
+  Q_D(qSlicerCIVM_GalleryControlModuleWidget);
+
+  QStringList protocols = this->GetDisplayProtocols (library);
+  // foreach protocol add to the protcol location in our gui controls
+  this->PrintText(protocols[0]);
+   
+  
+  return;
+}
+
+//-----------------------------------------------------------------------------
+QStringList qSlicerCIVM_GalleryControlModuleWidget::GetDisplayProtocols(QString library) {
+  QStringList protocols;
+  protocols=this->GetDisplayProtocols(GetLibDims(library));
+  return protocols;
+}
+
+//-----------------------------------------------------------------------------
+QStringList qSlicerCIVM_GalleryControlModuleWidget::GetDisplayProtocols(QStringList dimensions) {
+  // This function interface is not certain yet, it might be desireable to take a list of dimensions or a list of lists of values in dimensions.
+  QStringList protocols;
+  //get libdims? 
+  //select layouts supporting up to number of libdims?
+  //select layouts supporting each combination of libdims?
+  protocols << "PGR";
+  return protocols;
+}
+
+//-----------------------------------------------------------------------------
+QStringList qSlicerCIVM_GalleryControlModuleWidget::GetLibDims(QString library ) {
+  QStringList dimensions;
+  dimensions << "contrast"; //<< "time" ;
+  return dimensions;
+}
+
+//-----------------------------------------------------------------------------
+QStringList qSlicerCIVM_GalleryControlModuleWidget::GetDimEntries(QString library,QString dimension) {
+  QStringList dimValues;
+  // if dimension== contrast
+  // if dimension== time
+  dimValues << "adc" << "b0" << "dwi" << "fa" << "fa_color" << "freq" << "gre" << "rd"; 
+  return dimValues;
+}
+
+
+//-----------------------------------------------------------------------------
+void qSlicerCIVM_GalleryControlModuleWidget::SetDisplayLayout(QString name){
+  
+  return;
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerCIVM_GalleryControlModuleWidget::BuildDisplayControls(QString protocol,QWidget panel){
+
+  return;  
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerCIVM_GalleryControlModuleWidget::LoadData(){
+  return;
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerCIVM_GalleryControlModuleWidget::nothing(){
+  return;
+}
+
+void qSlicerCIVM_GalleryControlModuleWidget::PrintMethod(const QString text)
+{
+  QString pass="qSlicerCIVM_GalleryControlModuleModuleWidget method:"+text;
+  this->PrintText(pass);
+  return;
+}
+
+
+void qSlicerCIVM_GalleryControlModuleWidget::PrintText(const QString text)
+{
+  QTextStream out(stdout);
+  out << text<<"\n";
+  return;
 }
 

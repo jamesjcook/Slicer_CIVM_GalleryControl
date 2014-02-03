@@ -38,17 +38,44 @@ public:
   qSlicerCIVM_GalleryControlModuleWidget(QWidget *parent=0);
   virtual ~qSlicerCIVM_GalleryControlModuleWidget();
 
-public slots:
 
+
+
+  QStringList GetLibraries(QString );
+  QStringList GetLibraries(QString, int);
+  QString GetLibrary();
+  QStringList GetLibDims(QString  );
+  QStringList GetDimEntries(QString, QString );
+  QStringList GetDisplayProtocols(QString );
+  QStringList GetDisplayProtocols(QStringList );
+  void LoadData();
+  void SetDisplayLayout(QString );
+  void BuildDisplayControls(QString, QWidget);
+  void nothing();
+
+
+
+public slots:
+  
+protected slots:
+
+  void BuildGallery(void);
+  void BuildGallery(QString );
 
 protected:
   QScopedPointer<qSlicerCIVM_GalleryControlModuleWidgetPrivate> d_ptr;
   
   virtual void setup();
 
-private:
+ private:
   Q_DECLARE_PRIVATE(qSlicerCIVM_GalleryControlModuleWidget);
   Q_DISABLE_COPY(qSlicerCIVM_GalleryControlModuleWidget);
+  QString DataRoot;
+  QString ps;
+
+  void PrintText(const QString);
+  void PrintMethod(const QString);
+
 };
 
 #endif

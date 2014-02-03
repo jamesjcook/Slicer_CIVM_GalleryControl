@@ -22,6 +22,9 @@
 #include "qSlicerCIVM_GalleryControlFooBarWidget.h"
 #include "ui_qSlicerCIVM_GalleryControlFooBarWidget.h"
 
+// FooBar modification
+#include <QDebug>
+
 //-----------------------------------------------------------------------------
 /// \ingroup Slicer_QtModules_CIVM_GalleryControl
 class qSlicerCIVM_GalleryControlFooBarWidgetPrivate
@@ -63,10 +66,21 @@ qSlicerCIVM_GalleryControlFooBarWidget
 {
   Q_D(qSlicerCIVM_GalleryControlFooBarWidget);
   d->setupUi(this);
+
+  connect(d->FooBarButton,SIGNAL(clicked()),SLOT(ButtonTest()));
 }
 
 //-----------------------------------------------------------------------------
 qSlicerCIVM_GalleryControlFooBarWidget
 ::~qSlicerCIVM_GalleryControlFooBarWidget()
 {
+}
+
+void qSlicerCIVM_GalleryControlFooBarWidget
+::ButtonTest()
+{
+//Q_D(
+  QTextStream out(stdout);
+  out << "button test"<<"\n";  
+  return;
 }
