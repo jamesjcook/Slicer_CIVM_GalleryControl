@@ -17,6 +17,20 @@
 
 // Qt includes
 #include <QDebug>
+//// extras for the dynamic
+
+#include <QIcon>
+#include <QRadioButton>
+#include <QPushButton>
+
+#include <QFrame>
+
+#include <QVBoxLayout>
+#include <QVector>  
+#include <QList>
+
+// Panel includes
+#include "qSlicerCIVM_GalleryControlPanelPGRWidget.h"
 
 // SlicerQt includes
 #include "qSlicerCIVM_GalleryControlModuleWidget.h"
@@ -61,22 +75,28 @@ void qSlicerCIVM_GalleryControlModuleWidget::setup()
   this->Superclass::setup();
 #ifdef WIN32 
   this->ps=('\\');
-  this->DataRoot=QString("L:"+ps+"DataLibraries");
+  this->DataRoot=QString("L:");
 #else
   this->ps=('/');
-  this->DataRoot=QString(""+ps+"DataLibraries");
+  this->DataRoot=QString("");
 #endif
+  this->DataRoot=DataRoot+ps+"DataLibraries"+ps+"Brain";
   QStringList libraries=this->GetLibraries(DataRoot);
+  this->PrintText("Datapath="+DataRoot);
   // populate our dropdown
   // need to setCollapsed true on gallery selection and gallery control during init,
   //d->DocumentationArea->setCollapsed(false);
   d->GalleryArea->setCollapsed(true);
   d->ControlArea->setCollapsed(true);
-  d->LibrarySelectorDropList->setDefaultText("Select Data");
+
   d->LibrarySelectorDropList->insertItems(0,libraries);
+  d->LibrarySelectorDropList->setDefaultText("Select Data");
+  d->LibrarySelectorDropList->setCurrentIndex(-1);
+
   //connect LibrarySelectDropList to BuildGallery
   connect(d->LibrarySelectorDropList,SIGNAL(currentIndexChanged(int)),SLOT(BuildGallery()));
-  //d->ComboBoxA->currentText();
+  //connect(d->LibrarySelectorDropList,SIGNAL(currentIndexChanged(int)),SLOT(d->GalleryArea->setCollapsed(false)));
+    //d->ComboBoxA->currentText();
 }
 
 //-----------------------------------------------------------------------------
@@ -103,7 +123,7 @@ QStringList qSlicerCIVM_GalleryControlModuleWidget::GetLibraries(QString dataRoo
     {
 
 //libraries << "Brain:Rat:Wistar:Average_SPECCODE:00006912000";    
-    libraries << speciesList[snum];
+      libraries << speciesList[snum];
     }
 
   return libraries;
@@ -115,7 +135,7 @@ QString qSlicerCIVM_GalleryControlModuleWidget::GetLibrary() {
   Q_D(qSlicerCIVM_GalleryControlModuleWidget);
   //d->ComboBoxA->currentText();
   
-  QString library="Rat";
+  QString library="Rat:Wistar";
   library=d->LibrarySelectorDropList->currentText();
   return library;
 }
@@ -134,11 +154,84 @@ void qSlicerCIVM_GalleryControlModuleWidget::BuildGallery (QString library) {
   // insert a button into our gallery zone for each return value from GetDisplayProtocols
   Q_D(qSlicerCIVM_GalleryControlModuleWidget);
 
+  ////
+  // clear layout
+  // d->GalleryLayout->delete
+  this->clearLayout(d->GalleryLayout,true);
+
+
   QStringList protocols = this->GetDisplayProtocols (library);
   // foreach protocol add to the protcol location in our gui controls
   this->PrintText(protocols[0]);
-   
+  // QVBoxLayout * l = new QVBoxLayout;
+  // layouts[i]->addWidget(clockViews[i])
+  //   d->ControlFrame->setLayout(l);
+  QList<QPushButton*> galleryButtons;
   
+
+
+  //// FOR EACH PROTOCOL
+  QPushButton * widge=  new QPushButton;
+  //QIcon * ico = new QIcon(this->DataRoot+ps+"GalleryIcons"+ps+library+"_"+protocols[0]);
+  
+  widge->setText(protocols[0]);
+  widge->setObjectName(protocols[0]);
+  QString lP=library;
+  //QString lN=library;
+  lP.replace(':',ps);
+  QString iconPath=this->DataRoot+ps+lP;
+  //lN.replace(':','_');
+  iconPath=iconPath+ps+"GalleryIcons"+ps+library+'_'+protocols[0]+".png"; //+ps+"GalleryIcons"
+  this->PrintText(iconPath);
+  //iconPath.replace(':',ps);
+  widge->setIcon(QIcon(iconPath));
+  
+  galleryButtons.push_back(widge);
+  d->GalleryLayout->addWidget(galleryButtons.at(0));
+
+  //set button connections
+  connect(widge,SIGNAL(clicked()),SLOT(SetControls()));//widge->text())));
+  
+  d->GalleryArea->setCollapsed(false);
+  return;
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerCIVM_GalleryControlModuleWidget::SetControls()
+{
+  Q_D(qSlicerCIVM_GalleryControlModuleWidget);
+  QObject * panelButton=this->sender();
+  QString panelName=panelButton->objectName();
+  //protocols[0]
+  if ( panelName == "PGR" ) 
+    {
+      this->clearLayout(d->ControlLayout,true);
+      //qSlicerCIVM_GalleryControlPanelPGRWidget * panel = new qSlicerCIVM_GalleryControlPanelPGRWidget(this); //Ui_
+      qSlicerCIVM_GalleryControlPanelPGRWidget * panel = new qSlicerCIVM_GalleryControlPanelPGRWidget(this,this->LibRoot); //Ui_
+      //QSlicerModuleWidget
+      d->ControlLayout->addWidget(panel);
+    } 
+  else
+    {
+    }
+  d->ControlArea->setCollapsed(false); 
+  return;
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerCIVM_GalleryControlModuleWidget::clearLayout(QLayout* layout, bool deleteWidgets = true)
+{
+  while (QLayoutItem* item = layout->takeAt(0))
+    {
+      if (deleteWidgets)
+        {
+	  if (QWidget* widget = item->widget())
+	    delete widget;
+        }
+      if (QLayout* childLayout = item->layout())
+	clearLayout(childLayout, deleteWidgets);
+      delete item;
+    }
   return;
 }
 
@@ -156,7 +249,7 @@ QStringList qSlicerCIVM_GalleryControlModuleWidget::GetDisplayProtocols(QStringL
   //get libdims? 
   //select layouts supporting up to number of libdims?
   //select layouts supporting each combination of libdims?
-  protocols << "PGR";
+  protocols << "PGR" << "PlaceHolder";
   return protocols;
 }
 

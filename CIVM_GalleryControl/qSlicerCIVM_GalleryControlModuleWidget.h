@@ -61,7 +61,7 @@ protected slots:
 
   void BuildGallery(void);
   void BuildGallery(QString );
-
+  void SetControls();
 protected:
   QScopedPointer<qSlicerCIVM_GalleryControlModuleWidgetPrivate> d_ptr;
   
@@ -71,10 +71,14 @@ protected:
   Q_DECLARE_PRIVATE(qSlicerCIVM_GalleryControlModuleWidget);
   Q_DISABLE_COPY(qSlicerCIVM_GalleryControlModuleWidget);
   QString DataRoot;
+  QString LibRoot; // root of library we've selected
   QString ps;
+
+
 
   void PrintText(const QString);
   void PrintMethod(const QString);
+  void clearLayout(QLayout* , bool );
 
 };
 
