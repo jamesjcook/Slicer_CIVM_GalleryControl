@@ -131,10 +131,28 @@ qSlicerCIVM_GalleryControlPanelPGRWidget
 //-----------------------------------------------------------------------------
 // qSlicerCIVM_GalleryControlPanelPGRWidget methods
 
+// //-----------------------------------------------------------------------------
+// qSlicerCIVM_GalleryControlPanelPGRWidget
+// ::qSlicerCIVM_GalleryControlPanelPGRWidget(QWidget* parentWidget)
+//   : Superclass( parentWidget )
+//   , d_ptr( new qSlicerCIVM_GalleryControlPanelPGRWidgetPrivate(*this) )
+// {
+//   QString libRoot;
+// #ifdef WIN32 
+//   this->ps=('\\');
+//   libRoot=QString("L:"+ps+"DataLibraries");
+// #else
+//   this->ps=('/');
+//   libRoot=QString(""+ps+"DataLibraries");
+// #endif
+//   new qSlicerCIVM_GalleryControLpanelPGRWidget(parentWidget,libRoot);
+  
+// }
+
 //-----------------------------------------------------------------------------
 qSlicerCIVM_GalleryControlPanelPGRWidget
-::qSlicerCIVM_GalleryControlPanelPGRWidget(QWidget* parentWidget)
-  : Superclass( parentWidget )
+::qSlicerCIVM_GalleryControlPanelPGRWidget(QWidget* parentWidget,QString libRoot)    
+: Superclass( parentWidget )
   , d_ptr( new qSlicerCIVM_GalleryControlPanelPGRWidgetPrivate(*this) )
 {
   Q_D(qSlicerCIVM_GalleryControlPanelPGRWidget);
@@ -144,11 +162,19 @@ qSlicerCIVM_GalleryControlPanelPGRWidget
   // PGR REMOVAL COMMENT this->Superclass::setup();
 #ifdef WIN32 
   this->ps=('\\');
-  this->DataRoot=QString("L:"+ps+"DataLibraries");
 #else
   this->ps=('/');
-  this->DataRoot=QString(""+ps+"DataLibraries");
 #endif
+  if ( libRoot != "" ) 
+    {
+    this->DataRoot=libRoot;
+    this->PrintText("PGR Panel recieved LibRoot"+libRoot);
+    } 
+  else 
+    {
+    this->DataRoot=DataRoot+ps+"DataLibraries"+ps+"Brain";
+    this->PrintText("LibRoot was blank, using default");
+    }
   // this->EventCallbackCommand->SetCallback(qSlicerCIVM_GalleryControlPanelPGRWidget::Processevent);
   //this->SliceLogic = 0;
   // insert init and static data definitions here.
@@ -178,7 +204,8 @@ qSlicerCIVM_GalleryControlPanelPGRWidget
   QString strain="Wistar";
   QString specimenid="Average_SPECCODE";
 
-  this->DataPath=QString(""+DataRoot+ps+organ+ps+species+ps+strain+ps+specimenid+ps+"timepoint"+ps+"");
+  //this->DataPath=QString(""+DataRoot+ps+organ+ps+species+ps+strain+ps+specimenid+ps+"timepoint"+ps+"");
+  this->DataPath=QString(""+DataRoot+ps+specimenid+ps+"timepoint"+ps+"");
   this->LabelPath=DataPath;
 
   //  this->DataPattern  << "p"   << "timepoint" << "_average_" << "contrast" << ".nii";

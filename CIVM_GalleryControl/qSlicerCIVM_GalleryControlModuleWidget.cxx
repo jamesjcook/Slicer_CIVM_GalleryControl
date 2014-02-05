@@ -158,39 +158,44 @@ void qSlicerCIVM_GalleryControlModuleWidget::BuildGallery (QString library) {
   // clear layout
   // d->GalleryLayout->delete
   this->clearLayout(d->GalleryLayout,true);
-
-
+  this->clearLayout(d->ControlLayout,true);
   QStringList protocols = this->GetDisplayProtocols (library);
+  QList<QPushButton*> galleryButtons;
+
+  for (int i = 0; i < protocols.size(); ++i)
+    {
+    //cout << fonts.at(i).toLocal8Bit().constData() << endl;
+
   // foreach protocol add to the protcol location in our gui controls
-  this->PrintText(protocols[0]);
   // QVBoxLayout * l = new QVBoxLayout;
   // layouts[i]->addWidget(clockViews[i])
   //   d->ControlFrame->setLayout(l);
-  QList<QPushButton*> galleryButtons;
-  
+      this->PrintText(protocols[i]);  
 
 
   //// FOR EACH PROTOCOL
   QPushButton * widge=  new QPushButton;
-  //QIcon * ico = new QIcon(this->DataRoot+ps+"GalleryIcons"+ps+library+"_"+protocols[0]);
+  //QIcon * ico = new QIcon(this->DataRoot+ps+"GalleryIcons"+ps+library+"_"+protocols[i]);
   
-  widge->setText(protocols[0]);
-  widge->setObjectName(protocols[0]);
+  widge->setText(protocols[i]);
+  widge->setObjectName(protocols[i]);
   QString lP=library;
   //QString lN=library;
   lP.replace(':',ps);
-  QString iconPath=this->DataRoot+ps+lP;
+  this->LibRoot=this->DataRoot+ps+lP;
+  QString iconPath=this->LibRoot;
   //lN.replace(':','_');
-  iconPath=iconPath+ps+"GalleryIcons"+ps+library+'_'+protocols[0]+".png"; //+ps+"GalleryIcons"
+  iconPath=iconPath+ps+"GalleryIcons"+ps+library+'_'+protocols[i]+".png"; //+ps+"GalleryIcons"
   this->PrintText(iconPath);
   //iconPath.replace(':',ps);
   widge->setIcon(QIcon(iconPath));
   
   galleryButtons.push_back(widge);
-  d->GalleryLayout->addWidget(galleryButtons.at(0));
+  d->GalleryLayout->addWidget(galleryButtons.at(i));
 
   //set button connections
   connect(widge,SIGNAL(clicked()),SLOT(SetControls()));//widge->text())));
+    }
   
   d->GalleryArea->setCollapsed(false);
   return;
@@ -202,10 +207,10 @@ void qSlicerCIVM_GalleryControlModuleWidget::SetControls()
   Q_D(qSlicerCIVM_GalleryControlModuleWidget);
   QObject * panelButton=this->sender();
   QString panelName=panelButton->objectName();
+  this->clearLayout(d->ControlLayout,true);
   //protocols[0]
   if ( panelName == "PGR" ) 
     {
-      this->clearLayout(d->ControlLayout,true);
       //qSlicerCIVM_GalleryControlPanelPGRWidget * panel = new qSlicerCIVM_GalleryControlPanelPGRWidget(this); //Ui_
       qSlicerCIVM_GalleryControlPanelPGRWidget * panel = new qSlicerCIVM_GalleryControlPanelPGRWidget(this,this->LibRoot); //Ui_
       //QSlicerModuleWidget
@@ -215,6 +220,7 @@ void qSlicerCIVM_GalleryControlModuleWidget::SetControls()
     {
     }
   d->ControlArea->setCollapsed(false); 
+  d->GalleryArea->setCollapsed(true);
   return;
 }
 

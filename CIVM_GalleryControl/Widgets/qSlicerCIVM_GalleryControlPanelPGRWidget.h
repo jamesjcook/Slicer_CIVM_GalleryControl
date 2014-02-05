@@ -57,7 +57,8 @@ class Q_SLICER_MODULE_CIVM_GALLERYCONTROL_WIDGETS_EXPORT qSlicerCIVM_GalleryCont
 public:
   //typedef QWidget Superclass;
   typedef qSlicerAbstractModuleWidget Superclass;
-  qSlicerCIVM_GalleryControlPanelPGRWidget(QWidget *parent=0);
+/*   qSlicerCIVM_GalleryControlPanelPGRWidget(QWidget *parent=0); */
+   qSlicerCIVM_GalleryControlPanelPGRWidget(QWidget *parent=0, QString="/"); 
   virtual ~qSlicerCIVM_GalleryControlPanelPGRWidget();
   ////
   // SLOPPY PGR CODE BEGIN
