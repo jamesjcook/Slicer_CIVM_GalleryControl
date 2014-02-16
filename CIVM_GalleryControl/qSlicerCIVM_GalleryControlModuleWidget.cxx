@@ -82,7 +82,7 @@ void qSlicerCIVM_GalleryControlModuleWidget::setup()
   this->ps=('/');
   this->DataRoot=QString("");
 #endif
-  this->DataRoot=DataRoot+ps+"DataLibraries"+ps+"Brain";
+  this->DataRoot=DataRoot+ps+"Brain"; //+ps+"DataLibraries"
   this->SetLibraries(DataRoot); // replacement for getlibraries which only gets the data paths
   QStringList libraries=this->GetLibraries(DataRoot);
   this->PrintText("Datapath="+DataRoot);

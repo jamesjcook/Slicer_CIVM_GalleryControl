@@ -178,7 +178,7 @@ qSlicerCIVM_GalleryControlPanelPGRWidget
     } 
   else 
     {
-    this->DataRoot=DataRoot+ps+"DataLibraries"+ps+"Brain";
+    this->DataRoot=DataRoot+ps+"Brain"; //+ps+"DataLibraries"
     this->PrintText("LibRoot was blank, using default");
     QString organ="Brain";
     QString species="Rat";
