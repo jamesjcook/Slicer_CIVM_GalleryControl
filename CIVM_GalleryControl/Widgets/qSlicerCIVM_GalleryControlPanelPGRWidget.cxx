@@ -22,6 +22,7 @@
 
 // Qt includes
 #include <QDebug>
+#include <QFileInfo>
 //#include "QTextStream"
 
 // MRMLWidgets includes
@@ -90,6 +91,8 @@
 // PanelPGR Widgets includes
 #include "qSlicerCIVM_GalleryControlPanelPGRWidget.h"
 #include "ui_qSlicerCIVM_GalleryControlPanelPGRWidget.h"
+//#include "qSlicerCIVM_GalleryControlModuleWidget.h"
+
 
 //-----------------------------------------------------------------------------
 /// \ingroup Slicer_QtModules_CIVM_GalleryControl
@@ -157,23 +160,31 @@ qSlicerCIVM_GalleryControlPanelPGRWidget
 {
   Q_D(qSlicerCIVM_GalleryControlPanelPGRWidget);
   d->setupUi(this);
+  this->ParentalUnit=parentWidget;
   ////
   // SLOPPY PRG CODE BEGIN
   // PGR REMOVAL COMMENT this->Superclass::setup();
 #ifdef WIN32 
   this->ps=('\\');
+  this->DataRoot="L:"+ps;
 #else
   this->ps=('/');
+  this->DataRoot=ps;
 #endif
   if ( libRoot != "" ) 
     {
     this->DataRoot=libRoot;
-    this->PrintText("PGR Panel recieved LibRoot"+libRoot);
+    this->PrintText("PGR Panel recieved LibRoot "+libRoot+".");
     } 
   else 
     {
     this->DataRoot=DataRoot+ps+"DataLibraries"+ps+"Brain";
     this->PrintText("LibRoot was blank, using default");
+    QString organ="Brain";
+    QString species="Rat";
+    QString strain="Wistar";
+    QString specimenid="Average_SPECCODE";
+    this->DataPath=QString(""+DataRoot+ps+organ+ps+species+ps+strain+ps+specimenid+ps+"timepoint"+ps+"");
     }
   // this->EventCallbackCommand->SetCallback(qSlicerCIVM_GalleryControlPanelPGRWidget::Processevent);
   //this->SliceLogic = 0;
@@ -199,18 +210,54 @@ qSlicerCIVM_GalleryControlPanelPGRWidget
   /* labels are at /DataPath/labels/completed/completed_good_header/nii/           */
   //this->DataPath=QString(""+DataRoot+ps+"timepoint"+ps+"average"+ps+"");
   //this->LabelPath=QString(""+DataRoot+ps+"labels"+ps+"completed"+ps+"completed_good_header"+ps+"nii"+ps+"");
-  QString organ="Brain";
-  QString species="Rat";
-  QString strain="Wistar";
-  QString specimenid="Average_SPECCODE";
-
+//   QString organ="Brain";
+//   QString species="Rat";
+//   QString strain="Wistar";
+//  QString specimenid="Average_SPECCODE";
   //this->DataPath=QString(""+DataRoot+ps+organ+ps+species+ps+strain+ps+specimenid+ps+"timepoint"+ps+"");
-  this->DataPath=QString(""+DataRoot+ps+specimenid+ps+"timepoint"+ps+"");
-  this->LabelPath=DataPath;
+//  this->DataPath=QString(""+DataRoot+ps+specimenid+ps+"timepoint"+ps+"");
+
+
+  //s1.substr(0, s1.lastIndexOf("\\/")) 
+  this->DataRoot=DataRoot.left(DataRoot.lastIndexOf("Brain")) +"Brain"+ps;// cut data root to be just up to and including brain.
+  //not doing it rightthis->TimePoint=libRoot.right(libRoot.lastIndexOf(ps));
+  this->TimePoint=libRoot.right(libRoot.size()-libRoot.lastIndexOf(ps)-ps.size());
+  QString speccode = libRoot.left(libRoot.lastIndexOf(ps));
+  speccode = speccode.right(speccode.size()-speccode.lastIndexOf(ps)-ps.size());
+  //this->DataPattern  =QString("ptimepoint_average_contrast.nii");
+  //this->LabelPattern =QString("pndtimepoint_average_labels.nii");
+//  this->DataPattern  =QString("average_timepoint_contrast.nii.gz");
+//  this->LabelPattern =QString("average_timepoint_labels.nii.gz");
+//   this->DataPattern  =QString("timepoint_"+speccode+"_contrast.nii.gz");
+//   this->LabelPattern =QString("timepoint_"+speccode+"_labels.nii.gz");
+  this->DataPath=QString(libRoot.left(libRoot.lastIndexOf(ps))+ps+"timepoint"+ps);
+  this->LabelPath=DataPath;  
+  this->DataPattern  =QString(speccode+"_timepoint"+"_contrast");
+  this->LabelPattern =QString(speccode+"_timepoint"+"_labels");
+  QRegExp timeRegex("^[0-9]+$");
+// if we are not a point of time assume there is no time.
+  if( ! this->TimePoint.contains(timeRegex)  )
+    {
+    this->PrintText("Timepoint did not match regex: "+this->TimePoint+" != "+timeRegex.pattern());
+    this->TimePoint="NO_TIMEPOINT";
+    this->DataPath=libRoot+ps; //QString(libRoot.left(libRoot.lastIndexOf(ps)));
+    this->LabelPath=DataPath;  
+    //speccode = libRoot.left(libRoot.lastIndexOf(ps));
+    //speccode = speccode.right(speccode.size()-speccode.lastIndexOf(ps)-ps.size());
+    speccode = libRoot.right(libRoot.size()-libRoot.lastIndexOf(ps)-1);
+    this->DataPattern  =QString(speccode+"_contrast");
+    this->LabelPattern =QString(speccode+"_labels");
+    
+    }
+
 
   //  this->DataPattern  << "p"   << "timepoint" << "_average_" << "contrast" << ".nii";
   //  this->LabelPattern << "pnd" << "timepoint" << "_average_labels.nii";
 
+  this->PrintText("Root : "+DataRoot);
+  this->PrintText("Data : "+DataPath);
+  this->PrintText("Time : "+this->TimePoint);
+  this->PrintText("Spec : "+speccode);
   // using this mrml to initalize the 3d views for now, and then set to the first gallery setup.
   QString out_path = "";//DataRoot+"/DoubleBlank.mrml";
   // example for replacment to fix the blank not loading.
@@ -222,21 +269,16 @@ qSlicerCIVM_GalleryControlPanelPGRWidget
 
   qSlicerApplication * app = qSlicerApplication::application();
 //  app->ioManager()->loadScene(out_path);
-  out_path = DataRoot+ps+"Blank.mrml";
+  out_path = DataRoot+"Blank.mrml";
+  this->PrintText("Blankfile: "+out_path);
   app->ioManager()->loadScene(out_path,false);  
 
-  //this->DataPattern  =QString("ptimepoint_average_contrast.nii");
-  //this->LabelPattern =QString("pndtimepoint_average_labels.nii");
-//  this->DataPattern  =QString("average_timepoint_contrast.nii.gz");
-//  this->LabelPattern =QString("average_timepoint_labels.nii.gz");
-  this->DataPattern  =QString("timepoint_average_contrast.nii");
-  this->LabelPattern =QString("timepoint_average_labels.nii");
   this->HistologyNodeName=QString("NO_IMAGE");
   d->LabelInformation->setCollapsed(true);
   //Timepoint=80; using the same code as our time/contrast bit so we can switch between timepoints for more rapid testing.
   // see the buildscene function for the list of times allowed.
   // need to create the getcontrasts function for this
-  ImageContrasts << "adc" << "b0" << "dwi" << "fa" << "fa_color"  << "freq" << "gre" << "rd";
+  ImageContrasts << "NoImage" << "adc" << "b0" << "dwi" << "fa" << "fa_color" << "gre" ;//  << "freq"<< "rd";
   
   d->ComboBoxA->insertItems(0, ImageContrasts );
   d->ComboBoxB->insertItems(0, ImageContrasts );
@@ -498,10 +540,12 @@ void qSlicerCIVM_GalleryControlPanelPGRWidget::BuildScene()
   */
 
   QStringList timepointList;
+  timepointList << this->TimePoint;
   //timepoint=4*24*60*60;//transformtimepoint to new standard measured by seconds.
   //timepointList<< "00006912000"; 
   //timepoint=2*24*60*60;//transformtimepoint to new standard measured by seconds.
-  timepointList<< "00000172800";
+  //timepointList<< "00000172800";
+  
  
   QStringList contrastList  = this->GetContrasts();
   // make sure we have two image contrasts selected, refuse to run if we do not.
@@ -514,6 +558,7 @@ void qSlicerCIVM_GalleryControlPanelPGRWidget::BuildScene()
   this->SceneNodes=this->SetLayout(); // sets the layout.
 
   QString     orientation    = "Coronal";
+  orientation="Sagittal";
   QString     labelFile;     //singular label file var
   QString     labelPath;     //singular label path var
   QString     imageFile;     //singular image file var
@@ -555,6 +600,7 @@ void qSlicerCIVM_GalleryControlPanelPGRWidget::BuildScene()
     // so we'll override the override for now with following
     orientationOverride.clear();
     orientationOverride  << "Coronal" << "Sagittal" << "Sagittal" << "Axial";
+
   
 
     vtkMRMLScene* currentScene = qSlicerApplication::application()->mrmlScene();
@@ -570,6 +616,8 @@ void qSlicerCIVM_GalleryControlPanelPGRWidget::BuildScene()
       return;
     }
     
+    QStringList extList; // Extensions to look for in reverse priority
+    extList  << ".nii" << ".nii.gz"<< ".nrrd" << ".nhdr";
     //build list of files to load.
     for (int c=0;c<contrastList.size();c++)
       {
@@ -585,10 +633,43 @@ void qSlicerCIVM_GalleryControlPanelPGRWidget::BuildScene()
           //confusingly DataPath is root to data directories
           imagePath = DataPath+imageFile;
           imagePath.replace("timepoint",timepointList[t]);
+
+	  // check if file .nrrd, if not check if file .nii exists, then check for .nii.gz
+	  //QFile Fout("/Users/Hans/Desktop/result.txt");
+
+	  int lC=0; 
+	  QFileInfo lFile;
+          QString tempPath;
+	  for (int lC=0;lC < extList.size(); lC++)
+	    {
+            lFile.setFile(QString(imagePath+extList.at(lC)));
+            if ( lFile.exists() )
+              {
+              tempPath=imagePath+extList.at(lC);
+              this->PrintText("\tCandidate for load:\n\t\t"+lFile.filePath());
+              } else 
+              {
+              this->PrintText("\tNo file at:\n\t\t"+lFile.filePath());
+              //this->PrintText(" != "+extList.at(lC));
+              }
+	    }
+          imagePath=tempPath;
           nodeName=imageFile;
-          nodeName.replace(".nii","");
+
+//           nodeName.replace(".nrrd","");
+//           nodeName.replace(".nii.gz","");
+//           nodeName.replace(".nii","");
+
+          //QStringList timePointInfo=AgeTimeConvert(timepointList[t]);
+          //QString timeDispCode=timePointInfo[0]+timePointInfo[1];
+          //nodeName.replace(timepointList[t],timeDispCode);
+          nodeName.replace(timepointList[t],this->AgeTimeConvert(timepointList[t]));
+          
+	  this->PrintText("\timageNode:"+nodeName);
+
           tParams["fileName"]       = imagePath;
           tParams["nodeName"]       = nodeName;
+          tParams["loadName"]       = imageFile;
           tParams["labelmap"]       = false;
           tParams["center"]         = this->CenterVolumeOnLoad;
           tParams["autoWindowLevel"]= false;
@@ -598,8 +679,33 @@ void qSlicerCIVM_GalleryControlPanelPGRWidget::BuildScene()
           //confusingly LabelPath is root to label root
           labelPath = LabelPath+labelFile;
           labelPath.replace("timepoint",timepointList[t]);
-          labelNode=labelFile;
-          labelNode.replace(".nii","");
+          
+
+	  //int lC=0; 
+
+	  lFile.setFile(labelPath);
+	  // check if file .nrrd, if not check if file .nii exists, then check for .nii.gz
+	  this->LoadLabels=false;
+	  for (int lC=0;lC < extList.size(); lC++)
+	    {
+            lFile.setFile(QString(labelPath+extList.at(lC)));
+            if (lFile.exists())
+              {
+              //this->PrintText("Ext<= "+extList.at(lC));
+              labelPath=labelPath+extList.at(lC);
+              this->LoadLabels=true;
+              } else 
+              {
+              //this->PrintText(" != "+extList.at(lC));
+              }
+	    
+	    }
+          
+	  labelNode=labelFile;
+//           labelNode.replace(".nrrd","");
+//           labelNode.replace(".nii.gz","");
+//           labelNode.replace(".nii","");
+          
           tParams["labelNode"]      = labelNode; //will end up as duplicate of nodeName in the labelProperties entries, but this is easier.
           imageProperties << tParams;
           this->PrintText("\timageProperties << "+imageFile);
@@ -607,8 +713,13 @@ void qSlicerCIVM_GalleryControlPanelPGRWidget::BuildScene()
           if( LoadLabels )
             {
             nodeName                   = labelNode;
+            //timepointInfo=AgeTimeConvert(timepointList[t]);
+            //timeDispCode="";
+            nodeName.replace(timepointList[t],this->AgeTimeConvert(timepointList[t]));
+	    this->PrintText("labelNode:"+nodeName);
             tParams["fileName"]        = labelPath;
             tParams["nodeName"]        = nodeName;
+            tParams["loadName"]        = labelFile;
             tParams["labelmap"]        = true;
             tParams["center"]          = this->CenterVolumeOnLoad;
             tParams["autoWindowLevel"] = false;
@@ -624,23 +735,58 @@ void qSlicerCIVM_GalleryControlPanelPGRWidget::BuildScene()
           }
         }//timepoint foor loop end
       }//contrast timepoint loop end.
+    if ( LoadLabels )
+      {
+      qSlicerIO::IOProperties cTable;
+
+      //QStringList labelCandidatePaths;
+      //labelFile="Slicer_LUT_RatDev.txt";
+      labelFile=this->LabelPattern+"_lookup.txt";
+
+      //if (  ! this->TimePoint.contains("NO_TIMEPOINT") ){
+      
+      //labelCandidatesPaths=
+      QFileInfo lFile;
+      QString tempPath=labelPath;
+      labelPath.replace("timepoint",timepointList[0]);
+      labelFile.replace("timepoint",timepointList[0]);
+      lFile.setFile(tempPath+this->ps+labelFile);
+      while(tempPath.contains(this->ps) && ! lFile.exists() )
+        {
+        this->PrintText("No lookup at "+lFile.filePath());
+        tempPath=tempPath.left(tempPath.lastIndexOf(this->ps));
+        lFile.setFile(QString(tempPath+this->ps+labelFile));
+         if (! lFile.exists() )
+           {
+           QString tpFile=lFile.filePath();
+           this->PrintText("No lookup at "+tpFile);
+           lFile.setFile(tpFile.replace("_"+timepointList[0],""));
+           } else
+           {
+           this->PrintText("Lookup Found "+lFile.filePath());
+           }
+//           tempPath=imagePath+extList.at(lC);
+//           this->PrintText("\tCandidate for load:\n\t\t"+lFile.filePath());
+//           } else 
+//           {
+//           this->PrintText("\tNo file at:\n\t\t"+lFile.filePath());
+//           //this->PrintText(" != "+extList.at(lC));
+//           }
+        }
+      
+      labelPath=lFile.filePath();
+      labelNode=lFile.fileName();
+      labelNode.replace(".txt","");
+      cTable["fileType"]       = "ColorTableFile";
+      imageProperties << cTable;
+      nodeName                   = labelNode;
+      cTable["fileName"]        = labelPath;
+      cTable["nodeName"]        = nodeName;
+      labelProperties[0]["colorMapName"] = cTable["nodeName"];
+      
+      labelProperties << cTable;
+      }
     
-    qSlicerIO::IOProperties cTable;
-    labelFile="Slicer_LUT_RatDev.txt";
-    labelPath = LabelPath+"../"+labelFile;
-    labelPath.replace("timepoint",timepointList[0]);
-    labelNode=labelFile;
-    labelNode.replace(".txt","");
-    cTable["fileType"]       = "ColorTableFile";
-    imageProperties << cTable;
-    nodeName                   = labelNode;
-    cTable["fileName"]        = labelPath;
-    cTable["nodeName"]        = nodeName;
-    labelProperties[0]["colorMapName"] = cTable["nodeName"];
-
-    labelProperties << cTable;
-
-
 
     int snCounter;// this is for scene nodes later but right now its for any image we want loaded.
     //loop for all labels to add only unloaded to load list need to do a unique element on this list... (bleh), the qset might do the trick
@@ -649,10 +795,10 @@ void qSlicerCIVM_GalleryControlPanelPGRWidget::BuildScene()
       {
       if ( ! NodeExists(labelProperties[snCounter]["nodeName"].toString()) )
         {
-        this->PrintText("-");
+        //this->PrintText("-");
         if( labelNodes.isEmpty() ) 
           {
-          this->PrintText(" +");
+          //this->PrintText(" +");
           unloadedFiles << labelProperties[snCounter];
           labelNodes << labelProperties[snCounter]["nodeName"].toString(); 
           loadMoreFiles=true;
@@ -693,6 +839,26 @@ void qSlicerCIVM_GalleryControlPanelPGRWidget::BuildScene()
     if ( loadMoreFiles ) 
       {
       s_app_obj->coreIOManager()->loadNodes(unloadedFiles); // images
+      
+
+
+    for(snCounter=0;snCounter<unloadedFiles.size();snCounter++)
+      {
+      if ( NodeExists(unloadedFiles[snCounter]["loadName"].toString()) )
+        {
+        vtkMRMLVolumeNode * vN=vtkMRMLVolumeNode::SafeDownCast(
+          qSlicerApplication::application()->mrmlScene()->GetFirstNodeByName(unloadedFiles[snCounter]["loadName"].toString().toStdString().c_str()));
+        vN->SetName(unloadedFiles[snCounter]["nodeName"].toString().toStdString().c_str());
+        this->PrintText(QString("\tChanging load name to desired node name\n\t")+
+                        QString(unloadedFiles[snCounter]["loadName"].toString())+
+                        " => "+
+                        QString(unloadedFiles[snCounter]["nodeName"].toString()));
+
+        } 
+      }
+
+
+
       }
     if( LoadLabels)
       {
@@ -787,12 +953,12 @@ void qSlicerCIVM_GalleryControlPanelPGRWidget::BuildScene()
           }
         else 
           {
-        this->PrintText("No default orientaion");
+          //this->PrintText("No default orientaion");
           }
         // if specific orientations are desired clean up by setting them now. 
         if(setSliceOrient) 
           {
-        this->PrintText("\tSetting override orientation");
+          //this->PrintText("\tSetting override orientation");
           sliceNode->SetOrientation(orientationOverride[snCounter].toLatin1());
           sliceNode->SetOrientationToReformat();
           }
@@ -809,7 +975,7 @@ void qSlicerCIVM_GalleryControlPanelPGRWidget::BuildScene()
           }
         else 
           {
-          this->PrintText("LabelID=NULL");
+          //this->PrintText("LabelID=NULL");
           scNode->SetLabelVolumeID(NULL);
           }
         //specific viewer settings
@@ -900,7 +1066,7 @@ void qSlicerCIVM_GalleryControlPanelPGRWidget::BuildScene()
 //             sliceNode->SetXYZOrigin(origin[0],origin[1],origin[2]);
 //             }
           }      
-        this->PrintText("Histology Viewer set!");
+        //this->PrintText("Histology Viewer set!");
         }
       else if( snCounter==3 && HistologyNodeName == "NO_IMAGE" )  //! strcmp(HistologyNodeName,"NO_IMAGE")
         {
@@ -909,7 +1075,7 @@ void qSlicerCIVM_GalleryControlPanelPGRWidget::BuildScene()
         }
       //insert fit to background here,(maybe use fov in the per scene node lookup.
       //
-      this->PrintText("near compare sn to 3 \n\n" ); 
+      //this->PrintText("near compare sn to 3" ); 
       //     void qMRMLSliceControllerWidget::setSliceLogic(vtkMRMLSliceLogic * newSliceLogic)
       if (snCounter !=3 )
         {
@@ -924,7 +1090,7 @@ void qSlicerCIVM_GalleryControlPanelPGRWidget::BuildScene()
         // qSlicerApplication *        s_app_obj = qSlicerApplication::application(); //set application linking.
         // vtkMRMLApplicationLogic *mrmlAppLogic = s_app_obj->LayoutManager()->GetMRMLApplicationLogic();
         // vtkMRMLScene* currentScene = qSlicerApplication::application()->mrmlScene();
-        this->PrintText("GetappLogic");
+        //this->PrintText("GetappLogic");
         vtkMRMLApplicationLogic *mrmlAppLogic = NULL ; //= this->logic()->GetMRMLApplicationLogic();
         mrmlAppLogic = qSlicerApplication::application()->applicationLogic();
         if (mrmlAppLogic )
@@ -938,11 +1104,11 @@ void qSlicerCIVM_GalleryControlPanelPGRWidget::BuildScene()
         
         if ( sliceLogic != NULL  ) 
           {
-          this->PrintText("sliceLogic setNode");
+	    //this->PrintText("sliceLogic setNode");
           sliceLogic->SetSliceNode(sliceNode);
-          this->PrintText("SliceLogic Interaction");
+          //this->PrintText("SliceLogic Interaction");
           sliceLogic->StartSliceNodeInteraction(vtkMRMLSliceNode::ResetFieldOfViewFlag);
-          this->PrintText("SliceLogic FitSlice");
+          //this->PrintText("SliceLogic FitSlice");
           
           sliceLogic->FitSliceToAll();
 //           if (loadMoreFiles) 
@@ -964,7 +1130,7 @@ void qSlicerCIVM_GalleryControlPanelPGRWidget::BuildScene()
         { //we'll enter this code if we are on orthogonal or dual3d for the 3d volumes
         this->PrintText("SliceComposite bad:"+sliceCompositeNodeID+" could not downcast!");
         }
-      this->PrintText("post sn compre to 3");
+      //this->PrintText("post sn compre to 3");
       if (sn == NULL ) 
         { 
         vtkMRMLNode     *vn       = currentScene->GetNodeByID(viewNodeID.toStdString());
@@ -2316,15 +2482,18 @@ bool qSlicerCIVM_GalleryControlPanelPGRWidget::NodeExists(QString nodeName)
 
   // Search the scene for the nodes and return true on match
   currentScene->InitTraversal();
-  for (vtkMRMLNode *sn = NULL; (sn=currentScene->GetNextNode());) {
-    if (sn->GetName()==nodeName) {
+  for (vtkMRMLNode *sn = NULL; (sn=currentScene->GetNextNode());) 
+    {
+    if (sn->GetName()==nodeName) 
+      {
       this->PrintText(""+nodeName +" found.");
       return true;
-    } else {
+      } else 
+      {
       //this->PrintText("examined node "+nameTemp+"not the same as "+nodeName);
+      }
     }
-  }
-  this->PrintText(""+nodeName+" not in open nodes.");
+  //this->PrintText(""+nodeName+" not in open nodes.");
   return false;
 }
 
@@ -2367,6 +2536,78 @@ QStringList qSlicerCIVM_GalleryControlPanelPGRWidget::SetLayout()  //QString lay
       this->PrintText(QString("Bad layout selection "+Layout));
     }
    return sceneNodes;
+}
+
+
+// a fucntion to take time in integer seconds and return a "better"(more human readable/comprehensiable) string representation 
+// returns qstringlist of new time number(floord) and time units(days,months,years)
+QString qSlicerCIVM_GalleryControlPanelPGRWidget::AgeTimeConvert(QString zeroPadSeconds) {
+  QStringList returnValues;
+  int seconds=zeroPadSeconds.toInt();
+  float dayseconds=24*60*60;
+  float monthseconds=dayseconds*30.437; // this is the number of days with a 12month year lasting 365.24 days
+  float yearseconds=dayseconds*365.25;
+  // algorithm should be some kinda if remainder < percentage of unit seconds.
+  float tollerance=0.5; // 0-1 value to tollerate remainder
+  int multiplier=0;
+  int remainder=1;
+  QVector<float> divisors ;
+  divisors << yearseconds << monthseconds << dayseconds; 
+  QStringList divisornames;
+  divisornames << "years" << "months" << "days";
+//do {  
+  for (int dIt=0;dIt<divisors.size();dIt++) 
+    {
+    multiplier=floor(float(seconds)/divisors.at(dIt));  
+    remainder=seconds-multiplier*divisors.at(dIt);
+    seconds=remainder;
+    if ( multiplier > 0 ) 
+      {
+      returnValues << QString::number(multiplier) << divisornames.at(dIt);
+      }
+    
+    if ( seconds == 0 ) 
+      { 
+      dIt=dIt+divisors.size();
+      }
+  //  returnValues << 
+  }  //while (remainder> tollerance && dIt != dIt.end()) ;
+  
+//   if ( multiplier > 1 )
+//     {
+//     returnValues<<QString::number(multiplier)<<"years";
+//     } else if ( mutliplier < 1 ) 
+//     {
+//     multiplier=floor(float(seconds)/monthseconds);
+//     remainder=seconds-multiplier*monthseconds;    
+//     returnValues << QString::number(seconds) << QString("seconds");
+//     } else if ( ) 
+//     {
+    
+//     multiplier=floor(float(seconds)/dayseconds);
+//     remainder=seconds-multiplier*dayseconds;    
+//     returnValues << QString::number(seconds) << QString("seconds");
+//     } else if ( ) 
+//     { 
+//     returnValues << QString::number(seconds) << QString("seconds");
+//     } else 
+//     {
+//     returnValues << QString::number(seconds) << QString("seconds");
+//     }
+  
+  if ( returnValues.size()>0 ) 
+    {
+//     QString temp= returnValues.join(':::');
+//     temp.replace(':::','');
+//     return temp
+    
+    //return "_"+returnValues.join(":")+"_";// the underscores are unncecessary
+    return returnValues.join(":");
+    } else
+    {
+    return "_";
+    }
+
 }
 
 void qSlicerCIVM_GalleryControlPanelPGRWidget::PrintMethod(const QString text)

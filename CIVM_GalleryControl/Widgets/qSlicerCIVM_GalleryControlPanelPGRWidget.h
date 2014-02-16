@@ -27,8 +27,11 @@
 // PanelPGR Widgets includes
 #include "qSlicerCIVM_GalleryControlModuleWidgetsExport.h"
 
+
 ////
 // SLOPPY PRG CODE BEGIN 
+//#include "qSlicerCIVM_GalleryControlModuleWidget.h"
+// this has proven prolematic
 
 // SlicerQt includes
 #include "qSlicerAbstractModuleWidget.h"
@@ -84,6 +87,7 @@ public:
   QString LabelPath;          //see datapath.
   QString DataPattern;        //pattern for data file to have parts replacd wit actual contrast and timepoint information.
   QString LabelPattern;       //see datapattern
+  QString TimePoint;          // timepoint holder 
   double Pos;           //container for position of the axial image slider
   double PosBackup;
   double Angle;         //container for position of the sagital angle slider
@@ -161,7 +165,8 @@ protected:
   bool FiducialPlacement;
   bool ReadMousePosition;
   int NumberOfFiducials;
-
+  QString AgeTimeConvert(QString); 
+  
   // SLOPPY PGR CODE END
   ////
 private:
@@ -179,7 +184,7 @@ private:
   vtkMRMLNode * CurrentSliceLayerLogic;
   qMRMLSliceWidget * SlicerWidget(vtkInteractorObserver * ) ;
   void OnMRMLSceneNodeAdded(vtkMRMLNode  *);
-
+  QWidget * ParentalUnit;
 
   // SLOPPY PGR CODE END
   ////

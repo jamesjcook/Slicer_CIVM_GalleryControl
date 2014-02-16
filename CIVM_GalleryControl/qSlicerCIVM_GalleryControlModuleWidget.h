@@ -18,6 +18,10 @@
 #ifndef __qSlicerCIVM_GalleryControlModuleWidget_h
 #define __qSlicerCIVM_GalleryControlModuleWidget_h
 
+
+#include <QFileInfo>
+#include <QHash>
+
 // SlicerQt includes
 #include "qSlicerAbstractModuleWidget.h"
 
@@ -43,11 +47,11 @@ public:
 
   QStringList GetLibraries(QString );
   QStringList GetLibraries(QString, int);
+  void SetLibraries(QString);
   QString GetLibrary();
   QStringList GetLibDims(QString  );
   QStringList GetDimEntries(QString, QString );
-  QStringList GetDisplayProtocols(QString );
-  QStringList GetDisplayProtocols(QStringList );
+  QStringList GetDisplayProtocols();   // function to list any/all display protocols supported by this module
   void LoadData();
   void SetDisplayLayout(QString );
   void BuildDisplayControls(QString, QWidget);
@@ -73,8 +77,10 @@ protected:
   QString DataRoot;
   QString LibRoot; // root of library we've selected
   QString ps;
-
-
+  //DataObject *DataLibrary. // this should have somekind of method like librarylist returinging a list/vector/something of data libraries
+  // we'll simulate that now using a qhash
+  QHash<QString, QFileInfo> DataLibraries;
+  
 
   void PrintText(const QString);
   void PrintMethod(const QString);
