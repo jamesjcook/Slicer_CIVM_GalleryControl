@@ -166,7 +166,7 @@ qSlicerCIVM_GalleryControlPanelPGRWidget
   // PGR REMOVAL COMMENT this->Superclass::setup();
 #ifdef WIN32 
   this->ps=('\\');
-  this->DataRoot="L:"+ps;
+  this->DataRoot="C:"+ps;
 #else
   this->ps=('/');
   this->DataRoot=ps;
@@ -178,7 +178,7 @@ qSlicerCIVM_GalleryControlPanelPGRWidget
     } 
   else 
     {
-    this->DataRoot=DataRoot+ps+"Brain"; //+ps+"DataLibraries"
+    this->DataRoot=DataRoot+ps+"DataLibraries"+ps+"Brain"; //
     this->PrintText("LibRoot was blank, using default");
     QString organ="Brain";
     QString species="Rat";

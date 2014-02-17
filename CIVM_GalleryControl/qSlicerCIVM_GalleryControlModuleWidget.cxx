@@ -77,12 +77,12 @@ void qSlicerCIVM_GalleryControlModuleWidget::setup()
   this->Superclass::setup();
 #ifdef WIN32 
   this->ps=('\\');
-  this->DataRoot=QString("L:");
+  this->DataRoot=QString("C:");
 #else
   this->ps=('/');
   this->DataRoot=QString("");
 #endif
-  this->DataRoot=DataRoot+ps+"Brain"; //+ps+"DataLibraries"
+  this->DataRoot=DataRoot+ps+"DataLibraries"+ps+"Brain"; //
   this->SetLibraries(DataRoot); // replacement for getlibraries which only gets the data paths
   QStringList libraries=this->GetLibraries(DataRoot);
   this->PrintText("Datapath="+DataRoot);
@@ -164,13 +164,13 @@ QStringList qSlicerCIVM_GalleryControlModuleWidget::GetLibraries(QString dataRoo
   libraries << "Mus_Musculus:whs_atlas:"+mouse_spec;//+":"+max_mamal_time;
   if ( maxDepth < 0 )  { libraries << "Canis_Lupis"; }
   //libraries << "Canis_lupis:"+dog_spec+":"+max_mamal_time;
-  libraries << "Canis_lupis:"+dog_spec;//+":"+max_mamal_time;
+  //libraries << "Canis_lupis:"+dog_spec;//+":"+max_mamal_time;
   if ( maxDepth < 0 )  { libraries << "Macaca_mulatta"; }
   //libraries << "Macaca_mulatta:"+monkey_spec+":"+max_mamal_time;
   libraries << "Macaca_mulatta:"+monkey_spec;//+":"+max_mamal_time;
   if ( maxDepth < 0 )  { libraries << "Macaca_fasciularis"; }
   //libraries << "Macaca_fascicularis:"+monkey_spec2+":"+max_mamal_time;
-  libraries << "Macaca_fascicularis:"+monkey_spec2;//+":"+max_mamal_time;
+  //libraries << "Macaca_fascicularis:"+monkey_spec2;//+":"+max_mamal_time;
   return libraries;
 }
 
@@ -309,7 +309,7 @@ QStringList qSlicerCIVM_GalleryControlModuleWidget::GetDisplayProtocols()
   //get libdims? 
   //select layouts supporting up to number of libdims?
   //select layouts supporting each combination of libdims?
-  protocols << "PGR" << "PlaceHolder";
+  protocols << "PGR" << "FA_Render" ;
   return protocols;
 }
 
