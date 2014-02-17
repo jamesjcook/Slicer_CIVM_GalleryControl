@@ -162,14 +162,14 @@ QStringList qSlicerCIVM_GalleryControlModuleWidget::GetLibraries(QString dataRoo
   if ( maxDepth < 0 )  { libraries << "Mus_Musculus:Adult"; }
   //libraries << "Mus_Musculus:"+mouse_spec+":"+max_mamal_time;
   libraries << "Mus_Musculus:whs_atlas:"+mouse_spec;//+":"+max_mamal_time;
-  if ( maxDepth < 0 )  { libraries << "Canis_Lupis"; }
-  //libraries << "Canis_lupis:"+dog_spec+":"+max_mamal_time;
+  //if ( maxDepth < 0 )  { libraries << "Canis_Lupis"; }
+  //////libraries << "Canis_lupis:"+dog_spec+":"+max_mamal_time;
   //libraries << "Canis_lupis:"+dog_spec;//+":"+max_mamal_time;
   if ( maxDepth < 0 )  { libraries << "Macaca_mulatta"; }
   //libraries << "Macaca_mulatta:"+monkey_spec+":"+max_mamal_time;
   libraries << "Macaca_mulatta:"+monkey_spec;//+":"+max_mamal_time;
-  if ( maxDepth < 0 )  { libraries << "Macaca_fasciularis"; }
-  //libraries << "Macaca_fascicularis:"+monkey_spec2+":"+max_mamal_time;
+  //if ( maxDepth < 0 )  { libraries << "Macaca_fasciularis"; }
+  //////libraries << "Macaca_fascicularis:"+monkey_spec2+":"+max_mamal_time;
   //libraries << "Macaca_fascicularis:"+monkey_spec2;//+":"+max_mamal_time;
   return libraries;
 }
