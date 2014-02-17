@@ -154,8 +154,8 @@ QStringList qSlicerCIVM_GalleryControlModuleWidget::GetLibraries(QString dataRoo
 //     }
   if ( maxDepth < 0 )  { libraries << "Rattus_norvegicus:Wistar:Adult" ; }
   libraries << "Rattus_norvegicus:Wistar:"+rat_spec+":"+rat_adult_time ;
-  if ( maxDepth < 0 )  { libraries << "Rattus_norvegicus:Wistar:Juvenile"; }
-  libraries << "Rattus_norvegicus:Wistar:"+rat_spec+":"+rat_first_time ;
+  // if ( maxDepth < 0 )  { libraries << "Rattus_norvegicus:Wistar:Juvenile"; }
+  // libraries << "Rattus_norvegicus:Wistar:"+rat_spec+":"+rat_first_time ;
   if ( maxDepth < 0 )  { libraries << "Human:Adult"; }
   //libraries << "Human:"+human_spec+":"+human_adult_time;
   libraries << "Human:"+human_spec;//+":"+human_adult_time;
