@@ -35,6 +35,8 @@
 #include "qSlicerCIVM_GalleryControlPanelPGRWidget.h"
 
 // SlicerQt includes
+#include "qSlicerApplication.h"
+#include "qSlicerIOManager.h"
 #include "qSlicerCIVM_GalleryControlModuleWidget.h"
 #include "ui_qSlicerCIVM_GalleryControlModuleWidget.h"
 
@@ -240,6 +242,8 @@ void qSlicerCIVM_GalleryControlModuleWidget::BuildGallery (QString library) {
       //QString lN=library;
       lP.replace(':',ps);
       this->LibRoot=this->DataRoot+ps+lP;
+      this->SelectedLib=d->LibrarySelectorDropList->currentText();
+
       QString iconPath=this->LibRoot;
       //lN.replace(':','_');
       //iconPath=iconPath+ps+"GalleryIcons"+ps+library+'_'+protocols[i]+".png"; //+ps+"GalleryIcons"
@@ -271,11 +275,22 @@ void qSlicerCIVM_GalleryControlModuleWidget::SetControls()
     {
       //qSlicerCIVM_GalleryControlPanelPGRWidget * panel = new qSlicerCIVM_GalleryControlPanelPGRWidget(this); //Ui_
       qSlicerCIVM_GalleryControlPanelPGRWidget * panel = new qSlicerCIVM_GalleryControlPanelPGRWidget(this,this->LibRoot); //Ui_
+      this->PrintText( "adding controls using "+this->LibRoot);
       //QSlicerModuleWidget
       d->ControlLayout->addWidget(panel);
     } 
+  else if ( panelName == "FA_Render" ) 
+    {
+    QString out_path = this->DataRoot+ps+"FARenderScenes"+ps+this->SelectedLib+".mrml";
+//lN.replace(':','_');
+    out_path.replace(':','_');
+    this->PrintText("FA_Render load of "+out_path);
+    qSlicerApplication::application()->ioManager()->loadScene(out_path,false);
+
+    }
   else
     {
+    this->PrintText("Unreconized Panel selection");
     }
   d->ControlArea->setCollapsed(false); 
   d->GalleryArea->setCollapsed(true);

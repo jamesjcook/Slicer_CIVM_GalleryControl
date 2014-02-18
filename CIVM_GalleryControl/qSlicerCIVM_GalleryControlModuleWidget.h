@@ -75,7 +75,8 @@ protected:
   Q_DECLARE_PRIVATE(qSlicerCIVM_GalleryControlModuleWidget);
   Q_DISABLE_COPY(qSlicerCIVM_GalleryControlModuleWidget);
   QString DataRoot;
-  QString LibRoot; // root of library we've selected
+  QString LibRoot;     // root of library we've selected
+  QString SelectedLib; // name of library we've selected
   QString ps;
   //DataObject *DataLibrary. // this should have somekind of method like librarylist returinging a list/vector/something of data libraries
   // we'll simulate that now using a qhash

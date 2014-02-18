@@ -558,7 +558,7 @@ void qSlicerCIVM_GalleryControlPanelPGRWidget::BuildScene()
   this->SceneNodes=this->SetLayout(); // sets the layout.
 
   QString     orientation    = "Coronal";
-  orientation="Sagittal";
+  //orientation="Sagittal";
   QString     labelFile;     //singular label file var
   QString     labelPath;     //singular label path var
   QString     imageFile;     //singular image file var
@@ -595,11 +595,12 @@ void qSlicerCIVM_GalleryControlPanelPGRWidget::BuildScene()
     bool setSliceOrient=true;
     // for set orientations use a cheat and use this array
     QStringList orientationOverride;
-    orientationOverride  << "Sagittal" << "Axial" << "Axial" << "Axial"; 
+    orientationOverride  << "Sagittal" << "Coronal" << "Coronal" << "Axial"; 
+
     // These are the correct orientations for PGR, However the data is not oriented correctly,
-    // so we'll override the override for now with following
-    orientationOverride.clear();
-    orientationOverride  << "Coronal" << "Sagittal" << "Sagittal" << "Axial";
+    // so we'll override the override for now with following clear and re enter commands.
+    //orientationOverride.clear();
+    //orientationOverride  << "Coronal" << "Sagittal" << "Sagittal" << "Axial";
 
   
 
@@ -677,30 +678,53 @@ void qSlicerCIVM_GalleryControlPanelPGRWidget::BuildScene()
           labelFile=LabelPattern;
           labelFile.replace("timepoint",timepointList[t]);
           //confusingly LabelPath is root to label root
-          labelPath = LabelPath+labelFile;
+          labelPath = this->LabelPath+labelFile;
           labelPath.replace("timepoint",timepointList[t]);
-          
-
-	  //int lC=0; 
-
-	  lFile.setFile(labelPath);
+       	  //int lC=0; 
+          labelPath.replace(".nrrd","");
+          labelPath.replace(".nii.gz","");
+          labelPath.replace(".nii","");
+	  //lFile.setFile(labelPath);
+          this->PrintText("Setting labelpath to "+labelPath);
 	  // check if file .nrrd, if not check if file .nii exists, then check for .nii.gz
 	  this->LoadLabels=false;
+
+          /*
 	  for (int lC=0;lC < extList.size(); lC++)
+	    {
+            lFile.setFile(QString(imagePath+extList.at(lC)));
+            if ( lFile.exists() )
+              {
+              tempPath=imagePath+extList.at(lC);
+              this->PrintText("\tCandidate for load:\n\t\t"+lFile.filePath());
+              } else 
+              {
+              this->PrintText("\tNo file at:\n\t\t"+lFile.filePath());
+              //this->PrintText(" != "+extList.at(lC));
+              }
+	    }
+          */
+/*
+ */
+          for (int lC=0;lC < extList.size(); lC++)
 	    {
             lFile.setFile(QString(labelPath+extList.at(lC)));
             if (lFile.exists())
               {
+              this->PrintText("\tCandidate for load:\n\t\t"+lFile.filePath());
               //this->PrintText("Ext<= "+extList.at(lC));
-              labelPath=labelPath+extList.at(lC);
+              tempPath=labelPath+extList.at(lC);
+              //labelPath=labelPath+extList.at(lC);
               this->LoadLabels=true;
               } else 
               {
+              this->PrintText("\tNo file at:\n\t\t"+lFile.filePath());
               //this->PrintText(" != "+extList.at(lC));
               }
 	    
 	    }
-          
+          labelPath=tempPath;
+
 	  labelNode=labelFile;
 //           labelNode.replace(".nrrd","");
 //           labelNode.replace(".nii.gz","");
