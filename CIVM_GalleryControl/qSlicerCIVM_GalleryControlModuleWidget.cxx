@@ -281,10 +281,12 @@ void qSlicerCIVM_GalleryControlModuleWidget::SetControls()
     } 
   else if ( panelName == "FA_Render" ) 
     {
-    QString out_path = this->DataRoot+ps+"FARenderScenes"+ps+this->SelectedLib+".mrml";
-//lN.replace(':','_');
+    QString out_path = "FARenderScenes"+ps+this->SelectedLib+".mrml";
     out_path.replace(':','_');
+	out_path=this->DataRoot+ps+out_path;
     this->PrintText("FA_Render load of "+out_path);
+	//out_path.replace("C_","C:");
+	//out_path.replace("DataLibraries"+ps,"");
     qSlicerApplication::application()->ioManager()->loadScene(out_path,false);
 
     }
