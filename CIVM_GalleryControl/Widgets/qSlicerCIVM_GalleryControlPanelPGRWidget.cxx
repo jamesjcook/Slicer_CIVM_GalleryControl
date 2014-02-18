@@ -310,6 +310,7 @@ qSlicerCIVM_GalleryControlPanelPGRWidget
   // QObject::connect(this->deleteAllMarkupsInListPushButton, SIGNAL(clicked()),
 //                    q, SLOT(onDeleteAllMarkupsInListPushButtonClicked()));
    connect(d->ClearFiducialList, SIGNAL(clicked()),SLOT(onDeleteAllMarkupsInListPushButtonClicked()));
+   connect(d->LabelInformation, SIGNAL(clicked()),SLOT(BuildScene()));
   /* PGR REMOVAL COMMENT
   */
    
@@ -715,7 +716,12 @@ void qSlicerCIVM_GalleryControlPanelPGRWidget::BuildScene()
               //this->PrintText("Ext<= "+extList.at(lC));
               tempPath=labelPath+extList.at(lC);
               //labelPath=labelPath+extList.at(lC);
+              
+               if ( ! d->LabelInformation->collapsed() ) 
+               {
               this->LoadLabels=true;
+               }
+              // if LabelInformation ischecked()
               } else 
               {
               this->PrintText("\tNo file at:\n\t\t"+lFile.filePath());
