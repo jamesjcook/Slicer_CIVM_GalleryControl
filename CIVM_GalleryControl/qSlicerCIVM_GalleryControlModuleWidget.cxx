@@ -103,6 +103,16 @@ void qSlicerCIVM_GalleryControlModuleWidget::setup()
   connect(d->LibrarySelectorDropList,SIGNAL(currentIndexChanged(int)),SLOT(BuildGallery()));
   //connect(d->LibrarySelectorDropList,SIGNAL(currentIndexChanged(int)),SLOT(d->GalleryArea->setCollapsed(false)));
     //d->ComboBoxA->currentText();
+    QString out_path = "StartupRat.mrml";
+    out_path.replace(':','_');
+	out_path=this->DataRoot+ps+out_path;
+    this->PrintText("Startup load of "+out_path);
+	//out_path.replace("C_","C:");
+	//out_path.replace("DataLibraries"+ps,"");
+    qSlicerApplication::application()->ioManager()->loadScene(out_path,false);
+
+
+
 }
 //-----------------------------------------------------------------------------
 void qSlicerCIVM_GalleryControlModuleWidget::SetLibraries(QString dataRoot) {
