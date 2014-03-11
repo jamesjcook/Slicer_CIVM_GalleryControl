@@ -59,25 +59,26 @@ qSlicerCIVM_GalleryControlModule
 //-----------------------------------------------------------------------------
 qSlicerCIVM_GalleryControlModule::~qSlicerCIVM_GalleryControlModule()
 {
+  //destructoR
 }
 
 //-----------------------------------------------------------------------------
 QString qSlicerCIVM_GalleryControlModule::helpText()const
 {
-  return "This is a loadable module bundled in an extension";
+  return "This is a loadable module bundled in an extension. ";
 }
 
 //-----------------------------------------------------------------------------
 QString qSlicerCIVM_GalleryControlModule::acknowledgementText()const
 {
-  return "This work was was partially funded by NIH grant 3P41RR013218-12S1";
+  return "This work was was partially funded by NIH grants";// 3P41RR013218-12S1";
 }
 
 //-----------------------------------------------------------------------------
 QStringList qSlicerCIVM_GalleryControlModule::contributors()const
 {
   QStringList moduleContributors;
-  moduleContributors << QString("Jean-Christophe Fillion-Robin (Kitware)");
+  moduleContributors << QString("James Cook (CIVM)");
   return moduleContributors;
 }
 

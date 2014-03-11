@@ -7,7 +7,7 @@ string(TOUPPER ${MODULE_NAME} MODULE_NAME_UPPER)
 
 #-----------------------------------------------------------------------------
 add_subdirectory(Logic)
-add_subdirectory(MRML)
+#add_subdirectory(MRML)
 add_subdirectory(Widgets)
 
 #-----------------------------------------------------------------------------
@@ -19,6 +19,9 @@ set(MODULE_INCLUDE_DIRECTORIES
   ${CMAKE_CURRENT_BINARY_DIR}/Logic
   ${CMAKE_CURRENT_SOURCE_DIR}/Widgets
   ${CMAKE_CURRENT_BINARY_DIR}/Widgets
+#  ${CMAKE_CURRENT_SOURCE_DIR}/MRML
+#  ${CMAKE_CURRENT_BINARY_DIR}/MRML
+
   )
 
 set(MODULE_SRCS
@@ -46,6 +49,11 @@ set(MODULE_TARGET_LIBRARIES
 set(MODULE_RESOURCES
   Resources/qSlicer${MODULE_NAME}Module.qrc
   )
+
+
+#add_library( libvtkMRMLGalleryControlLibraryNode SHARED IMPORTED )
+add_library( libvtkSlicerCIVM_GalleryControlModuleMRML SHARED IMPORTED )
+set_target_properties( libvtkSlicerCIVM_GalleryControlModuleMRML PROPERTIES IMPORTED_LOCATION ($CMAKE_BINARY_DIR ) )
 
 #-----------------------------------------------------------------------------
 slicerMacroBuildQtModule(

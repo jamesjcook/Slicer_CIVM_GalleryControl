@@ -10,6 +10,8 @@ set(${KIT}_INCLUDE_DIRECTORIES
 set(${KIT}_SRCS
   vtkMRMLTagCategoryStorageNode.cxx
   vtkMRMLTagCategoryStorageNode.h
+  vtkMRMLGalleryControlLibraryNode.cxx
+  vtkMRMLGalleryControlLibraryNode.h
   )
 
 set(${KIT}_TARGET_LIBRARIES

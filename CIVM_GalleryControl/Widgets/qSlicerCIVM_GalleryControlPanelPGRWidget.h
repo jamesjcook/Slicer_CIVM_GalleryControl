@@ -185,7 +185,7 @@ private:
   qMRMLSliceWidget * SlicerWidget(vtkInteractorObserver * ) ;
   void OnMRMLSceneNodeAdded(vtkMRMLNode  *);
   QWidget * ParentalUnit;
-
+  void SetLabelStatus();
   // SLOPPY PGR CODE END
   ////
 

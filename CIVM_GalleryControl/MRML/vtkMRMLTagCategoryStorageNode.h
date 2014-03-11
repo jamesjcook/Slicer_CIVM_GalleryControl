@@ -20,7 +20,8 @@ class vtkIntArray;
 //VTK_SLICER_VOLUMERENDERING_MODULE_MRML_EXPORT
 class VTK_MRML_EXPORT vtkMRMLTagCategoryStorageNode
 //class vtkMRMLTagCategoryStorageNode
- : public vtkMRMLStorableNode
+: public vtkMRMLStorableNode 
+//: qSlicerCIVM_GalleryControl
 {
 public:
   //--------------------------------------------------------------------------

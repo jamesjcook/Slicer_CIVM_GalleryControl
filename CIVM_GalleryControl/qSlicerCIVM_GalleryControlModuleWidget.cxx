@@ -30,6 +30,9 @@
 #include <QList>
 #include <QFileInfo>
 
+//customMRML includes
+//#include "vtkMRMLGalleryControlLibraryNode.h"
+//#include "vtkMRMLTagCategoryStorageNode.h"
 
 // Panel includes
 #include "qSlicerCIVM_GalleryControlPanelPGRWidget.h"
@@ -75,7 +78,7 @@ qSlicerCIVM_GalleryControlModuleWidget::~qSlicerCIVM_GalleryControlModuleWidget(
 void qSlicerCIVM_GalleryControlModuleWidget::setup()
 {
   Q_D(qSlicerCIVM_GalleryControlModuleWidget);
-  d->setupUi(this);
+  d->setupUi(this); // handle the .ui file.
   this->Superclass::setup();
 #ifdef WIN32 
   this->ps=('\\');
@@ -93,26 +96,30 @@ void qSlicerCIVM_GalleryControlModuleWidget::setup()
   //d->DocumentationArea->setCollapsed(false);
   d->GalleryArea->setCollapsed(true);
   d->ControlArea->setCollapsed(true);
-
+  
   //d->LibrarySelectorDropList->insertItems(0,libraries);
   d->LibrarySelectorDropList->insertItems(0,this->DataLibraries.keys());
   d->LibrarySelectorDropList->setDefaultText("Select Data");
   d->LibrarySelectorDropList->setCurrentIndex(-1);
-
+  
   //connect LibrarySelectDropList to BuildGallery
   connect(d->LibrarySelectorDropList,SIGNAL(currentIndexChanged(int)),SLOT(BuildGallery()));
   //connect(d->LibrarySelectorDropList,SIGNAL(currentIndexChanged(int)),SLOT(d->GalleryArea->setCollapsed(false)));
-    //d->ComboBoxA->currentText();
-    QString out_path = "StartupRat.mrml";
-    out_path.replace(':','_');
-	out_path=this->DataRoot+ps+out_path;
-    this->PrintText("Startup load of "+out_path);
-	//out_path.replace("C_","C:");
-	//out_path.replace("DataLibraries"+ps,"");
-    qSlicerApplication::application()->ioManager()->loadScene(out_path,false);
-
-
-
+  //d->ComboBoxA->currentText();
+  
+  
+  
+  // preload data scene.
+  QString out_path = "StartupRat.mrml";
+  out_path.replace(':','_');
+  out_path=this->DataRoot+ps+out_path;
+  this->PrintText("Startup load of "+out_path);
+  //out_path.replace("C_","C:");
+  //out_path.replace("DataLibraries"+ps,"");
+  qSlicerApplication::application()->ioManager()->loadScene(out_path,false);
+  
+  
+  
 }
 //-----------------------------------------------------------------------------
 void qSlicerCIVM_GalleryControlModuleWidget::SetLibraries(QString dataRoot) {
@@ -157,6 +164,13 @@ QStringList qSlicerCIVM_GalleryControlModuleWidget::GetLibraries(QString dataRoo
   QString dog_spec = "AdultCanisL";
   QString monkey_spec="AdultMacacaM";
   QString monkey_spec2="AdultMacacaF";
+
+  //vtkMRMLGalleryControlLibraryNode * mainLibrary;//= new vtkMRMLGalleryControlLibraryNode();
+  //mainLibrary = new vtkMRMLGalleryControlLibraryNode(); 
+//->SetDataRoot(dataRoot.toStdString());
+//  vtkMRMLGalleryControlLibraryNode * MainLibraryWithPath = new vtkMRMLGalleryControlLibraryNode(dataRoot.toStdString());
+  //vtkMRMLTagCategoryStorageNode * tagStore = new vtkMRMLTagCategoryStorageNode; // this fails! we need to do better!
+  
   //  QStringList speciesList;
   //  speciesList << "Rat:Wistar" << "Human" << "Rhesus_macaque" << "Mouse" ;
 //   for (int snum=0;snum<speciesList.size(); snum++)
@@ -166,11 +180,11 @@ QStringList qSlicerCIVM_GalleryControlModuleWidget::GetLibraries(QString dataRoo
 //     }
   if ( maxDepth < 0 )  { libraries << "Rattus_norvegicus:Wistar:Adult" ; }
   libraries << "Rattus_norvegicus:Wistar:"+rat_spec+":"+rat_adult_time ;
-  // if ( maxDepth < 0 )  { libraries << "Rattus_norvegicus:Wistar:Juvenile"; }
-  // libraries << "Rattus_norvegicus:Wistar:"+rat_spec+":"+rat_first_time ;
-  if ( maxDepth < 0 )  { libraries << "Human:Adult"; }
-  //libraries << "Human:"+human_spec+":"+human_adult_time;
-  libraries << "Human:"+human_spec;//+":"+human_adult_time;
+#ifndef WIN32
+  if ( maxDepth < 0 )  { libraries << "Rattus_norvegicus:Wistar:Juvenile"; }
+  libraries << "Rattus_norvegicus:Wistar:"+rat_spec+":"+rat_first_time ;
+#endif
+
   if ( maxDepth < 0 )  { libraries << "Mus_Musculus:Adult"; }
   //libraries << "Mus_Musculus:"+mouse_spec+":"+max_mamal_time;
   libraries << "Mus_Musculus:whs_atlas:"+mouse_spec;//+":"+max_mamal_time;
@@ -183,6 +197,11 @@ QStringList qSlicerCIVM_GalleryControlModuleWidget::GetLibraries(QString dataRoo
   //if ( maxDepth < 0 )  { libraries << "Macaca_fasciularis"; }
   //////libraries << "Macaca_fascicularis:"+monkey_spec2+":"+max_mamal_time;
   //libraries << "Macaca_fascicularis:"+monkey_spec2;//+":"+max_mamal_time;
+
+  if ( maxDepth < 0 )  { libraries << "Human:Adult"; }
+  //libraries << "Human:"+human_spec+":"+human_adult_time;
+  libraries << "Human:"+human_spec;//+":"+human_adult_time;
+
   return libraries;
 }
 
@@ -195,7 +214,7 @@ QString qSlicerCIVM_GalleryControlModuleWidget::GetLibrary() {
   QString libraryName; //="Rat:Wistar";
   libraryName=d->LibrarySelectorDropList->currentText();
   QString library=this->DataLibraries[libraryName].filePath();
-  this->PrintText("GetLibrary"+library+"\n");
+  this->PrintText("GetLibrary "+library+"\n");
   return library;
 }
 

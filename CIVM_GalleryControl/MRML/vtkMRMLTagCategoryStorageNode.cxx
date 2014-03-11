@@ -16,6 +16,7 @@
 #include <vtkObjectFactory.h>
 #include <vtkNew.h>
 //#include <vtkMRMLStorageNode.h>
+
 #include <vtkDirectory.h>
 
 // STD includes
@@ -24,7 +25,8 @@
 #include <sstream>
 #include <string> 
 #include <algorithm>
-// STD C includes
+// STD C includesn
+// need replacment for regex due to no support in windows
 #include <regex.h>
 
 

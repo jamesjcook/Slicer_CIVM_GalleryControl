@@ -36,7 +36,7 @@ set(${KIT}_TARGET_LIBRARIES
   vtkSlicerMarkupsModuleMRML
   )
 
-link_directories(/Applications/SegmentationSoftware/build/Slicer_multi/release_v4.3.1/Slicer-build/lib/Slicer-4.3/qt-loadable-modules/)
+#link_directories(/Applications/SegmentationSoftware/build/Slicer_multi/release_v4.3.1/Slicer-build/lib/Slicer-4.3/qt-loadable-modules/)
 #libvtkSlicerMarkupsModuleMRML.dylib
 # add fiducial library in markups
 #add_library( release_v4.3.1/Slicer-build/lib/Slicer-4.3/qt-loadable-modul
