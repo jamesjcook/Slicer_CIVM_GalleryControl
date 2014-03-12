@@ -22,6 +22,10 @@ set(MODULE_INCLUDE_DIRECTORIES
 #  ${CMAKE_CURRENT_SOURCE_DIR}/MRML
 #  ${CMAKE_CURRENT_BINARY_DIR}/MRML
 
+### next two lines to depend on custom mrml
+   ${vtkMRMLNDLibraryNode_SOURCE_DIR}
+   ${vtkMRMLNDLibraryNode_BINARY_DIR}
+### 
   )
 
 set(MODULE_SRCS
@@ -43,7 +47,9 @@ set(MODULE_UI_SRCS
 set(MODULE_TARGET_LIBRARIES
   vtkSlicer${MODULE_NAME}ModuleLogic
   qSlicer${MODULE_NAME}ModuleWidgets
-
+### next line to depend on custom mrml
+  vtkMRMLNDLibraryNode
+###
   )
 
 set(MODULE_RESOURCES
@@ -51,6 +57,8 @@ set(MODULE_RESOURCES
   )
 
 
+add_library( libvtkMRMLNDLibraryNode SHARED IMPORTED )
+set_target_properties( libvtkMRMLNDLibraryNode PROPERTIES IMPORTED_LOCATION ($CMAKE_BINARY_DIR ) )
 #add_library( libvtkMRMLGalleryControlLibraryNode SHARED IMPORTED )
 add_library( libvtkSlicerCIVM_GalleryControlModuleMRML SHARED IMPORTED )
 set_target_properties( libvtkSlicerCIVM_GalleryControlModuleMRML PROPERTIES IMPORTED_LOCATION ($CMAKE_BINARY_DIR ) )

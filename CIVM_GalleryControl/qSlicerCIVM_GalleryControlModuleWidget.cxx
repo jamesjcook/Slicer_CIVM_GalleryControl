@@ -32,6 +32,7 @@
 
 //customMRML includes
 //#include "vtkMRMLGalleryControlLibraryNode.h"
+#include <vtkMRMLNDLibraryNode.h>
 //#include "vtkMRMLTagCategoryStorageNode.h"
 
 // Panel includes
@@ -128,7 +129,7 @@ void qSlicerCIVM_GalleryControlModuleWidget::SetLibraries(QString dataRoot) {
   for (int lnum=0;lnum<libs.size(); lnum=lnum+2)
     {
       this->PrintText(libs.at(lnum)+" <="+libs.at(lnum+1));
-      DataLibraries[libs.at(lnum)].setFile(libs.at(lnum+1));
+      this->DataLibraries[libs.at(lnum)].setFile(libs.at(lnum+1));
     }
   return;
 }
@@ -147,7 +148,7 @@ QStringList qSlicerCIVM_GalleryControlModuleWidget::GetLibraries(QString dataRoo
   // That list should include the leaf libraries, the maxDepth integer is a limiter for how deep we will traverse
   // the real work is not done yet in this function, we just return one library for now. 
   QStringList libraries;
-  
+  this->PrintMethod("GetLibraries");
   // get directory listing at dataRoot including all subdirs, add each (sorted somehow) to libraries list and return
   // rat times
   //   00000172800 00000345600 00000691200 00001036800 00001555200 00002073600 00003456000 00006912000
@@ -164,8 +165,20 @@ QStringList qSlicerCIVM_GalleryControlModuleWidget::GetLibraries(QString dataRoo
   QString dog_spec = "AdultCanisL";
   QString monkey_spec="AdultMacacaM";
   QString monkey_spec2="AdultMacacaF";
+  vtkMRMLNDLibraryNode * mainLibrary; // compiles ok.
+  mainLibrary = new vtkMRMLNDLibraryNode(); // failure protected constructor!
+  vtkMRMLNDLibraryNode * mainLibrary2 = new vtkMRMLNDLibraryNode(dataRoot.toStdString()); // failure protected constuctor!
 
-  //vtkMRMLGalleryControlLibraryNode * mainLibrary;//= new vtkMRMLGalleryControlLibraryNode();
+  //// this compiles runs and prints 
+  vtkIndent id =  vtkIndent::vtkIndent(2);
+  this->PrintText("Lib1:");
+  mainLibrary->PrintSelf(std::cout,id); // prints lots of stuff...
+  this->PrintText("Lib2:");
+  id=vtkIndent::vtkIndent(8);
+  mainLibrary2->PrintSelf(std::cout,id); // 
+
+
+  
   //mainLibrary = new vtkMRMLGalleryControlLibraryNode(); 
 //->SetDataRoot(dataRoot.toStdString());
 //  vtkMRMLGalleryControlLibraryNode * MainLibraryWithPath = new vtkMRMLGalleryControlLibraryNode(dataRoot.toStdString());
