@@ -21,29 +21,32 @@ class VTK_MRML_EXPORT vtkMRMLNDLibraryNode : public vtkMRMLStorableNode
 {
   // declare friends
   // friend class qslicer_CIVM_GalleryControlModule;// maybe?
+  //// friend class qslicer_CIVM_GalleryControlModule;// maybe?
  public:
 /// Create a new vtkMRMLNDLibraryNode
   //static vtkMRMLNDLibraryNode *New();
   //typedef vtkMRMLStorableNode Superclass;//instead usetype macro
   vtkTypeMacro(vtkMRMLNDLibraryNode,vtkMRMLStorableNode);
-  //void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
   
   void SetSlicerDataType ( const char *type) ;
-  vtkSetMacro(DataRoot,std::string);    
+  vtkSetMacro(LibRoot,std::string);    
+  vtkGetMacro(LibRoot,std::string);    
   vtkMRMLNode* CreateNodeInstance() ;
   
   /// Get node XML tag name (like Volume, Model)
-  //virtual const char* GetNodeTagName() {return "NDLibraryNode";};
+  virtual const char* GetNodeTagName() {return "NDLibraryNode";};
 
-  
- protected:
-  //name
+   //name
   //path
   vtkMRMLNDLibraryNode(void);
-  //vtkMRMLNDLibraryNode(std::string);
+  vtkMRMLNDLibraryNode(std::string);
   ~vtkMRMLNDLibraryNode(void);
   
-  std::string DataRoot; // base path for the library
+ protected:
+ 
+  std::string LibRoot; // base path for the library
+  //std
   //dimensionss a list.
   //..
   // valuemap...?
