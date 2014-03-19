@@ -1,27 +1,45 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>qSlicerCIVM_GalleryControlPanelPGRWidget</class>
- <widget class="QWidget" name="qSlicerCIVM_GalleryControlPanelPGRWidget">
+ <widget class="qSlicerWidget" name="qSlicerCIVM_GalleryControlPanelPGRWidget">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>284</width>
-    <height>438</height>
+    <width>280</width>
+    <height>340</height>
    </rect>
   </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
   <property name="windowTitle">
-   <string>Foo bar</string>
+   <string>Form</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="ctkSettingsPanel" name="SettingsPanel">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <layout class="QVBoxLayout" name="verticalLayout_4">
       <property name="margin">
        <number>0</number>
       </property>
       <item>
        <widget class="QFrame" name="SliderFrame">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="frameShape">
          <enum>QFrame::StyledPanel</enum>
         </property>
@@ -30,10 +48,16 @@
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_2">
          <property name="margin">
-          <number>2</number>
+          <number>0</number>
          </property>
          <item>
           <widget class="QFrame" name="contrastSelectFrame">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="frameShape">
             <enum>QFrame::NoFrame</enum>
            </property>
@@ -41,20 +65,17 @@
             <enum>QFrame::Plain</enum>
            </property>
            <layout class="QHBoxLayout" name="horizontalLayout">
-            <property name="leftMargin">
+            <property name="margin">
              <number>0</number>
-            </property>
-            <property name="topMargin">
-             <number>2</number>
-            </property>
-            <property name="rightMargin">
-             <number>0</number>
-            </property>
-            <property name="bottomMargin">
-             <number>2</number>
             </property>
             <item>
              <widget class="QFrame" name="frameA">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
               <property name="frameShape">
                <enum>QFrame::StyledPanel</enum>
               </property>
@@ -67,19 +88,38 @@
                </property>
                <item>
                 <widget class="QLabel" name="labelComboBoxA">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
                  <property name="text">
                   <string>Sagittal Image</string>
                  </property>
                 </widget>
                </item>
                <item>
-                <widget class="ctkComboBox" name="ComboBoxA"/>
+                <widget class="ctkComboBox" name="ComboBoxA">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                </widget>
                </item>
               </layout>
              </widget>
             </item>
             <item>
              <widget class="QFrame" name="frameB">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
               <property name="frameShape">
                <enum>QFrame::StyledPanel</enum>
               </property>
@@ -92,13 +132,26 @@
                </property>
                <item>
                 <widget class="QLabel" name="labelComboBoxB">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
                  <property name="text">
                   <string>Axial Image</string>
                  </property>
                 </widget>
                </item>
                <item>
-                <widget class="ctkComboBox" name="ComboBoxB"/>
+                <widget class="ctkComboBox" name="ComboBoxB">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                </widget>
                </item>
               </layout>
              </widget>
@@ -108,6 +161,12 @@
          </item>
          <item>
           <widget class="QLabel" name="labelSliderSlice">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="text">
             <string>Position</string>
            </property>
@@ -115,6 +174,12 @@
          </item>
          <item>
           <widget class="ctkSliderWidget" name="SliderSlice">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="maximum">
             <double>128.000000000000000</double>
            </property>
@@ -122,6 +187,12 @@
          </item>
          <item>
           <widget class="QLabel" name="labelSliderAngle">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="text">
             <string>Angle</string>
            </property>
@@ -129,6 +200,12 @@
          </item>
          <item>
           <widget class="ctkSliderWidget" name="SliderAngle">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="singleStep">
             <double>0.010000000000000</double>
            </property>
@@ -177,6 +254,12 @@
          </property>
          <item>
           <widget class="QFrame" name="LabelwatcherControlsFrame">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="frameShape">
             <enum>QFrame::NoFrame</enum>
            </property>
@@ -208,6 +291,12 @@
                </item>
                <item>
                 <widget class="QLabel" name="StructureName">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
                  <property name="text">
                   <string/>
                  </property>
@@ -218,6 +307,12 @@
             </item>
             <item>
              <widget class="QFrame" name="FiduicialListFrame">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
               <property name="frameShape">
                <enum>QFrame::NoFrame</enum>
               </property>
@@ -237,6 +332,12 @@
                </item>
                <item>
                 <widget class="QListWidget" name="FiducialList">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="MinimumExpanding" vsizetype="Expanding">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
                  <property name="frameShape">
                   <enum>QFrame::NoFrame</enum>
                  </property>
@@ -258,8 +359,8 @@
         </property>
         <property name="sizeHint" stdset="0">
          <size>
-          <width>20</width>
-          <height>40</height>
+          <width>0</width>
+          <height>0</height>
          </size>
         </property>
        </spacer>
@@ -270,6 +371,12 @@
   </layout>
  </widget>
  <customwidgets>
+  <customwidget>
+   <class>qSlicerWidget</class>
+   <extends>QWidget</extends>
+   <header>qSlicerWidget.h</header>
+   <container>1</container>
+  </customwidget>
   <customwidget>
    <class>ctkCheckBox</class>
    <extends>QCheckBox</extends>
@@ -303,16 +410,6 @@
    <header>ctkSliderWidget.h</header>
   </customwidget>
  </customwidgets>
- <tabstops>
-  <tabstop>ComboBoxA</tabstop>
-  <tabstop>ComboBoxB</tabstop>
-  <tabstop>HistologySelector</tabstop>
-  <tabstop>LabelInformation</tabstop>
-  <tabstop>WatchMousePositionCheckBox</tabstop>
-  <tabstop>BuildSceneButton</tabstop>
-  <tabstop>FiducialList</tabstop>
-  <tabstop>ClearFiducialList</tabstop>
- </tabstops>
  <resources/>
  <connections/>
 </ui>
