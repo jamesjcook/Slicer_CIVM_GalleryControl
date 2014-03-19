@@ -29,10 +29,14 @@
 #include <QVector>  
 #include <QList>
 #include <QFileInfo>
+#include <QDir>
+
+//ctk includes
+#include <ctkUtils.h>
 
 //customMRML includes
 //#include "vtkMRMLGalleryControlLibraryNode.h"
-#include <vtkMRMLNDLibraryNode.h>
+//#include <vtkMRMLNDLibraryNode.h>
 //#include "vtkMRMLTagCategoryStorageNode.h"
 
 // Panel includes
@@ -43,6 +47,8 @@
 #include "qSlicerIOManager.h"
 #include "qSlicerCIVM_GalleryControlModuleWidget.h"
 #include "ui_qSlicerCIVM_GalleryControlModuleWidget.h"
+
+
 
 //-----------------------------------------------------------------------------
 /// \ingroup Slicer_QtModules_ExtensionTemplate
@@ -89,65 +95,231 @@ void qSlicerCIVM_GalleryControlModuleWidget::setup()
   this->DataRoot=QString("");
 #endif
   this->DataRoot=DataRoot+ps+"DataLibraries"+ps+"Brain"; //
-  this->SetLibraries(DataRoot); // replacement for getlibraries which only gets the data paths
-  QStringList libraries=this->GetLibraries(DataRoot);
-  this->PrintText("Datapath="+DataRoot);
-  // populate our dropdown
-  // need to setCollapsed true on gallery selection and gallery control during init,
+  this->DataStore = new vtkMRMLNDLibraryNode();
+  
+
+  this->HomeButton();
+// need to setCollapsed true on gallery selection and gallery control during init,
   //d->DocumentationArea->setCollapsed(false);
   d->GalleryArea->setCollapsed(true);
   d->ControlArea->setCollapsed(true);
   
-  //d->LibrarySelectorDropList->insertItems(0,libraries);
-  d->LibrarySelectorDropList->insertItems(0,this->DataLibraries.keys());
-  d->LibrarySelectorDropList->setDefaultText("Select Data");
-  d->LibrarySelectorDropList->setCurrentIndex(-1);
-  
-  //connect LibrarySelectDropList to BuildGallery
+  //BuildGallery();
+  //connect LibrarySelectDropList to filllibselector, and to build gallery
+  connect(d->LibrarySelectorDropList,SIGNAL(activated(int)),SLOT(FillDataLibraries()));
   connect(d->LibrarySelectorDropList,SIGNAL(currentIndexChanged(int)),SLOT(BuildGallery()));
-  //connect(d->LibrarySelectorDropList,SIGNAL(currentIndexChanged(int)),SLOT(d->GalleryArea->setCollapsed(false)));
+  // returns no such slot due to the true i think ?
+  //connect(d->LibrarySelectorDropList,SIGNAL(currentIndexChanged(int)),SLOT(d->ControlArea->setCollapsed(true)));
+
+  connect(d->HomeDataPushButton,SIGNAL(clicked()),SLOT(HomeButton()));
+  connect(d->BackDataPushButton,SIGNAL(clicked()),SLOT(BackButton()));
+//connect(d->RebuildLibraryButton,SIGNAL(currentIndexChanged(int)),SLOT(RebuildLibrary())); // later.
+
+
   //d->ComboBoxA->currentText();
   
   
   
   // preload data scene.
-  QString out_path = "StartupRat.mrml";
-  out_path.replace(':','_');
-  out_path=this->DataRoot+ps+out_path;
-  this->PrintText("Startup load of "+out_path);
-  //out_path.replace("C_","C:");
-  //out_path.replace("DataLibraries"+ps,"");
-  qSlicerApplication::application()->ioManager()->loadScene(out_path,false);
+  if ( 0 ) 
+    {
+    QString out_path = "StartupRat.mrml";
+    out_path.replace(':','_');
+    out_path=this->DataRoot+ps+out_path;
+    this->PrintText("Startup load of "+out_path);
+    //out_path.replace("C_","C:");
+    //out_path.replace("DataLibraries"+ps,"");
+    qSlicerApplication::application()->ioManager()->loadScene(out_path,false);
+    }
+    
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerCIVM_GalleryControlModuleWidget::HomeButton(void) 
+{
+  Q_D(qSlicerCIVM_GalleryControlModuleWidget);
+  SelectorIndent=0;
+  //QStringList libraries=this->GetLibraries(DataRoot);// replaced with next line
+  //this->SetLibraries(DataRoot); // replacement for getlibraries which only gets the data paths
+  this->FillDataLibraries(DataRoot); // replacement for SetLibraries which build us a qhash of name=path, now using a name=ndlib std::map
+  this->PrintText("Datapath="+DataRoot);
+  // populate our dropdown
+  //d->LibrarySelectorDropList->insertItems(0,libraries);
+  //d->LibrarySelectorDropList->insertItems(0,this->DataLibraries.keys());
+  // libselector filled via two function calls now.
+  this->FillLibrarySelector();
+  d->LibrarySelectorDropList->setDefaultText("<No Data Selected>");
+  d->LibrarySelectorDropList->setCurrentIndex(-1);
+
+
+
+//   this->PrintText("Datapath="+DataRoot);
+//   this->FillDataLibraries(DataRoot); // replacement for SetLibraries which build us a qhash of name=path, now using a name=ndlib std::map
   
-  
-  
+
+//   // populate our dropdown
+//   this->FillLibrarySelector();
+//   d->LibrarySelectorDropList->setDefaultText("<No Data Selected>");
+//   d->LibrarySelectorDropList->setCurrentIndex(-1);
+  return;
 }
 //-----------------------------------------------------------------------------
-void qSlicerCIVM_GalleryControlModuleWidget::SetLibraries(QString dataRoot) {
-  QStringList libs=GetLibraries(dataRoot,-1);
-  this->PrintMethod("SetLibraries");
-  for (int lnum=0;lnum<libs.size(); lnum=lnum+2)
+void qSlicerCIVM_GalleryControlModuleWidget::BackButton(void) 
+{
+  //Q_D(qSlicerCIVM_GalleryControlModuleWidget);
+  QFileInfo * dsInfo=new QFileInfo::QFileInfo(QString::fromStdString(DataStore->GetLibRoot()) );
+  QDir dsBasePath= dsInfo->dir();
+  bool selectorfill=this->FillDataLibraries(dsBasePath.path());
+   if (selectorfill)
     {
-      this->PrintText(libs.at(lnum)+" <="+libs.at(lnum+1));
-      this->DataLibraries[libs.at(lnum)].setFile(libs.at(lnum+1));
+    this->PrintText("Fill data says we should fill selector");
+    FillLibrarySelector();
     }
   return;
 }
 
 //-----------------------------------------------------------------------------
-QStringList qSlicerCIVM_GalleryControlModuleWidget::GetLibraries(QString dataRoot) {
+void qSlicerCIVM_GalleryControlModuleWidget::SetLibraries(QString dataRoot) {
+  QStringList libs=GetLibraries(dataRoot,-1);
+  this->PrintMethod("SetLibraries OBSOLETE FUNCTION CALL");
+//   for (int lnum=0;lnum<libs.size(); lnum=lnum+2)
+//     {
+//       this->PrintText(libs.at(lnum)+" <="+libs.at(lnum+1));
+//       this->DataLibraries[libs.at(lnum)].setFile(libs.at(lnum+1));
+//     }
+  return;
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerCIVM_GalleryControlModuleWidget::FillDataLibraries(void) {
+  this->PrintMethod("FillDataLibraries Slot");
+  bool selectorfill=FillDataLibraries(ReadLibraryPath(this->ReadLibraryName()));
+  if (selectorfill)
+    {
+    this->PrintText("Fill data says we should fill selector");
+    FillLibrarySelector();
+    }
+  return;
+}
+
+//-----------------------------------------------------------------------------
+// fills the DataLibraries container from the DataStore container. 
+bool qSlicerCIVM_GalleryControlModuleWidget::FillDataLibraries(QString libPath) {
+  this->PrintMethod("FillDataLibraries");
+  // this will be called when we want to change libraries or on initalization of our control panel
+  // this gives a few different cases, 
+  // case 1 is init, 
+  // libPath will be the same as this->DataRoot, but DataStore->GetLibRoot() will be differnet)
+  // case 2 is new lib
+  //   libPath will not be the same a this->DataRoot, or DataStore->GetLibRoot();
+  //   should change our dataroot and continue.
+  // case 3 is same lib
+  //   same lib should ammount to no-op
+//if our dataroot is the same as the one in our library. or it is the same as our init?
+  //if (){};
+  if (libPath != QString::fromStdString(DataStore->GetLibRoot()) )// && libPath ==  this->DataRoot )
+    {// desired path is not the same as our current data store, should happen on init, or on change.
+    this->PrintText("DataStore Reset to new lib path");
+    DataStore->ResetLibrary(libPath.toStdString());
+    SelectorIndent=0;
+    this->DataStore->GatherSubLibs();
+    DataLibraries=DataStore->GetSubLibraries();
+    } 
+  else  if ( libPath == QString::fromStdString(DataStore->GetLibRoot())  ) 
+    {//desiredpath is same as current data store path,
+    //&& libPath ==  this->DataRoot  AND we're still on our initial root path
+        this->PrintText("Re-init condition, no reset needed");  
+        return false;
+    }
+  else 
+    {
+    this->PrintText("lib path else condition");
+    }
+
+
+//   for (int lnum=0;lnum<libs.size(); lnum=lnum+2)
+//     {
+//       this->PrintText(libs.at(lnum)+" <="+libs.at(lnum+1));
+//       this->DataLibraries[libs.at(lnum)].setFile(libs.at(lnum+1));
+//     }
+
+  return true;
+}
+//-----------------------------------------------------------------------------
+// fills the lib selector object in the gui from the DataLibraries container.
+void qSlicerCIVM_GalleryControlModuleWidget::ClearLibrarySelector(void) {
+  this->PrintMethod("ClearLibrarySelector");
+  Q_D(qSlicerCIVM_GalleryControlModuleWidget);
+  d->LibrarySelectorDropList->clear();
+//   while (d->LibrarySelectorDropList->count()>1) 
+//     {
+//     d->LibrarySelectorDropList->removeItem(0);
+//     }
+  return;  
+}
+//-----------------------------------------------------------------------------
+// fills the lib selector object in the gui from the DataLibraries container.
+void qSlicerCIVM_GalleryControlModuleWidget::FillLibrarySelector(void) {
+  this->PrintMethod("FillLibrarySelector");
+  Q_D(qSlicerCIVM_GalleryControlModuleWidget);
+  //typedef std::map<std::string,vtkMRMLNDLibraryNode *> DataStoreSubLib;
+  int i=0;
+  QStringList libList;
+  std::string printspc;
+  printspc="";
+  while (printspc.size()<SelectorIndent) 
+    {
+    printspc=printspc+" ";
+    }
+  libList <<  QString::fromStdString(printspc) + QString::fromStdString(DataStore->GetLibName());
+  SelectorIndent=SelectorIndent+2;
+  for(std::map<std::string,vtkMRMLNDLibraryNode *>::iterator subIter= DataLibraries.begin(); subIter!=DataLibraries.end(); ++subIter)
+    {
+    while (printspc.size()<SelectorIndent) 
+      {
+      printspc=printspc+" ";
+      }
+    //std::string subLib=subIter->second->GetLibName();
+    libList<< QString::fromStdString(printspc) + QString::fromStdString(subIter->first);
+    i++;
+    }
+  int libInsertPoint=0;
+  if ( d->LibrarySelectorDropList->count()>0 ) 
+    {
+    this->PrintText("  fill lib selector: clear");
+    this->ClearLibrarySelector();
+    } else 
+    {
+    //if ( d->LibrarySelectorDropList->count()
+    libInsertPoint=d->LibrarySelectorDropList->currentIndex()+1;
+    }
+  this->PrintText("  fill lib selector: Insert Items");
+  d->LibrarySelectorDropList->insertItems(libInsertPoint,libList); // if we dont clear
+
+  this->PrintText("  fill lib selector: set index 0 ");
+  d->LibrarySelectorDropList->setCurrentIndex(0);
+//   d->LibrarySelectorDropList->setDefaultText("Select Data");
+//   d->LibrarySelectorDropList->setCurrentIndex(-1);
+  d->ControlArea->setCollapsed(true);
+
+  return;
+}
+
+//-----------------------------------------------------------------------------
+QStringList qSlicerCIVM_GalleryControlModuleWidget::GetLibraries(QString libPath) {
   // called on module start to populate our list of libraries.
   int maxDepth=1;
-  QStringList libraries=GetLibraries(dataRoot,maxDepth);
+  QStringList libraries=GetLibraries(libPath,maxDepth);
   return libraries;
 }
 
 //-----------------------------------------------------------------------------
-QStringList qSlicerCIVM_GalleryControlModuleWidget::GetLibraries(QString dataRoot,int maxDepth) {
+QStringList qSlicerCIVM_GalleryControlModuleWidget::GetLibraries(QString libPath,int maxDepth) {
   // get library locations starting at dataroot, this should return a listing of all relevent libraries we could look.
   // That list should include the leaf libraries, the maxDepth integer is a limiter for how deep we will traverse
   // the real work is not done yet in this function, we just return one library for now. 
   QStringList libraries;
+  bool old_way=false;
   this->PrintMethod("GetLibraries");
   // get directory listing at dataRoot including all subdirs, add each (sorted somehow) to libraries list and return
   // rat times
@@ -165,23 +337,51 @@ QStringList qSlicerCIVM_GalleryControlModuleWidget::GetLibraries(QString dataRoo
   QString dog_spec = "AdultCanisL";
   QString monkey_spec="AdultMacacaM";
   QString monkey_spec2="AdultMacacaF";
-  vtkMRMLNDLibraryNode * mainLibrary; // compiles ok.
-  mainLibrary = new vtkMRMLNDLibraryNode(); // failure protected constructor!
-  vtkMRMLNDLibraryNode * mainLibrary2 = new vtkMRMLNDLibraryNode(dataRoot.toStdString()); // failure protected constuctor!
 
   //// this compiles runs and prints 
   vtkIndent id =  vtkIndent::vtkIndent(2);
-  this->PrintText("Lib1:");
-  mainLibrary->PrintSelf(std::cout,id); // prints lots of stuff...
+  if ( 0 ) { // empty constructor example, should not be allowed.
+    vtkMRMLNDLibraryNode * mainLibrary; 
+    mainLibrary = new vtkMRMLNDLibraryNode();  
+    this->PrintText("Lib1:");
+    mainLibrary->PrintSelf(std::cout,id); 
+  }
+
+  //vtkMRMLNDLibraryNode * dataStore = new vtkMRMLNDLibraryNode(libPath.toStdString()); // failure if protected constuctor!
+  // before we used vtkMRMLNDLibraryNode as our base storage.
+  //DataStore->GatherSubLibs();
   this->PrintText("Lib2:");
-  id=vtkIndent::vtkIndent(8);
-  mainLibrary2->PrintSelf(std::cout,id); // 
+  id=vtkIndent::vtkIndent(4);
+  DataStore->PrintSelf(std::cout,id); // 
 
-
-  
+  //QList<QString> tmp=QList<std::string>::fromVector(QVector<std::string>::fromStdVector(dataStore->GetAllPaths());
+  //dataStore->GetAllPaths()
+  std::vector<std::string> * vecLibPaths = new  std::vector<std::string>;
+  vecLibPaths=DataStore->GetAllPaths();
+  QStringList  myNDLibPaths= QStringList::QStringList();
+  //ctkUtils::stlVectorToQList(vecLibPaths,myNDLibPaths);
+//   std::vector<std::string> * myNDLibraryPaths = new std::vector<std::string>;
+//   myNDLibraryPaths=dataStore->GetAllPaths();
+//   //std::vector<std::string>* libRoots =SubPaths();
+  ////
+  // this works but it might not be the best way
+  ////
+  if ( 1 ) {
+    for ( int i=0; i< vecLibPaths->size(); i++ ) 
+      {
+	myNDLibPaths << vecLibPaths->at(i).c_str(); 
+	myNDLibPaths << vecLibPaths->at(i).c_str();
+      }
+  } else {
+//   for ( int i=0; i< dataStore->SubLibraries->size(); i++ ) 
+//     {
+//       myNDLibPaths <<  dataStore->SubLibraries->at(i)->Name.c_str();
+//       myNDLibPaths <<  dataStore->SubLibraries->at(i)->LibRoot.c_str();
+//     }
+  }
   //mainLibrary = new vtkMRMLGalleryControlLibraryNode(); 
 //->SetDataRoot(dataRoot.toStdString());
-//  vtkMRMLGalleryControlLibraryNode * MainLibraryWithPath = new vtkMRMLGalleryControlLibraryNode(dataRoot.toStdString());
+//  vtkMRMLGalleryControlLibraryNode * MainLibraryWithPath = new vtkMRMLGalleryControlLibraryNode(libPath.toStdString());
   //vtkMRMLTagCategoryStorageNode * tagStore = new vtkMRMLTagCategoryStorageNode; // this fails! we need to do better!
   
   //  QStringList speciesList;
@@ -214,27 +414,65 @@ QStringList qSlicerCIVM_GalleryControlModuleWidget::GetLibraries(QString dataRoo
   if ( maxDepth < 0 )  { libraries << "Human:Adult"; }
   //libraries << "Human:"+human_spec+":"+human_adult_time;
   libraries << "Human:"+human_spec;//+":"+human_adult_time;
-
-  return libraries;
+  if ( old_way ) 
+    { 
+      return libraries;
+    } 
+  else 
+    { 
+      return myNDLibPaths;
+    }
 }
 
 //-----------------------------------------------------------------------------
-QString qSlicerCIVM_GalleryControlModuleWidget::GetLibrary() {
-  // called BuildGallery to get the name of the library from the index'd drop down.
-  Q_D(qSlicerCIVM_GalleryControlModuleWidget);
-  //d->ComboBoxA->currentText();
-  
-  QString libraryName; //="Rat:Wistar";
-  libraryName=d->LibrarySelectorDropList->currentText();
-  QString library=this->DataLibraries[libraryName].filePath();
-  this->PrintText("GetLibrary "+library+"\n");
+QString qSlicerCIVM_GalleryControlModuleWidget::ReadLibraryPath(void) {
+  this->PrintText("ReadLibraryPath Slot");
+  return this->ReadLibraryPath(this->ReadLibraryName());
+}
+
+//-----------------------------------------------------------------------------
+QString qSlicerCIVM_GalleryControlModuleWidget::ReadLibraryPath(QString libraryName) {
+  // Read the library path from the ndlib referenced by the libraryName entry in our datastore qhash 
+  QString library;
+  this->PrintText("ReadLibraryName "+libraryName);
+  if (libraryName=="<No Data Selected>"|| libraryName=="NoName") 
+    {
+    this->PrintText("Lib path blank");
+    library="NoPath";
+    } 
+  else if ( libraryName == QString::fromStdString(DataStore->GetLibName()) ) 
+    {
+    library=QString::fromStdString(DataStore->GetLibRoot() );
+    }
+  else
+    {
+    std::string path = this->DataLibraries[libraryName.toStdString()]->GetLibRoot();
+    library=QString::fromStdString(path);
+    this->PrintText("ReadLibraryPath "+libraryName+":"+library);
+    }
   return library;
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerCIVM_GalleryControlModuleWidget::BuildGallery () {
-  QString library=this->GetLibrary();
-  this->BuildGallery(library);
+// 
+QString qSlicerCIVM_GalleryControlModuleWidget::ReadLibraryName(void) {
+  Q_D(qSlicerCIVM_GalleryControlModuleWidget);
+  //d->ComboBoxA->currentText();
+  QString libraryName="<No Data Selected>"; 
+  libraryName=d->LibrarySelectorDropList->currentText().trimmed();
+  this->PrintText("ReadLibraryName "+libraryName);
+  if (libraryName=="<No Data Selected>") 
+    {
+    this->PrintText("Lib name blank");
+    libraryName="NoName";
+    }
+  return libraryName;
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerCIVM_GalleryControlModuleWidget::BuildGallery (void) {
+  this->PrintMethod("BuildGallery slot");
+  this->BuildGallery(this->ReadLibraryName());
   return;
 }
 
@@ -243,14 +481,25 @@ void qSlicerCIVM_GalleryControlModuleWidget::BuildGallery (QString library) {
   // polls our data storage for the display protocols for a given library
   // this should be fired by any change to the library, eg connected to the drop down list of libraries.
   // insert a button into our gallery zone for each return value from GetDisplayProtocols
+  this->PrintMethod("BuildGallery");  
+  if (library=="<No Data Selected>" || library=="NoName" || library == "" ) 
+    {
+    this->PrintText("Lib name blank");
+    return;
+    }
+  else 
+    {
+    this->PrintText("Lib name present, continuing");
+//    return;
+    }
   Q_D(qSlicerCIVM_GalleryControlModuleWidget);
-
+  
   ////
   // clear layout
   // d->GalleryLayout->delete
   this->clearLayout(d->GalleryLayout,true);
   this->clearLayout(d->ControlLayout,true);
-  QStringList protocols = this->GetDisplayProtocols ();
+  QStringList protocols = this->GetDisplayProtocols (); // currently a hardcoded list of PGR and FA_Render
   QList<QPushButton*> galleryButtons;
 
   // prune protocol list
@@ -263,6 +512,7 @@ void qSlicerCIVM_GalleryControlModuleWidget::BuildGallery (QString library) {
       //}
       
     }
+  // add buttons for each protcol with their icon (and/or) button.
   for (int i = 0; i < protocols.size(); ++i)
     {
     //cout << fonts.at(i).toLocal8Bit().constData() << endl;
@@ -273,27 +523,28 @@ void qSlicerCIVM_GalleryControlModuleWidget::BuildGallery (QString library) {
   //   d->ControlFrame->setLayout(l);
       this->PrintText(protocols[i]);  
 
-
   //// FOR EACH PROTOCOL
       QPushButton * widge=  new QPushButton;
       //QIcon * ico = new QIcon(this->DataRoot+ps+"GalleryIcons"+ps+library+"_"+protocols[i]);
   
       widge->setText(protocols[i]);
       widge->setObjectName(protocols[i]);
-      QString lP=library;
+      //QString lP=library;
       //QString lN=library;
-      lP.replace(':',ps);
-      this->LibRoot=this->DataRoot+ps+lP;
-      this->SelectedLib=d->LibrarySelectorDropList->currentText();
+      //lP.replace(':',ps);
+      //this->ReadLibraryPath=this->DataRoot+ps+lP;
+      //this->ReadLibraryPath=this->ReadLibraryPath(this->ReadLibraryName());
+      
+      //this->SelectedLib=d->LibrarySelectorDropList->currentText().trimmed();
+      //this->SelectedLibName=this->ReadLibraryName();
 
-      QString iconPath=this->LibRoot;
+
       //lN.replace(':','_');
       //iconPath=iconPath+ps+"GalleryIcons"+ps+library+'_'+protocols[i]+".png"; //+ps+"GalleryIcons"
-      iconPath=DataRoot+ps+"GalleryIcons"+ps+library+'_'+protocols[i]+".png"; //+ps+"GalleryIcons"
+      QString iconPath=ReadLibraryPath(library)+"/GalleryIcons"+ps+library+'_'+protocols[i]+".png"; 
       this->PrintText(iconPath);
       //iconPath.replace(':',ps);
       widge->setIcon(QIcon(iconPath));
-      
       galleryButtons.push_back(widge);
       d->GalleryLayout->addWidget(galleryButtons.at(i));
       
@@ -316,21 +567,21 @@ void qSlicerCIVM_GalleryControlModuleWidget::SetControls()
   if ( panelName == "PGR" ) 
     {
       //qSlicerCIVM_GalleryControlPanelPGRWidget * panel = new qSlicerCIVM_GalleryControlPanelPGRWidget(this); //Ui_
-      qSlicerCIVM_GalleryControlPanelPGRWidget * panel = new qSlicerCIVM_GalleryControlPanelPGRWidget(this,this->LibRoot); //Ui_
-      this->PrintText( "adding controls using "+this->LibRoot);
+    qSlicerCIVM_GalleryControlPanelPGRWidget * panel = new qSlicerCIVM_GalleryControlPanelPGRWidget(this,this->ReadLibraryPath(this->ReadLibraryName())); //Ui_
+    this->PrintText( "adding controls using "+this->ReadLibraryName());
       //QSlicerModuleWidget
       d->ControlLayout->addWidget(panel);
     } 
   else if ( panelName == "FA_Render" ) 
     {
-    QString out_path = "FARenderScenes"+ps+this->SelectedLib+".mrml";
+    QString out_path = "FARenderScenes"+ps+this->ReadLibraryName()+".mrml";
     out_path.replace(':','_');
-	out_path=this->DataRoot+ps+out_path;
+    out_path=this->DataRoot+ps+out_path;
     this->PrintText("FA_Render load of "+out_path);
-	//out_path.replace("C_","C:");
-	//out_path.replace("DataLibraries"+ps,"");
+    //out_path.replace("C_","C:");
+    //out_path.replace("DataLibraries"+ps,"");
     qSlicerApplication::application()->ioManager()->loadScene(out_path,false);
-
+    
     }
   else
     {
@@ -344,6 +595,7 @@ void qSlicerCIVM_GalleryControlModuleWidget::SetControls()
 //-----------------------------------------------------------------------------
 void qSlicerCIVM_GalleryControlModuleWidget::clearLayout(QLayout* layout, bool deleteWidgets = true)
 {
+// function to clear the control areas(protcol selection and control selection).
   while (QLayoutItem* item = layout->takeAt(0))
     {
       if (deleteWidgets)
@@ -364,6 +616,10 @@ QStringList qSlicerCIVM_GalleryControlModuleWidget::GetDisplayProtocols()
   // This function interface is not certain yet, it might be desireable to take a list of dimensions
   // or a list of lists of values in dimensions.
   // also might need to instantiate all possible protocols and return a pointer to a vector of them.
+  //
+  // probably want a container of all possible protocols, 
+  // and a container of relevent protocols, 
+  // this should build the list of relvent from the list of all possible. 
   QStringList protocols;
   //get libdims? 
   //select layouts supporting up to number of libdims?
@@ -373,16 +629,16 @@ QStringList qSlicerCIVM_GalleryControlModuleWidget::GetDisplayProtocols()
 }
 
 //-----------------------------------------------------------------------------
-QStringList qSlicerCIVM_GalleryControlModuleWidget::GetLibDims(QString library ) 
-{
+QStringList qSlicerCIVM_GalleryControlModuleWidget::GetLibDims(QString library ) {
+  // make one in each gallery class
   QStringList dimensions;
   dimensions << "contrast"; //<< "time" ;
   return dimensions;
 }
 
 //-----------------------------------------------------------------------------
-QStringList qSlicerCIVM_GalleryControlModuleWidget::GetDimEntries(QString library,QString dimension) 
-{
+QStringList qSlicerCIVM_GalleryControlModuleWidget::GetDimEntries(QString library,QString dimension) {
+  // make one in each gallery class
   QStringList dimValues;
   // if dimension== contrast
   // if dimension== time
@@ -393,13 +649,13 @@ QStringList qSlicerCIVM_GalleryControlModuleWidget::GetDimEntries(QString librar
 
 //-----------------------------------------------------------------------------
 void qSlicerCIVM_GalleryControlModuleWidget::SetDisplayLayout(QString name){
-  
+  // make one in each gallery class
   return;
 }
 
 //-----------------------------------------------------------------------------
 void qSlicerCIVM_GalleryControlModuleWidget::BuildDisplayControls(QString protocol,QWidget panel){
-
+// make one in each gallery class
   return;  
 }
 

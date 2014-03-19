@@ -24,13 +24,11 @@
 
 // SlicerQt includes
 #include "qSlicerAbstractModuleWidget.h"
-
 #include "qSlicerCIVM_GalleryControlModuleExport.h"
 
 
-
 // civm includes
-//#include <vtkMRMLNDLibraryNode.h>
+#include <vtkMRMLNDLibraryNode.h>
 
 class qSlicerCIVM_GalleryControlModuleWidgetPrivate;
 class vtkMRMLNode;
@@ -53,7 +51,9 @@ public:
   QStringList GetLibraries(QString );
   QStringList GetLibraries(QString, int);
   void SetLibraries(QString);
-  QString GetLibrary();
+  QString ReadLibraryPath(void); // reads the library path for our selected lib first calling readlibraryname
+  QString ReadLibraryPath(QString); // reads the gui data selector and gets the path for that library
+  QString ReadLibraryName(); // reads the gui data selector and gets the name selected
   QStringList GetLibDims(QString  );
   QStringList GetDimEntries(QString, QString );
   QStringList GetDisplayProtocols();   // function to list any/all display protocols supported by this module
@@ -68,30 +68,44 @@ public slots:
   
 protected slots:
 
-  void BuildGallery(void);
+  void BuildGallery(void); 
   void BuildGallery(QString );
-  void SetControls();
-protected:
+  void FillDataLibraries();   //get sublibs out of datastore
+  bool FillDataLibraries(QString);   //get sublibs out of datastore
+  void FillLibrarySelector(void); //fill out our select data gui from datalibraries
+  void ClearLibrarySelector(void); // clear out our library list.s
+  void SetControls(); 
+
+ protected:
   QScopedPointer<qSlicerCIVM_GalleryControlModuleWidgetPrivate> d_ptr;
   
   virtual void setup();
+  
+  private slots: 
+  void HomeButton(void ); // slot to listen to the HomeDataPushButtonObject;
+  void BackButton(void ); // slot to listen to the BackDataPushButtonObject;
 
  private:
   Q_DECLARE_PRIVATE(qSlicerCIVM_GalleryControlModuleWidget);
   Q_DISABLE_COPY(qSlicerCIVM_GalleryControlModuleWidget);
   QString DataRoot;
-  QString LibRoot;     // root of library we've selected
-  QString SelectedLib; // name of library we've selected
+  //QString LibRoot;     // root of library we've selected
+  //QString SelectedLibName(void); // name of library we've selected,!bad use readlibraryname
+  //QString SelectedLibPath(void); // path to the selected library, used by older modules, BAD use readlibrarypath
   QString ps;
+  int SelectorIndent;
   //DataObject *DataLibrary. // this should have somekind of method like librarylist returinging a list/vector/something of data libraries
   // we'll simulate that now using a qhash
-  QHash<QString, QFileInfo> DataLibraries;
-  
+  //QHash<QString, QFileInfo> DataLibraries;
+  std::map<std::string,vtkMRMLNDLibraryNode *>  DataLibraries;
+  //std::map<std::string,displayprotcolclass *> DisplayProtocols; // to be filled in later.
 
   void PrintText(const QString);
   void PrintMethod(const QString);
   void clearLayout(QLayout* , bool );
-
+  
+  vtkMRMLNDLibraryNode * DataStore;
+  vtkMRMLNDLibraryNode * DataStoreLast;
 };
 
 #endif
