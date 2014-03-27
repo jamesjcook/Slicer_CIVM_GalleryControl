@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>266</width>
-    <height>201</height>
+    <width>262</width>
+    <height>239</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -61,9 +61,6 @@
       </item>
      </layout>
     </widget>
-   </item>
-   <item row="1" column="2">
-    <widget class="ctkComboBox" name="LibrarySelectorDropList"/>
    </item>
    <item row="6" column="2">
     <spacer name="verticalSpacer">
@@ -120,6 +117,18 @@
    </item>
    <item row="0" column="2">
     <widget class="QFrame" name="SelectionArea">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>100</height>
+      </size>
+     </property>
      <property name="frameShape">
       <enum>QFrame::NoFrame</enum>
      </property>
@@ -129,74 +138,73 @@
      <property name="lineWidth">
       <number>0</number>
      </property>
-     <widget class="QLabel" name="LibrarySelectorLabel">
-      <property name="geometry">
-       <rect>
-        <x>0</x>
-        <y>4</y>
-        <width>100</width>
-        <height>20</height>
-       </rect>
-      </property>
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="minimumSize">
-       <size>
-        <width>100</width>
-        <height>20</height>
-       </size>
-      </property>
-      <property name="contextMenuPolicy">
-       <enum>Qt::NoContextMenu</enum>
-      </property>
-      <property name="lineWidth">
+     <layout class="QVBoxLayout" name="verticalLayout_2">
+      <property name="margin">
        <number>0</number>
       </property>
-      <property name="text">
-       <string>Data Selection</string>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="HomeDataPushButton">
-      <property name="geometry">
-       <rect>
-        <x>108</x>
-        <y>0</y>
-        <width>79</width>
-        <height>32</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>Home</string>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="BackDataPushButton">
-      <property name="geometry">
-       <rect>
-        <x>189</x>
-        <y>0</y>
-        <width>71</width>
-        <height>32</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>Back</string>
-      </property>
-     </widget>
-     <widget class="QWidget" name="verticalLayoutWidget">
-      <property name="geometry">
-       <rect>
-        <x>10</x>
-        <y>10</y>
-        <width>160</width>
-        <height>80</height>
-       </rect>
-      </property>
-      <layout class="QVBoxLayout" name="SelectionLayout"/>
-     </widget>
+      <item>
+       <layout class="QHBoxLayout" name="StaticControlBox">
+        <item>
+         <widget class="QLabel" name="LibrarySelectorLabel">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>90</width>
+            <height>20</height>
+           </size>
+          </property>
+          <property name="contextMenuPolicy">
+           <enum>Qt::NoContextMenu</enum>
+          </property>
+          <property name="lineWidth">
+           <number>0</number>
+          </property>
+          <property name="text">
+           <string>Data Selection</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="HomeDataPushButton">
+          <property name="text">
+           <string>Home</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="BackDataPushButton">
+          <property name="text">
+           <string>Back</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="ctkComboBox" name="LibrarySelectorDropList">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>100</width>
+          <height>0</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QVBoxLayout" name="SelectionLayout"/>
+      </item>
+     </layout>
     </widget>
    </item>
   </layout>
@@ -227,7 +235,6 @@
   </customwidget>
  </customwidgets>
  <tabstops>
-  <tabstop>LibrarySelectorDropList</tabstop>
   <tabstop>GalleryArea</tabstop>
  </tabstops>
  <resources/>

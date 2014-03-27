@@ -117,11 +117,14 @@ void qSlicerCIVM_GalleryControlModuleWidget::setup()
 
   
     {
-     qSlicerCIVM_GalleryControlPanelDataSelectorWidget * panelDataSelector =
-       new qSlicerCIVM_GalleryControlPanelDataSelectorWidget(this,DataStore);
 //     qSlicerCIVM_GalleryControlPanelDataSelectorWidget * panelDataSelector =
 //       new qSlicerCIVM_GalleryControlPanelDataSelectorWidget(this,DataStore);
-     //d->SelectionLayout->addWidget(panelDataSelector);;
+//     d->SelectionLayout->addWidget(panelDataSelector);
+
+
+//     qSlicerCIVM_GalleryControlPanelDataSelectorWidget * panelDataSelector =
+//       new qSlicerCIVM_GalleryControlPanelDataSelectorWidget(this,DataStore);
+
     } 
 
   
