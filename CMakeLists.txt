@@ -23,5 +23,9 @@ add_subdirectory(CIVM_GalleryControl)
 #add_subdirectory(LoadableModuleTemplate)
 #add_subdirectory(CIVM_AdultRatPGR)
 add_subdirectory(MRML)
+if(BUILD_TESTING)
+  add_subdirectory(Testing)
+endif()
+
 #-----------------------------------------------------------------------------
 include(${Slicer_EXTENSION_CPACK})

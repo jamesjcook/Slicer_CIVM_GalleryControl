@@ -10,6 +10,7 @@
 
 
 #ifndef __vtkMRMLNDLibraryNode_h
+#define __vtkMRMLNDLibraryNode_h
 
 // MRML includes
 #include "vtkMRML.h"
@@ -27,6 +28,7 @@ class VTK_MRML_EXPORT vtkMRMLNDLibraryNode : public vtkMRMLStorableNode
   // declare friends
   // friend class qslicer_CIVM_GalleryControlModule;// maybe?
   //// friend class qslicer_CIVM_GalleryControlModule;// maybe?
+  friend class vtkMRMLNDLibraryBuilder;
  public:
 /// Create a new vtkMRMLNDLibraryNode
   //static vtkMRMLNDLibraryNode *New();
@@ -37,10 +39,14 @@ class VTK_MRML_EXPORT vtkMRMLNDLibraryNode : public vtkMRMLStorableNode
   vtkMRMLNDLibraryNode(std::string,std::string );
   vtkMRMLNDLibraryNode(std::string,std::string,std::string );
   ~vtkMRMLNDLibraryNode(void);
-  void GatherSubLibs();  //Uses libroot and builds our library, recursively building a lib
-                        //for each directory encountered and storing it to sublibraries.
-                        // this is the constructors job you fool.
-  void GetSubDirs(std::vector<std::string> * , std::string ) ;
+  void GatherSubLibs();  // Uses libroot and builds our library, recursively building a lib
+                         // for each directory encountered and storing it to sublibraries.
+                         // this is the builder class's job.
+                         //   
+  // this should be rename=repurposed to gather a map of name-path values.
+  // * ndlibrary=GetSublibAtPath(path) should return pointer to ndlib to go from path to values for later modules.
+  void GetSubDirs(std::vector<std::string> * , std::string ) ; 
+  
 
 
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -54,7 +60,13 @@ class VTK_MRML_EXPORT vtkMRMLNDLibraryNode : public vtkMRMLStorableNode
 
   vtkSetMacro(Category,std::string);    
   vtkGetMacro(Category,std::string);    
-//vtkGetObjectMacro(SubLibraries,);
+  
+  vtkSetMacro(CurrentSelection,vtkMRMLNDLibraryNode *);
+  vtkGetMacro(CurrentSelection,vtkMRMLNDLibraryNode *);
+
+  vtkSetMacro(ParentNode,vtkMRMLNDLibraryNode *);
+  vtkGetMacro(ParentNode,vtkMRMLNDLibraryNode *);
+  //vtkGetObjectMacro(SubLibraries,);
   std::map<std::string,vtkMRMLNDLibraryNode *>  GetSubLibraries(void); 
   void ResetLibrary(void);
   void ResetLibrary(std::string);
@@ -100,7 +112,8 @@ class VTK_MRML_EXPORT vtkMRMLNDLibraryNode : public vtkMRMLStorableNode
   std::vector<std::string>* SubPaths(); // returns the list of sub libraries paths we need to continue building on.
 
   //private vars
-
+  vtkMRMLNDLibraryNode * ParentNode;  // holds pointer to our parent dataset for use when we've got a hierarchy so the gui knows where we are.
+  vtkMRMLNDLibraryNode * CurrentSelection;  // holds our selected dataset for use when we've got a hierarchy so the gui knows where we are.
   std::map<std::string,vtkMRMLNDLibraryNode *> SubLibraries;
   //std::vector<vtkMRMLNDLibraryNode *> * SubLibraries;
   //vtkMRMLNDLibraryNode(const vtkMRMLNDLibraryNode&);//Not implemented

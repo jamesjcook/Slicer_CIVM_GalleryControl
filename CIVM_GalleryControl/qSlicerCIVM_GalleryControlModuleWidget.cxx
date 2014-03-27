@@ -38,9 +38,11 @@
 //#include "vtkMRMLGalleryControlLibraryNode.h"
 //#include <vtkMRMLNDLibraryNode.h>
 //#include "vtkMRMLTagCategoryStorageNode.h"
+#include "vtkMRMLNDLibraryBuilder.h"
 
 // Panel includes
 #include "qSlicerCIVM_GalleryControlPanelPGRWidget.h"
+#include "qSlicerCIVM_GalleryControlPanelDataSelectorWidget.h"
 
 // SlicerQt includes
 #include "qSlicerApplication.h"
@@ -94,15 +96,34 @@ void qSlicerCIVM_GalleryControlModuleWidget::setup()
   this->ps=('/');
   this->DataRoot=QString("");
 #endif
-  this->DataRoot=DataRoot+ps+"DataLibraries"+ps+"Brain"; //
-  this->DataStore = new vtkMRMLNDLibraryNode();
-  
+  DataRoot=DataRoot+ps+"DataLibraries"+ps+"Brain"; //
+  DataStore = new vtkMRMLNDLibraryNode();
+//   this->FullDataLibrary = new vtkMRMLNDLibraryNode(DataRoot.toStdString(),std::string("Brain"),std::string("organ"));
+//   vtkMRMLNDLibraryBuilder * libBuilder= new vtkMRMLNDLibraryBuilder();
+//   bool status = libBuilder->Build(FullDataLibrary);
+//   if ( ! status ) 
+//     {
+//       QString failMessage=
+// 	"build failed on lib";
+//       failMessage=failMessage+QString::fromStdString(FullDataLibrary->GetLibName());
 
+//       this->PrintText(failMessage);
+//     }
   this->HomeButton();
 // need to setCollapsed true on gallery selection and gallery control during init,
   //d->DocumentationArea->setCollapsed(false);
   d->GalleryArea->setCollapsed(true);
   d->ControlArea->setCollapsed(true);
+
+  
+    {
+     qSlicerCIVM_GalleryControlPanelDataSelectorWidget * panelDataSelector =
+       new qSlicerCIVM_GalleryControlPanelDataSelectorWidget(this,DataStore);
+//     qSlicerCIVM_GalleryControlPanelDataSelectorWidget * panelDataSelector =
+//       new qSlicerCIVM_GalleryControlPanelDataSelectorWidget(this,DataStore);
+     //d->SelectionLayout->addWidget(panelDataSelector);;
+    } 
+
   
   //BuildGallery();
   //connect LibrarySelectDropList to filllibselector, and to build gallery
@@ -221,8 +242,12 @@ bool qSlicerCIVM_GalleryControlModuleWidget::FillDataLibraries(QString libPath) 
     {// desired path is not the same as our current data store, should happen on init, or on change.
     this->PrintText("DataStore Reset to new lib path");
     DataStore->ResetLibrary(libPath.toStdString());
+    //vtkMRMLNDLibraryBuilder * libBuilder= new vtkMRMLNDLibraryBuilder::vtkMRMLNDLibraryBuilder(DataStore); // no match...
+    vtkMRMLNDLibraryBuilder * libBuilder= new vtkMRMLNDLibraryBuilder;
     SelectorIndent=0;
-    this->DataStore->GatherSubLibs();
+    // this->DataStore->GatherSubLibs();
+    
+    libBuilder->Build(DataStore);
     DataLibraries=DataStore->GetSubLibraries();
     } 
   else  if ( libPath == QString::fromStdString(DataStore->GetLibRoot())  ) 
@@ -283,6 +308,12 @@ void qSlicerCIVM_GalleryControlModuleWidget::FillLibrarySelector(void) {
     libList<< QString::fromStdString(printspc) + QString::fromStdString(subIter->first);
     i++;
     }
+  
+
+//for(std::map<std::string,vtkMRMLNDLibraryNode *>::iterator subIter= DataLibraries.begin(); subIter!=DataLibraries.end(); ++subIter)  {
+  //DataStore->
+//}
+
   int libInsertPoint=0;
   if ( d->LibrarySelectorDropList->count()>0 ) 
     {
@@ -567,10 +598,10 @@ void qSlicerCIVM_GalleryControlModuleWidget::SetControls()
   if ( panelName == "PGR" ) 
     {
       //qSlicerCIVM_GalleryControlPanelPGRWidget * panel = new qSlicerCIVM_GalleryControlPanelPGRWidget(this); //Ui_
-    qSlicerCIVM_GalleryControlPanelPGRWidget * panel = new qSlicerCIVM_GalleryControlPanelPGRWidget(this,this->ReadLibraryPath(this->ReadLibraryName())); //Ui_
+    qSlicerCIVM_GalleryControlPanelPGRWidget * panelPGR = new qSlicerCIVM_GalleryControlPanelPGRWidget(this,this->ReadLibraryPath(this->ReadLibraryName())); //Ui_
     this->PrintText( "adding controls using "+this->ReadLibraryName());
       //QSlicerModuleWidget
-      d->ControlLayout->addWidget(panel);
+      d->ControlLayout->addWidget(panelPGR);
     } 
   else if ( panelName == "FA_Render" ) 
     {

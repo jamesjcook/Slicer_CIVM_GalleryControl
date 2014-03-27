@@ -1,10 +1,13 @@
+// james cook
+// Center for InVivo Microscopy,  Duke Universtiy North Carolina
+// ~2014 
 //vtkMRMLNDLibraryNode
 // node to hold onto information related to alibrary of data.
 // we will start basically with hardcoded libraries at first then expand the class to use a database
 
 #include <vtkMRMLNode.h>
 #include <vtkObjectFactory.h>
-#include  <vtkNew.h>
+#include <vtkNew.h>
 #include <vtkMRMLVolumeNode.h>
 #include <vtkSmartPointer.h>
 #include <vtkMRMLNDLibraryNode.h>
@@ -30,9 +33,11 @@ vtkMRMLNDLibraryNode::vtkMRMLNDLibraryNode(void)
   //   cout << "Library Node instantiated";
   //this->SlicerDataType="";//.clear();
   //this->SetLibRoot("/");
-  this->LibRoot = "NoPath";
-  this->Category= "NoCategory";
-  this->LibName = "NoName";
+  LibRoot = "NoPath";
+  Category= "NoCategory";
+  LibName = "NoName";
+  CurrentSelection = 0 ;
+  ParentNode = 0 ;
   //this->SubLibraries["Parent"]=this;
 }
 
@@ -45,6 +50,8 @@ vtkMRMLNDLibraryNode::vtkMRMLNDLibraryNode( std::string name,std::string path)
   Category= "NoCategory";
   //ResetLibrary(path);! cant do that...
   LibName = name;
+  CurrentSelection = 0 ;
+  ParentNode = 0 ;
 }
 
 //----------------------------------------------------------------------------
@@ -55,7 +62,8 @@ vtkMRMLNDLibraryNode::vtkMRMLNDLibraryNode( std::string name,std::string categor
   Category= category;
   //ResetLibrary(path);! cant do that...
   LibName = name;
-  
+  CurrentSelection = 0 ;
+  ParentNode = 0 ;
 }
 
 //----------------------------------------------------------------------------
@@ -166,7 +174,7 @@ void vtkMRMLNDLibraryNode::GetAllPaths(std::vector<std::string> * pathList)
 //----------------------------------------------------------------------------
 std::map<std::string,vtkMRMLNDLibraryNode *> vtkMRMLNDLibraryNode::GetSubLibraries(void)
 {
-  return this->SubLibraries;
+  return SubLibraries;
 }
 
 //----------------------------------------------------------------------------
@@ -181,26 +189,6 @@ std::vector<std::map<std::string,std::string> > * vtkMRMLNDLibraryNode::GetLibTr
 //----------------------------------------------------------------------------
 void vtkMRMLNDLibraryNode::GatherSubLibs()
 {
-  // read category information from somewhere?
-  if ( 0 )
-    {
-      if ( LibRoot == "/DataLibraries/Brain/Rattus_norvegicus")
-	{
-	  Category="Strain";
-	}  
-      else  if ( LibRoot != "/DataLibraries/Brain")
-	{
-	  Category="Species";
-	}else
-	{
-	  Category="organ";
-	}
-      char delim='/';
-      std::vector<std::string> libPathParts=this->split(LibRoot,delim);
-      LibName=libPathParts[libPathParts.size()];
-      // read tag data from some where?
-      // set name some way...      
-  }
   // set sublibs
   std::vector<std::string> * libRoots = this->SubPaths();  
   //if ( 0 ) { 
@@ -427,7 +415,7 @@ void  vtkMRMLNDLibraryNode::GetSubDirs(std::vector<std::string > * path_vec, std
     else 
       { 
 	// if is dir, get entry.
-	if ( entry->d_type == 4  && entry->d_name[0] != '.' ) 
+	if ( entry->d_type == 4  )// && entry->d_name[0] != '.' ) 
 	  {
 	std::cout << "cout: "<< dir_name.c_str() << "/" << entry->d_name<< "\n";
 
@@ -512,6 +500,17 @@ void vtkMRMLNDLibraryNode::GetFilesInDirectory(std::vector<std::string> &out, co
 
 //----------------------------------------------------------------------------
 vtkMRMLNDLibraryNode::~vtkMRMLNDLibraryNode(void)
+
 {
   // this->SlicerDataType.clear();
+
+  for(std::map<std::string,vtkMRMLNDLibraryNode *>::iterator subIter= SubLibraries.begin(); subIter!=SubLibraries.end();++subIter)
+    {
+      //SubLibraries[]
+      //subIter->second->PrintSelf(os,indent.GetNextIndent());
+      
+      //delete[] subIter->second();// failure, objectype is not a function of funtion pointer
+      //delete subIter->second();// failure, objectype is not a function of funtion pointer
+    }
+  //
 }

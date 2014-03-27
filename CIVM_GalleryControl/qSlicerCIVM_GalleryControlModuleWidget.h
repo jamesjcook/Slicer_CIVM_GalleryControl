@@ -70,16 +70,16 @@ protected slots:
 
   void BuildGallery(void); 
   void BuildGallery(QString );
-  void FillDataLibraries();   //get sublibs out of datastore
+  void FillDataLibraries(void);   //get sublibs out of datastore
   bool FillDataLibraries(QString);   //get sublibs out of datastore
   void FillLibrarySelector(void); //fill out our select data gui from datalibraries
   void ClearLibrarySelector(void); // clear out our library list.s
-  void SetControls(); 
+  void SetControls(void); 
 
  protected:
   QScopedPointer<qSlicerCIVM_GalleryControlModuleWidgetPrivate> d_ptr;
   
-  virtual void setup();
+  virtual void setup(void);
   
   private slots: 
   void HomeButton(void ); // slot to listen to the HomeDataPushButtonObject;
@@ -105,7 +105,8 @@ protected slots:
   void clearLayout(QLayout* , bool );
   
   vtkMRMLNDLibraryNode * DataStore;
-  vtkMRMLNDLibraryNode * DataStoreLast;
+  vtkMRMLNDLibraryNode * FullDataLibrary;
+
 };
 
 #endif

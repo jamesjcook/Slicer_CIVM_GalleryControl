@@ -1,6 +1,3 @@
-
-
-
 set(KIT "vtkMRMLNDLibraryNode")
 project(${KIT})
 set(${KIT}_EXPORT_DIRECTIVE "VTK_MRML_EXPORT")
@@ -13,6 +10,8 @@ set(${KIT}_SRCS
   vtkMRMLTagCategoryStorageNode.h
   vtkMRMLNDLibraryNode.cxx
   vtkMRMLNDLibraryNode.h
+  vtkMRMLNDLibraryBuilder.cxx
+  vtkMRMLNDLibraryBuilder.h
   )
 
 set(${KIT}_TARGET_LIBRARIES
