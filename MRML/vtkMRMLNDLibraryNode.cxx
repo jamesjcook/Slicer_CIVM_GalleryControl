@@ -96,27 +96,11 @@ vtkMRMLNDLibraryNode::vtkMRMLNDLibraryNode(std::string path)
   std::vector<std::string> libPathParts=this->split(LibRoot,delim);
   //  LibName=libPathParts[libPathParts.size()-1];
   LibName=libPathParts.back();// this should be modified to give a better name.
-
-  //SubLibraries = new std::map<std::string,vtkMRMLNDLibraryNode *>;
-
   // read tag data from some where?
-  
   // set name some way...
   // set sublibs
-  
-  if ( 0 ) {  // this is still in pointer to vector of libs, not updated to map code
-    std::vector<std::string > * libRoots =SubPaths();
-    for ( int i=0; i< libRoots->size(); i++ ) 
-      {
-	//subLib = vtkMRMLNDLibrarynode(*it);
-	//subLib = subLib;
-	vtkMRMLNDLibraryNode * subLib = new vtkMRMLNDLibraryNode::vtkMRMLNDLibraryNode(libRoots->at(i));
-	//      SubLibraries->push_back(subLib);
-	//SubLibraries[i]=subLib;
-      }
-    //= new vtkMRMLNDLibraryNode(subPath); // failure protected constuctor!
-    // foreach sub path construct a lib
-  }
+  CurrentSelection = 0 ;
+  ParentNode = 0 ;
 }
 
 //----------------------------------------------------------------------------

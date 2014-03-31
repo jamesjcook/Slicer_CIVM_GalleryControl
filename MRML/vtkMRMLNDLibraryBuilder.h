@@ -35,7 +35,7 @@ class VTK_MRML_EXPORT vtkMRMLNDLibraryBuilder : public vtkMRMLStorableNode
   void PrintSelf(ostream& os, vtkIndent indent);
   
   void SetSlicerDataType ( const char *type) ;
-  //vtkSetMacro(LibRoot,std::string);    
+  vtkSetMacro(LibPointer,vtkMRMLNDLibraryNode *);    
   //vtkGetMacro(LibRoot,std::string);    
   vtkMRMLNode* CreateNodeInstance() ;
   
@@ -43,13 +43,14 @@ class VTK_MRML_EXPORT vtkMRMLNDLibraryBuilder : public vtkMRMLStorableNode
   virtual const char* GetNodeTagName() {return "NDLibraryBuilder";};
 
   vtkMRMLNDLibraryBuilder(void);
+  //vtkMRMLNDLibraryBuilder(vtkMRMLNDLibraryNode * libPointer=0);
   vtkMRMLNDLibraryBuilder(std::string);
   ~vtkMRMLNDLibraryBuilder(void);
   
   // differnet builder funtions
   // return true on success or false on fail
   //bool Build(void);
-  bool Build(std::string); // build an nd lib which must be set before hand in our ndlib pointer using a tag cloud at string.
+  bool Build(std::string);  // build an nd lib which must be set before hand in our ndlib pointer using a tag cloud at string.
   bool Build(std_str_hash); // build an nd lib which must be set before hand in our ndlib pointer using a tag cloud at string.
   bool Build(vtkMRMLNDLibraryNode *, std_str_hash);   // build an nd lib using a tag cloud at string.
   bool Build(vtkMRMLNDLibraryNode *);                                      // build the nd lib, which presumeable has alredy had its path name and category set.

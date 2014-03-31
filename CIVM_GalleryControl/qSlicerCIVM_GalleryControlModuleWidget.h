@@ -38,7 +38,7 @@ class Q_SLICER_QTMODULES_CIVM_GALLERYCONTROL_EXPORT qSlicerCIVM_GalleryControlMo
   public qSlicerAbstractModuleWidget
 {
   Q_OBJECT
-
+    friend class qSlicerCIVM_GalleryControlPanelDataSelector;
 public:
 
   typedef qSlicerAbstractModuleWidget Superclass;
@@ -48,32 +48,33 @@ public:
 
 
 
-  QStringList GetLibraries(QString );
-  QStringList GetLibraries(QString, int);
-  void SetLibraries(QString);
+/*   QStringList GetLibraries(QString ); */
+/*   QStringList GetLibraries(QString, int); */
+/*   void SetLibraries(QString); */
   QString ReadLibraryPath(void); // reads the library path for our selected lib first calling readlibraryname
   QString ReadLibraryPath(QString); // reads the gui data selector and gets the path for that library
   QString ReadLibraryName(); // reads the gui data selector and gets the name selected
-  QStringList GetLibDims(QString  );
-  QStringList GetDimEntries(QString, QString );
+/*   QStringList GetLibDims(QString  ); */
+/*   QStringList GetDimEntries(QString, QString ); */
   QStringList GetDisplayProtocols();   // function to list any/all display protocols supported by this module
-  void LoadData();
-  void SetDisplayLayout(QString );
+  void LoadData(); 
+  void SetDisplayLayout(QString ); 
   void BuildDisplayControls(QString, QWidget);
   void nothing();
 
 
 
 public slots:
-  
+
 protected slots:
 
   void BuildGallery(void); 
   void BuildGallery(QString );
-  void FillDataLibraries(void);   //get sublibs out of datastore
-  bool FillDataLibraries(QString);   //get sublibs out of datastore
-  void FillLibrarySelector(void); //fill out our select data gui from datalibraries
-  void ClearLibrarySelector(void); // clear out our library list.s
+  void DataSelected(void);        //get the selected lib from the data container. 
+/*   void FillDataLibraries(void);   //get sublibs out of datastore */
+/*   bool FillDataLibraries(QString);   //get sublibs out of datastore */
+/*   void FillLibrarySelector(void); //fill out our select data gui from datalibraries */
+/*   void ClearLibrarySelector(void); // clear out our library list.s */
   void SetControls(void); 
 
  protected:
@@ -82,8 +83,8 @@ protected slots:
   virtual void setup(void);
   
   private slots: 
-  void HomeButton(void ); // slot to listen to the HomeDataPushButtonObject;
-  void BackButton(void ); // slot to listen to the BackDataPushButtonObject;
+/*   void HomeButton(void ); // slot to listen to the HomeDataPushButtonObject; */
+/*   void BackButton(void ); // slot to listen to the BackDataPushButtonObject; */
 
  private:
   Q_DECLARE_PRIVATE(qSlicerCIVM_GalleryControlModuleWidget);

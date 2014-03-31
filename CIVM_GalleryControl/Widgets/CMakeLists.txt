@@ -6,9 +6,10 @@ set(${KIT}_EXPORT_DIRECTIVE "Q_SLICER_MODULE_${MODULE_NAME_UPPER}_WIDGETS_EXPORT
 
 set(${KIT}_INCLUDE_DIRECTORIES
 #  get_filename_component(PARENT_DIR ${CMAKE_CURRENT_SOURCE_DIR} DIRECTORY)
-#  "/Applications/SegmentationSoftware/src/GalleryControl_multi/CIVM_GalleryControl_nightly/CIVM_GalleryControl"
-   ${vtkMRMLNDLibraryNode_SOURCE_DIR}
+#  "/Applications/SegmentationSoftware/src/GalleryControl_multi/CIVM_GalleryControl_nightly/CIVM_GalleryControl" 
+  ${vtkMRMLNDLibraryNode_SOURCE_DIR}
   ${vtkMRMLNDLibraryNode_BINARY_DIR}
+  
   )
 
 set(${KIT}_SRCS
@@ -45,7 +46,7 @@ set(${KIT}_RESOURCES
 
 set(${KIT}_TARGET_LIBRARIES
   vtkSlicer${MODULE_NAME}ModuleLogic
-#  vtkMRMLNDLibrayNode
+  vtkMRMLNDLibraryNode
   vtkSlicerMarkupsModuleMRML
   )
 
