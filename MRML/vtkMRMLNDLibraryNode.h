@@ -39,7 +39,7 @@ class VTK_MRML_EXPORT vtkMRMLNDLibraryNode : public vtkMRMLStorableNode
   vtkMRMLNDLibraryNode(std::string,std::string );
   vtkMRMLNDLibraryNode(std::string,std::string,std::string );
   ~vtkMRMLNDLibraryNode(void);
-  void GatherSubLibs();  // Uses libroot and builds our library, recursively building a lib
+  //void GatherSubLibs();  // Uses libroot and builds our library, recursively building a lib
                          // for each directory encountered and storing it to sublibraries.
                          // this is the builder class's job.
                          //   
