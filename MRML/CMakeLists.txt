@@ -6,8 +6,8 @@ set(${KIT}_INCLUDE_DIRECTORIES
   )
 
 set(${KIT}_SRCS
-  vtkMRMLTagCategoryStorageNode.cxx
-  vtkMRMLTagCategoryStorageNode.h
+#  vtkMRMLTagCategoryStorageNode.cxx
+#  vtkMRMLTagCategoryStorageNode.h
   vtkMRMLNDLibraryNode.cxx
   vtkMRMLNDLibraryNode.h
   vtkMRMLNDLibraryBuilder.cxx
