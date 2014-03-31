@@ -15,8 +15,9 @@ class vtkIntArray;
 #include <string>
 #include <vtksys/stl/vector>
 
+#ifndef WIN32
 #include <regex.h>
-
+#endif
 //VTK_SLICER_VOLUMERENDERING_MODULE_MRML_EXPORT
 class VTK_MRML_EXPORT vtkMRMLTagCategoryStorageNode
 //class vtkMRMLTagCategoryStorageNode
@@ -120,8 +121,9 @@ public:
   /// \sa NextHigher()
   //static double HigherAndUnique(double value, double & previousValue);
 
-
+#ifndef WIN32
   int RegexMatch(regex_t , const char * );
+#endif
   //  std::vector<std::string> StringSplit(const std::string& ,const char * );
   std::vector<std::string> &split(const std::string &, char , std::vector<std::string> &) ;
   std::vector<std::string> split(const std::string &, char ) ;

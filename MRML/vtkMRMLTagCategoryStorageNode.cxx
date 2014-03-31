@@ -27,7 +27,9 @@
 #include <algorithm>
 // STD C includesn
 // need replacment for regex due to no support in windows
+#ifndef WIN32
 #include <regex.h>
+#endif
 
 
 //----------------------------------------------------------------------------
@@ -87,6 +89,7 @@ vtkMRMLTagCategoryStorageNode::~vtkMRMLTagCategoryStorageNode(void)
 
 
 //----------------------------------------------------------------------------
+#ifndef WIN32
 int vtkMRMLTagCategoryStorageNode::RegexMatch(regex_t regExp, const char * data)
 {
   if ( regexec(&regExp, data, 0, NULL , 0) == 0)
@@ -101,6 +104,7 @@ int vtkMRMLTagCategoryStorageNode::RegexMatch(regex_t regExp, const char * data)
       return 1;
     }
 }
+#endif
 // std::vector<std::string> vtkMRMLTagCategoryStorageNode::StringSplit(const std::string& str,const char * delim)
 // {
 //   unsigned found = str.find_first_of(delim);
