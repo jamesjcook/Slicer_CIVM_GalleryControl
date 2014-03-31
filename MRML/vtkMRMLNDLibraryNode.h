@@ -45,7 +45,7 @@ class VTK_MRML_EXPORT vtkMRMLNDLibraryNode : public vtkMRMLStorableNode
                          //   
   // this should be rename=repurposed to gather a map of name-path values.
   // * ndlibrary=GetSublibAtPath(path) should return pointer to ndlib to go from path to values for later modules.
-  void GetSubDirs(std::vector<std::string> * , std::string ) ; 
+  //  void GetSubDirs(std::vector<std::string> * , std::string ) ; 
   
 
 
@@ -118,7 +118,7 @@ class VTK_MRML_EXPORT vtkMRMLNDLibraryNode : public vtkMRMLStorableNode
   //std::vector<vtkMRMLNDLibraryNode *> * SubLibraries;
   //vtkMRMLNDLibraryNode(const vtkMRMLNDLibraryNode&);//Not implemented
   // helper functions
-  void GetFilesInDirectory(std::vector<std::string> &, const std::string &);
+  //  void GetFilesInDirectory(std::vector<std::string> &, const std::string &);
   std::vector<std::string> &split(const std::string &, char, std::vector<std::string> &);
   std::vector<std::string> split(const std::string &, char);
   

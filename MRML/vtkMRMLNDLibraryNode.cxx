@@ -17,9 +17,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <sys/types.h>
-#include <dirent.h>
+//#include <dirent.h>
 #include <string.h>
-#include <errno.h>
+//#include <errno.h>
 
 
 
@@ -331,13 +331,13 @@ std::vector<std::string> * vtkMRMLNDLibraryNode::SubPaths()
     }  
   } else {
     //GetFilesInDirectory(*pathList,LibRoot);
-    GetSubDirs(pathList,LibRoot);
+//     GetSubDirs(pathList,LibRoot);
     
-    if( pathList->size() == 1 )
-      {
-	GetSubDirs(pathList,pathList->at(0));
-	pathList->erase(pathList->begin());
-      }
+//     if( pathList->size() == 1 )
+//       {
+// 	GetSubDirs(pathList,pathList->at(0));
+// 	pathList->erase(pathList->begin());
+//       }
   }
 
 
@@ -368,68 +368,68 @@ std::vector<std::string> vtkMRMLNDLibraryNode::split(const std::string &s, char 
   return elems;
 }
 
-//----------------------------------------------------------------------------
-// GetSubDirs based on heavilty modified code at website. 
-// http://www.lemoda.net/c/list-directory/ld.c
-void  vtkMRMLNDLibraryNode::GetSubDirs(std::vector<std::string > * path_vec, std::string dir_name) 
-{
+// //----------------------------------------------------------------------------
+// // GetSubDirs based on heavilty modified code at website. 
+// // http://www.lemoda.net/c/list-directory/ld.c
+// void  vtkMRMLNDLibraryNode::GetSubDirs(std::vector<std::string > * path_vec, std::string dir_name) 
+// {
 
-  //unix way.
-  DIR * d_h;
-  // Open the current directory. 
-  d_h = opendir (dir_name.c_str());
-   if (! d_h) {
-//     //this->PrintSelf(std::cout,vtkIndent::vtkIndent(0));
-//     fprintf (std::err, "Cannot open directory '%s': %s\n",
-// 	     dir_name.c_str(), strerror (errno));
-//     exit (EXIT_FAILURE);
-     std::cout << "Cout:Cannot open directory "<< dir_name.c_str() << " : " << strerror (errno) << "\n";
-     //     std::cerr << "Cerr:Cannot open directory "<< dir_name.c_str() << " : " << strerror (errno)<< "\n";
+//   //unix way.
+//   DIR * d_h;
+//   // Open the current directory. 
+//   d_h = opendir (dir_name.c_str());
+//    if (! d_h) {
+// //     //this->PrintSelf(std::cout,vtkIndent::vtkIndent(0));
+// //     fprintf (std::err, "Cannot open directory '%s': %s\n",
+// // 	     dir_name.c_str(), strerror (errno));
+// //     exit (EXIT_FAILURE);
+//      std::cout << "Cout:Cannot open directory "<< dir_name.c_str() << " : " << strerror (errno) << "\n";
+//      //     std::cerr << "Cerr:Cannot open directory "<< dir_name.c_str() << " : " << strerror (errno)<< "\n";
 
-     return;
-   }
-  while (1) {
-    struct dirent * entry;
+//      return;
+//    }
+//   while (1) {
+//     struct dirent * entry;
 
-    entry = readdir (d_h);
-    if (! entry) 
-      {
-	break;
-      } 
-    else 
-      { 
-	// if is dir, get entry.
-	if ( entry->d_type == 4  )// && entry->d_name[0] != '.' ) 
-	  {
-	std::cout << "cout: "<< dir_name.c_str() << "/" << entry->d_name<< "\n";
-
-	//d_type==4
-// 	struct stat s;
-// 	if( stat(dir_name.path,&s) == 0 )
+//     entry = readdir (d_h);
+//     if (! entry) 
+//       {
+// 	break;
+//       } 
+//     else 
+//       { 
+// 	// if is dir, get entry.
+// 	if ( entry->d_type == 4  )// && entry->d_name[0] != '.' ) 
 // 	  {
-// 	    if( s.st_mode & S_IFDIR )      
-	path_vec->push_back(dir_name+"/"+entry->d_name);
-	  }
-      }
+// 	std::cout << "cout: "<< dir_name.c_str() << "/" << entry->d_name<< "\n";
 
-  }
-  // Close the directory. 
-  if (closedir (d_h)) {
-    return;
-    std::cout<< "Cannot open directory "<< dir_name.c_str() << " : " << strerror (errno);
-  }
+// 	//d_type==4
+// // 	struct stat s;
+// // 	if( stat(dir_name.path,&s) == 0 )
+// // 	  {
+// // 	    if( s.st_mode & S_IFDIR )      
+// 	path_vec->push_back(dir_name+"/"+entry->d_name);
+// 	  }
+//       }
+
+//   }
+//   // Close the directory. 
+//   if (closedir (d_h)) {
+//     return;
+//     std::cout<< "Cannot open directory "<< dir_name.c_str() << " : " << strerror (errno);
+//   }
 
 
-  return ;
-}
+//   return ;
+// }
 
 
 //----------------------------------------------------------------------------
 // GetFilesInDirectory function code >90% copy pasta from website(in comments). user was Andreas Bonini
 // http://stackoverflow.com/questions/306533/how-do-i-get-a-list-of-files-in-a-directory-in-c
 /* Returns a list of files in a directory (except the ones that begin with a dot) */
-void vtkMRMLNDLibraryNode::GetFilesInDirectory(std::vector<std::string> &out, const std::string &directory)
-{
+// void vtkMRMLNDLibraryNode::GetFilesInDirectory(std::vector<std::string> &out, const std::string &directory)
+// {
   /*
 #ifdef WINDOWS
   HANDLE dir;
@@ -479,8 +479,8 @@ void vtkMRMLNDLibraryNode::GetFilesInDirectory(std::vector<std::string> &out, co
   closedir(dir);
 #endif
 */
-    return;
-} // GetFilesInDirectory
+//     return;
+// } // GetFilesInDirectory
 
 //----------------------------------------------------------------------------
 vtkMRMLNDLibraryNode::~vtkMRMLNDLibraryNode(void)
