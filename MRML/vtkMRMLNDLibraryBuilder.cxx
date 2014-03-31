@@ -279,8 +279,8 @@ void vtkMRMLNDLibraryBuilder::GetFilesInDirectory(std::vector<std::string> &out,
   HANDLE dir;
   WIN32_FIND_DATA file_data;
 
-  if ((dir = FindFirstFile((directory + "/ *").c_str(), &file_data)) == INVALID_HANDLE_VALUE)
-    return; / * No files found * /
+  if ((dir = FindFirstFile((directory + "/*").c_str(), &file_data)) == INVALID_HANDLE_VALUE)
+    return; // * No files found * /
 
   do {
     const std::string file_name = file_data.cFileName;
