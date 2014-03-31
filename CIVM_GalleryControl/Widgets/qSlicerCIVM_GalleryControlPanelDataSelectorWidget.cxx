@@ -83,6 +83,8 @@ qSlicerCIVM_GalleryControlPanelDataSelectorWidget
 {
   Q_D(qSlicerCIVM_GalleryControlPanelDataSelectorWidget);
   d->setupUi(this);
+  d->LibrarySelectorDropList->setDefaultText("<No Data Selected>");
+  d->LibrarySelectorDropList->setCurrentIndex(-1);
 
   // example to connect to parent.
   //connect( this, SIGNAL(mySignal()), parentWidget(), SLOT(parentSlot()) );
@@ -92,17 +94,14 @@ qSlicerCIVM_GalleryControlPanelDataSelectorWidget
   LibBuilder = new vtkMRMLNDLibraryBuilder();
   LibBuilder->SetLibPointer(ndLibrary);
   
-  bool status = this->ReadLib(ndLibrary);
-
-  this->UpdateSelector(ndLibrary); //udpates combo box and data hash form our lib
-//  this->PrintDataHash();
-
-  d->LibrarySelectorDropList->setDefaultText("<No Data Selected>");
-  d->LibrarySelectorDropList->setCurrentIndex(-1);
+  //DataHash.insert(QString::fromStdString(ndLibrary->GetLibName()),ndLibrary);
   
-
+  if ( LibBuilder->Build(ndLibrary))
+    {
+    this->UpdateSelector(ndLibrary);
+    }
+  
   connect(d->LibrarySelectorDropList,SIGNAL(currentIndexChanged(int)),SLOT(SelectionChange()));
-
   connect(d->HomeDataPushButton,SIGNAL(clicked()),SLOT(HomeButton()));
   connect(d->BackDataPushButton,SIGNAL(clicked()),SLOT(BackButton()));
  
@@ -118,35 +117,25 @@ qSlicerCIVM_GalleryControlPanelDataSelectorWidget
 void qSlicerCIVM_GalleryControlPanelDataSelectorWidget
 ::BackButton(void)
 {
+  this->PrintMethod("BackButton");
   Q_D(qSlicerCIVM_GalleryControlPanelDataSelectorWidget);
-  //DataHash.clear();
-  //LibPointer=ndLibrary;
-  //LibBuilder = new vtkMRMLNDLibraryBuilder();
-  //LibBuilder->SetLibPointer(ndLibrary);
-  //bool status = this->ReadLib(ndLibrary);
-  //this->UpdateDataHash(ndLibrary);
   
-  if ( 0 ) { // crashes slicer
-  d->LibrarySelectorDropList->setDefaultText("<No Data Selected>");
-  d->LibrarySelectorDropList->setCurrentIndex(-1);
-  this->UpdateSelector(LibPointer);
-  }
   int comboIndex=d->LibrarySelectorDropList->currentIndex();
   int comboIndent=GetTextIndent(d->LibrarySelectorDropList->itemText(comboIndex));
   int startingIndent=GetNameIndent();
-  while (  comboIndent >= startingIndent )
+
+  while (  comboIndent >= startingIndent && comboIndex >= 0)
     {
+    this->PrintText("Last Step:"+d->LibrarySelectorDropList->itemText(comboIndex));
     comboIndex--;
     comboIndent=GetTextIndent(d->LibrarySelectorDropList->itemText(comboIndex));
     this->PrintText("Stepping back:"+d->LibrarySelectorDropList->itemText(comboIndex));
     }
-//    d->LibrarySelectorDropList->itemText(comboIndex);
+
   if ( comboIndex>=0) 
     {
-    d->LibrarySelectorDropList->setCurrentIndex(comboIndex);
+    d->LibrarySelectorDropList->setCurrentIndex(comboIndex); // this triggers a combobox signal, currentindexchanged, which should trigger SelectionChange
     }
-  
-
   return;
 }
 
@@ -158,58 +147,57 @@ int qSlicerCIVM_GalleryControlPanelDataSelectorWidget
 }
 
 //-----------------------------------------------------------------------------
+// finds number of spaces in text string( assumes frontloaded spaces only)
 int qSlicerCIVM_GalleryControlPanelDataSelectorWidget
 ::GetTextIndent(QString text)
 {
-  QString printIndent="";
   int indentSize=text.size()-text.trimmed().size();  //get starting indent.
-  //QStringList libList;
   return indentSize;
+}
+
+vtkMRMLNDLibraryNode * qSlicerCIVM_GalleryControlPanelDataSelectorWidget
+::GetOldestNDAncestor(vtkMRMLNDLibraryNode * selectedNDLib )
+{
+
+  vtkMRMLNDLibraryNode * current   = selectedNDLib;
+  vtkMRMLNDLibraryNode * ancestor  = selectedNDLib ->GetParentNode();
+  while (! ( !ancestor) ) //run while ancestor defined.
+    { 
+    // this test is confusing, the ancestor will be a 0 pointer(null) when we've reached the top of our tree
+    // however only a !ancestor flag will work because ancestor is a pointer.
+    // so this should loop while there is an ancestor.
+      current = ancestor;
+      ancestor = ancestor->GetParentNode();
+    }
+  
+  if ( !ancestor ) 
+    {
+    ancestor=current;
+    } 
+  else
+    {
+    this->PrintText("GetOldestNDAncestor Odd condition with current defined");
+    }
+  
+  return ancestor;
 }
 
 //-----------------------------------------------------------------------------
 void qSlicerCIVM_GalleryControlPanelDataSelectorWidget
 ::SelectionChange(void)
 {
-  //Q_D(qSlicerCIVM_GalleryControlPanelDataSelectorWidget);  
-  //d->LibrarySelectorDropList->currentText().trimmed()
-  //((qSlicerCIVM_GalleryControlModuleWidget*)parentWidget())->BuildGallery();
+  this->PrintMethod("SelectionChange");
   vtkMRMLNDLibraryNode * selection = DataHash.value(this->ReadLibraryName());
-  vtkMRMLNDLibraryNode * ancestor  = selection->GetParentNode();
-  vtkMRMLNDLibraryNode * current   = ancestor;
+  vtkMRMLNDLibraryNode * ancestor  = GetOldestNDAncestor(selection);
+  ancestor->SetCurrentSelection(selection);
   
-  while (1)
-    { 
-    // this test is confusing, the ancestor will be null when we've reached the top of our tree
-      // however only a !ancestor flag will work because ancestor is a pointer.
-      // so this should loop while there is an ancestor.
-    if (!ancestor)
-      {
-      current->SetCurrentSelection(selection);
-      break;
-      } 
-    else
-      {
-      current = ancestor;
-      ancestor = ancestor->GetParentNode();
-      }
-    }
-  //LibBuilder->Build(lib)
-  //if ( this->ReadLib(selection)  )
   if ( LibBuilder->Build(selection)  )
     {
-    //this->UpdateDataHash(selection);
-    this->UpdateSelector(selection);//this->ReadLibraryName()
+    this->UpdateSelector(selection);
     }
-  //call parent ui to tell them we've selected data.
-  //connect(d->BackDataPushButton,SIGNAL(clicked()),SLOT(BackButton()));
-  //connect( this, SIGNAL(mySignal()), parentWidget(), SLOT(parentSlot()) );
-  //signal(this,SIGNAL(DataSelected()),parentWidget(),SLOT(DataSelected()));
-// #include "qSlicerCIVM_GalleryControlModuleWidget.h"
-//   qSlicerCIVM_GalleryControlModuleWidget * p=this->parentWidget();
-//  p->DataSelected(); 
+  //Let world know we've selected data.
   emit DataSelected();
-  // 
+   
   return;
 }
 
@@ -217,21 +205,10 @@ void qSlicerCIVM_GalleryControlPanelDataSelectorWidget
 void qSlicerCIVM_GalleryControlPanelDataSelectorWidget
 ::HomeButton(void)
 {
+  this->PrintMethod("HomeButton");
   Q_D(qSlicerCIVM_GalleryControlPanelDataSelectorWidget);
-     
-  LibPointer->GetSubLibraries().clear();
-  return;
-
-  
-  //bool status = this->ReadLib(LibPointer);
-  bool status = LibBuilder->Build(LibPointer);
-  
-  this->UpdateSelector(LibPointer); //udpates combo box and data hash form our lib
-
-  d->LibrarySelectorDropList->setDefaultText("<No Data Selected>");
-  d->LibrarySelectorDropList->setCurrentIndex(-1);
-
-  
+  d->LibrarySelectorDropList->setCurrentIndex(0); // this triggers a combobox signal, currentindexchanged, which should trigger SelectionChange
+//  LibPointer->GetSubLibraries().clear();
   return;
 }
 
@@ -256,18 +233,18 @@ void qSlicerCIVM_GalleryControlPanelDataSelectorWidget::PrintDataHash(void)
   return;
 }
 
-//-----------------------------------------------------------------------------
-bool qSlicerCIVM_GalleryControlPanelDataSelectorWidget
-::ReadLib(vtkMRMLNDLibraryNode * lib)
-{
-  //vtkMRMLNDLibraryBuilder * libBuilder= new vtkMRMLNDLibraryBuilder();
+// //-----------------------------------------------------------------------------
+// bool qSlicerCIVM_GalleryControlPanelDataSelectorWidget
+// ::ReadLib(vtkMRMLNDLibraryNode * lib)
+// {
+//   //vtkMRMLNDLibraryBuilder * libBuilder= new vtkMRMLNDLibraryBuilder();
   
-  //delete libBuilder;
-  return LibBuilder->Build(lib);
-}
+//   //delete libBuilder;
+//   return LibBuilder->Build(lib);
+// }
 
 //-----------------------------------------------------------------------------
-// Run each time we make a selection and the selection needs to be built.
+// Run each time we make a selection and we udpated our lib.
 // Adds to our DataHash mapping, and our ComboBox listing.
 // DataHash names match combobox listings exactly. 
 //
@@ -276,10 +253,7 @@ void qSlicerCIVM_GalleryControlPanelDataSelectorWidget
 {
   this->PrintMethod("UpdateSelector");
   Q_D(qSlicerCIVM_GalleryControlPanelDataSelectorWidget);
-  // if the libname is defined in selector, indent and add children  
-  // if the libname is undefined in selector, do not indent
   QString printIndent="";
-  //int indentSize=this->ReadLibraryName().size()-this->ReadLibraryName().trimmed().size();  //get starting indent.
   int indentSize=GetNameIndent();
   QStringList libList;
   while (printIndent.size()<indentSize)
@@ -288,10 +262,18 @@ void qSlicerCIVM_GalleryControlPanelDataSelectorWidget
     }
   
   //first update we have to add our base lib name
-  if (this->ReadLibraryName()=="<No Data Selected>") 
+  if (this->ReadLibraryName()=="<No Data Selected>" || d->LibrarySelectorDropList->currentIndex()==-1) 
     {
-    DataHash.insert(QString::fromStdString(lib->GetLibName()),lib);
+//     this->PrintText("Inserting base lib"+QString::fromStdString(lib->GetLibName()));
+//     DataHash.insert(printIndent + QString::fromStdString(lib->GetLibName()),lib);
+//     libList << QString::fromStdString(lib->GetLibName());
+    QString dhLibName=printIndent + QString::fromStdString(lib->GetLibName());
+    DataHash.insert(dhLibName,lib);
+    libList << dhLibName;
+    //this->PrintText(QString::fromStdString(lib->GetLibName())+" added!");
+    this->PrintText(dhLibName+" added!");
     } 
+
   printIndent=printIndent+"  ";  // update indent
   
   std::map<std::string,vtkMRMLNDLibraryNode* > subs=lib->GetSubLibraries();
@@ -299,13 +281,13 @@ void qSlicerCIVM_GalleryControlPanelDataSelectorWidget
     {
     for(std::map<std::string, vtkMRMLNDLibraryNode* >::iterator subIter= subs.begin(); subIter!=subs.end(); ++subIter )  
       {
-//    DataHash 
+
       if ( ! subIter->second ) 
         {
         this->PrintText("BAD SUBLIB ERROR, UNCONSTRUCTED SUBLIB IN "+this->ReadLibraryName());
         break; 
         }
-      QString dhLibName=printIndent+ QString::fromStdString(subIter->second->GetLibName());
+      QString dhLibName=printIndent + QString::fromStdString(subIter->second->GetLibName());
       DataHash.insert(dhLibName,subIter->second);
       libList << dhLibName;
       this->PrintText(QString::fromStdString(subIter->second->GetLibName())+" added!");
@@ -339,41 +321,36 @@ void qSlicerCIVM_GalleryControlPanelDataSelectorWidget
   return;
 }
 
-//-----------------------------------------------------------------------------
-QString qSlicerCIVM_GalleryControlPanelDataSelectorWidget::ReadLibraryPath(QString libraryName) {
-  // Read the library path from the ndlib referenced by the libraryName entry in our datastore qhash
-  QString library;
-  this->PrintText("ReadLibraryName "+libraryName);
-  if (libraryName=="<No Data Selected>"|| libraryName=="NoName")
-    {
-    this->PrintText("Lib path blank");
-    library="NoPath";
-    }
-//   else if ( libraryName == LibPointer->GetLibName() )
+// //-----------------------------------------------------------------------------
+// QString qSlicerCIVM_GalleryControlPanelDataSelectorWidget::ReadLibraryPath(QString libraryName) {
+//   // Read the library path from the ndlib referenced by the libraryName entry in our datastore qhash
+//   QString library;
+//   this->PrintText("ReadLibraryName "+libraryName);
+//   if (libraryName=="<No Data Selected>"|| libraryName=="NoName")
 //     {
-//       library=LibPointer->GetLibRoot();
+//     this->PrintText("Lib path blank");
+//     library="NoPath";
 //     }
-  else
-    {
-    std::string path = DataHash[library]->GetLibRoot();
-    library=QString::fromStdString(path);
-    this->PrintText("ReadLibraryPath "+libraryName+":"+library);
-    }
-  return library;
-}
+//   else
+//     {
+//     std::string path = DataHash[library]->GetLibRoot();
+//     library=QString::fromStdString(path);
+//     this->PrintText("ReadLibraryPath "+libraryName+":"+library);
+//     }
+//   return library;
+// }
 
 //-----------------------------------------------------------------------------
-//
+// gets current name in the combobox(including spaces)
 QString qSlicerCIVM_GalleryControlPanelDataSelectorWidget::ReadLibraryName(void) {
   Q_D(qSlicerCIVM_GalleryControlPanelDataSelectorWidget);
   QString libraryName="<No Data Selected>";
-  libraryName=d->LibrarySelectorDropList->currentText();//.trimmed() 
-  // took out trimmed...
+  libraryName=d->LibrarySelectorDropList->currentText();
   this->PrintText("ReadLibraryName "+libraryName);
   if (libraryName=="<No Data Selected>")
     {
     this->PrintText("Lib name blank");
-    libraryName="NoName";
+//    libraryName="NoName";
     }
   return libraryName;
 }

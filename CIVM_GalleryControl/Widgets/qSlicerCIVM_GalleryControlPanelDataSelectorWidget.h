@@ -50,34 +50,40 @@ class Q_SLICER_MODULE_CIVM_GALLERYCONTROL_WIDGETS_EXPORT qSlicerCIVM_GalleryCont
   qSlicerCIVM_GalleryControlPanelDataSelectorWidget(QWidget *parent=0,vtkMRMLNDLibraryNode * ndLibrary=0);
   virtual ~qSlicerCIVM_GalleryControlPanelDataSelectorWidget();
   
-  protected slots:
-  
-  void HomeButton(void);
-  void BackButton(void);
-  void SelectionChange(void);
-  
-  
-  //  bool ReadLib(void);
-  bool ReadLib(vtkMRMLNDLibraryNode *); 
-  QString ReadLibraryPath(QString);
-  QString ReadLibraryName(void);
+ protected slots:
+  void HomeButton(void);     // handles home button, select first position. 
+  //void ResetButton(void);    //handles the reset lib button, clear out our data hash and data store and set to first position
+  void BackButton(void);     // handles back button, starting at current combo text, move up until spacing is less.
+  void SelectionChange(void);// handles change in data selected
+    
  protected:
   QScopedPointer<qSlicerCIVM_GalleryControlPanelDataSelectorWidgetPrivate> d_ptr;
-  
-  
+//  bool ReadLib(vtkMRMLNDLibraryNode *);  // not necessary, libbuilder->build does this
+
  private:
   QHash<QString,vtkMRMLNDLibraryNode * >  DataHash;
   void UpdateSelector(vtkMRMLNDLibraryNode * );
-  int GetNameIndent(void);
-  int GetTextIndent(QString);
-  void PrintText(const QString);
+  vtkMRMLNDLibraryNode * GetOldestNDAncestor(vtkMRMLNDLibraryNode * );
+
+
+  int GetNameIndent(void);//looks at currently combobox text and gets indent(call to gettextindent)
+  int GetTextIndent(QString);//gets space indent of qstring
+  
+  //QString ReadLibraryPath(QString); // looks up path for qstring key in Datahash. (not currently used).
+  QString ReadLibraryName(void);    // gets current name in the combobox(including spaces)
+
   void PrintDataHash(void);
-  void PrintMethod(const QString);
+
   //filldatalisting // function which understands our ndlibrarynode and how to use one to fill in its required parts. 
   //buttonhome | buttonreset
   vtkMRMLNDLibraryNode * LibPointer;    // should rename to datastore later, or vice a versa
   vtkMRMLNDLibraryBuilder * LibBuilder; // a builder ready to go when we need it.
-  //buttonback
+
+  //Simple debug Functions 
+  void PrintMethod(const QString);
+  void PrintText(const QString);
+
+
   Q_DECLARE_PRIVATE(qSlicerCIVM_GalleryControlPanelDataSelectorWidget);
   Q_DISABLE_COPY(qSlicerCIVM_GalleryControlPanelDataSelectorWidget);
 };

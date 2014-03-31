@@ -98,6 +98,8 @@ void qSlicerCIVM_GalleryControlModuleWidget::setup()
 #endif
   DataRoot=DataRoot+ps+"DataLibraries"+ps+"Brain"; //
   DataStore = new vtkMRMLNDLibraryNode(DataRoot.toStdString());
+  //DataStore -> SetParentNode(DataStore);// becuase of behavior this has to be added.
+
   //DataStore->SetLibRoot();
 //   this->FullDataLibrary = new vtkMRMLNDLibraryNode(DataRoot.toStdString(),std::string("Brain"),std::string("organ"));
 //   vtkMRMLNDLibraryBuilder * libBuilder= new vtkMRMLNDLibraryBuilder();
@@ -365,12 +367,15 @@ QString qSlicerCIVM_GalleryControlModuleWidget::ReadLibraryPath(void) {
 //-----------------------------------------------------------------------------
 QString qSlicerCIVM_GalleryControlModuleWidget::ReadLibraryPath(QString libraryName) {
   // Read the library path from the ndlib referenced by the libraryName entry in our datastore qhash 
-  QString library;
+  QString library="NoPath";
+    if ( !DataStore->GetCurrentSelection() )//if no selection
+      {
+      return library;
+      }
   this->PrintText("ReadLibraryName "+libraryName);
   if (libraryName=="<No Data Selected>"|| libraryName=="NoName") 
     {
     this->PrintText("Lib path blank");
-    library="NoPath";
     } 
   else if ( libraryName == QString::fromStdString(DataStore->GetLibName()) ) 
     {
@@ -378,7 +383,6 @@ QString qSlicerCIVM_GalleryControlModuleWidget::ReadLibraryPath(QString libraryN
     }
   else
     {
-    //std::string path = this->DataLibraries[libraryName.toStdString()]->GetLibRoot();
     library=QString::fromStdString(DataStore->GetCurrentSelection()->GetLibRoot());
     this->PrintText("ReadLibraryPath "+libraryName+":"+library);
     }
@@ -391,6 +395,10 @@ QString qSlicerCIVM_GalleryControlModuleWidget::ReadLibraryName(void) {
   Q_D(qSlicerCIVM_GalleryControlModuleWidget);
   QString libraryName="<No Data Selected>"; 
   //libraryName=d->LibrarySelectorDropList->currentText().trimmed();
+  if ( !DataStore->GetCurrentSelection() )//if no selection
+    {
+    return libraryName;
+    }
   libraryName=QString::fromStdString(DataStore->GetCurrentSelection()->GetLibName());
   this->PrintText("ReadLibraryName "+libraryName);
   if (libraryName=="<No Data Selected>") 
