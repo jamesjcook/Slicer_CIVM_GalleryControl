@@ -137,7 +137,7 @@ bool vtkMRMLNDLibraryBuilder::Build(vtkMRMLNDLibraryNode * lib)
     for ( int i=0; i< pathList->size(); i++ ) 
       {
       std::cout << "Cout: Build libpointer(constructor call with path)" << pathList->at(i)<< "\n";    
-      vtkMRMLNDLibraryNode * subLib = new vtkMRMLNDLibraryNode::vtkMRMLNDLibraryNode(pathList->at(i));
+      vtkMRMLNDLibraryNode * subLib = new vtkMRMLNDLibraryNode(pathList->at(i));
       // build sublib from path, should create sublib with name and path set.
       // limited sub gathering for now
       subLib->SetParentNode(lib);
@@ -243,8 +243,8 @@ void  vtkMRMLNDLibraryBuilder::GetSubDirs(std::vector<std::string > * path_vec, 
   HANDLE d_h;
   WIN32_FIND_DATA file_data;
 
-  if ((d_h = FindFirstFile((dir_name + "/ *").c_str(), &file_data)) == INVALID_HANDLE_VALUE)
-    return; / * No files found * /
+  if ((d_h = FindFirstFile((dir_name + "/*").c_str(), &file_data)) == INVALID_HANDLE_VALUE)
+    return; // No files found 
 
   do {
     const std::string file_name = file_data.cFileName;
@@ -257,10 +257,10 @@ void  vtkMRMLNDLibraryBuilder::GetSubDirs(std::vector<std::string > * path_vec, 
     if (is_directory)
       continue;
 
-    path_vec.push_back(full_file_name);
-  } while (FindNextFile(dir, &file_data));
+    path_vec->push_back(full_file_name);
+  } while (FindNextFile(d_h, &file_data));
 
-  FindClose(dir);
+  FindClose(d_h);
 #endif
   
    return ;

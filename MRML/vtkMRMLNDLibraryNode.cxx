@@ -170,34 +170,27 @@ std::vector<std::map<std::string,std::string> > * vtkMRMLNDLibraryNode::GetLibTr
   return libTree;
 }
 
-//----------------------------------------------------------------------------
-void vtkMRMLNDLibraryNode::GatherSubLibs()
-{
-  // set sublibs
-  std::vector<std::string> * libRoots = this->SubPaths();  
-  //if ( 0 ) { 
-  //if ( libRoots!=NULL ) {
-  for ( int i=0; i< libRoots->size(); i++ ) 
-    {
+// //----------------------------------------------------------------------------
+// void vtkMRMLNDLibraryNode::GatherSubLibs()
+// {
+//   // set sublibs
+//   std::vector<std::string> * libRoots = this->SubPaths();  
+//   for ( int i=0; i< libRoots->size(); i++ ) 
+//     {
+//       vtkMRMLNDLibraryNode * subLib = new vtkMRMLNDLibraryNode(libRoots->at(i));
+//       // limited sub gathering for now
+//       if ( 
+// 	  ( subLib->GetLibRoot() == "/DataLibraries/Brain/Rattus_norvegicus") 
+// 	  || ( subLib->GetLibRoot() == "/DataLibraries/Brain/Rattus_norvegicus/Wistar" ) 
+// 	  || ( subLib->GetLibRoot() == "/DataLibraries/Brain/Rattus_norvegicus/Wistar/average" ) )
+// 	{
 
-      vtkMRMLNDLibraryNode * subLib = new vtkMRMLNDLibraryNode::vtkMRMLNDLibraryNode(libRoots->at(i));
-      //SubLibraries->push_back(subLib);
-      // limited sub gathering for now
-      if ( 
-	  ( subLib->GetLibRoot() == "/DataLibraries/Brain/Rattus_norvegicus") 
-	  || ( subLib->GetLibRoot() == "/DataLibraries/Brain/Rattus_norvegicus/Wistar" ) 
-	  || ( subLib->GetLibRoot() == "/DataLibraries/Brain/Rattus_norvegicus/Wistar/average" ) )
-	{
-
-	}  
-      //subLib->GatherSubLibs();
-      SubLibraries[subLib->GetLibName()]=subLib; 
-      
-      
-    }
-  //}
-  return;
-}
+// 	}  
+//       //subLib->GatherSubLibs();
+//       SubLibraries[subLib->GetLibName()]=subLib; 
+//     }
+//   return;
+// }
 
 
 
