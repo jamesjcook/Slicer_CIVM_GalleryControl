@@ -41,6 +41,7 @@ class VTK_MRML_EXPORT vtkMRMLNDLibraryBuilder : public vtkMRMLStorableNode
   
   /// Get node XML tag name (like Volume, Model)
   virtual const char* GetNodeTagName() {return "NDLibraryBuilder";};
+  virtual const char* GetClassNameInternal() {return "NDLibraryBuilder";};
 
   vtkMRMLNDLibraryBuilder(void);
   //vtkMRMLNDLibraryBuilder(vtkMRMLNDLibraryNode * libPointer=0);

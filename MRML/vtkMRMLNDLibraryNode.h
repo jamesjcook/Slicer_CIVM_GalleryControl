@@ -79,14 +79,7 @@ class VTK_MRML_EXPORT vtkMRMLNDLibraryNode : public vtkMRMLStorableNode
 
   /// Get node XML tag name (like Volume, Model)
   virtual const char* GetNodeTagName() {return "NDLibraryNode";};
-  
-  
-  //void SetRoot(std::string); // this is unnecessary and could be accomplished in code with following two statments
-  //lib->SetLibroot('newvalue') ; 
-  //lib->BuildLibrary
-
-  //name
-  //path
+  virtual const char* GetClassNameInternal() {return "NDLibraryNode";};
   
   
  protected:   
