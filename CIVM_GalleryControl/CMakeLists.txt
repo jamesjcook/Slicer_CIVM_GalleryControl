@@ -27,8 +27,8 @@ set(MODULE_INCLUDE_DIRECTORIES
    ${vtkMRMLNDLibraryNode_BINARY_DIR}
 ### next two lines to depend on custom mrml
 # dont need these? because all our mrml is in same lib?
-#   ${vtkMRMLNDLibraryBuilder_SOURCE_DIR}
-#   ${vtkMRMLNDLibraryBuilder_BINARY_DIR}
+   ${vtkMRMLNDLibraryBuilder_SOURCE_DIR}
+   ${vtkMRMLNDLibraryBuilder_BINARY_DIR}
 ### 
   )
 
@@ -54,7 +54,7 @@ set(MODULE_TARGET_LIBRARIES
 ### next line to depend on custom mrml
   vtkMRMLNDLibraryNode
 # dont need this? because all our mrml is in same lib?
-#  vtkMRMLNDLibraryBuilder
+  vtkMRMLNDLibraryBuilder
 ###
   )
 
@@ -64,6 +64,8 @@ set(MODULE_RESOURCES
 
 add_library( libvtkMRMLNDLibraryNode SHARED IMPORTED )
 set_target_properties( libvtkMRMLNDLibraryNode PROPERTIES IMPORTED_LOCATION ($CMAKE_BINARY_DIR ) )
+add_library( libvtkMRMLNDLibraryBuilder SHARED IMPORTED )
+set_target_properties( libvtkMRMLNDLibraryBuilder PROPERTIES IMPORTED_LOCATION ($CMAKE_BINARY_DIR ) )
 #add_library( libvtkMRMLGalleryControlLibraryNode SHARED IMPORTED )
 add_library( libvtkSlicerCIVM_GalleryControlModuleMRML SHARED IMPORTED )
 set_target_properties( libvtkSlicerCIVM_GalleryControlModuleMRML PROPERTIES IMPORTED_LOCATION ($CMAKE_BINARY_DIR ) )

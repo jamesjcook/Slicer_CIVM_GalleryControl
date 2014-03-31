@@ -9,7 +9,8 @@ set(${KIT}_INCLUDE_DIRECTORIES
 #  "/Applications/SegmentationSoftware/src/GalleryControl_multi/CIVM_GalleryControl_nightly/CIVM_GalleryControl" 
   ${vtkMRMLNDLibraryNode_SOURCE_DIR}
   ${vtkMRMLNDLibraryNode_BINARY_DIR}
-  
+  ${vtkMRMLNDLibraryBuilder_SOURCE_DIR}
+  ${vtkMRMLNDLibraryBuilder_BINARY_DIR}  
   )
 
 set(${KIT}_SRCS
@@ -47,11 +48,15 @@ set(${KIT}_RESOURCES
 set(${KIT}_TARGET_LIBRARIES
   vtkSlicer${MODULE_NAME}ModuleLogic
   vtkMRMLNDLibraryNode
+  vtkMRMLNDLibraryBuilder
   vtkSlicerMarkupsModuleMRML
   )
 
 #add_library( libvtkMRMLNDLibraryNode SHARED IMPORTED )
 #set_target_properties( libvtkMRMLNDLibraryNode PROPERTIES IMPORTED_LOCATION ($CMAKE_BINARY_DIR ) )
+
+#add_library( libvtkMRMLNDLibraryBuilder SHARED IMPORTED )
+#set_target_properties( libvtkMRMLNDLibraryBuilder PROPERTIES IMPORTED_LOCATION ($CMAKE_BINARY_DIR ) )
 
 #link_directories(/Applications/SegmentationSoftware/build/Slicer_multi/release_v4.3.1/Slicer-build/lib/Slicer-4.3/qt-loadable-modules/)
 #libvtkSlicerMarkupsModuleMRML.dylib
