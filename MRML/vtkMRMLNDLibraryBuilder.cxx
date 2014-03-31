@@ -18,10 +18,15 @@ typedef std::map<std::string,std::string> std_str_hash ;
 // standard includes, most were added for our dir listing command.
 #include <stdlib.h>
 #include <stdio.h>
+#ifndef WIN32
 #include <sys/types.h>
 #include <dirent.h>
-#include <string.h>
 #include <errno.h>
+#else
+
+#endif
+#include <string.h>
+
 
 //----------------------------------------------------------------------------
 //vtkMRMLNodeNewMacro(vtkMRMLNDLibraryBuilder);
@@ -128,13 +133,7 @@ bool vtkMRMLNDLibraryBuilder::Build(vtkMRMLNDLibraryNode * lib)
   if( pathList->size() != lib->SubLibraries.size() ) 
     {
     lib->SubLibraries.clear();
-//     {
-//     for(std::map<std::string,vtkMRMLNDLibraryNode *>::iterator subIter= lib->SubLibraries.begin(); subIter!=lib->SubLibraries.end();++subIter)
-//         {
-//         vtkMRMLNDLibraryNode * subLib =  subIter->second();
-//         delete subLib;
 
-//         }
     for ( int i=0; i< pathList->size(); i++ ) 
       {
       std::cout << "Cout: Build libpointer(constructor call with path)" << pathList->at(i)<< "\n";    
@@ -142,13 +141,6 @@ bool vtkMRMLNDLibraryBuilder::Build(vtkMRMLNDLibraryNode * lib)
       // build sublib from path, should create sublib with name and path set.
       // limited sub gathering for now
       subLib->SetParentNode(lib);
-//       if ( 
-//         ( subLib->GetLibRoot() == "/DataLibraries/Brain/Rattus_norvegicus") 
-//          || ( subLib->GetLibRoot() == "/DataLibraries/Brain/Rattus_norvegicus/Wistar" ) 
-//          || ( subLib->GetLibRoot() == "/DataLibraries/Brain/Rattus_norvegicus/Wistar/average" ) )
-//         {
-	
-//         }  
       lib->SubLibraries[subLib->GetLibName()]=subLib; 
       }
     
@@ -199,9 +191,11 @@ void  vtkMRMLNDLibraryBuilder::GetSubCategoryies(std::vector<std::string > * pat
 
 //----------------------------------------------------------------------------
 void  vtkMRMLNDLibraryBuilder::GetSubDirs(std::vector<std::string > * path_vec, std::string dir_name) 
+//void vtkMRMLNDLibraryBuilder::GetFilesInDirectory(std::vector<std::string> &out, const std::string &directory)
 {
 
   //unix way.
+#ifndef WIN32
   DIR * d_h;
   // Open the current directory. 
   d_h = opendir (dir_name.c_str());
@@ -213,7 +207,6 @@ void  vtkMRMLNDLibraryBuilder::GetSubDirs(std::vector<std::string > * path_vec, 
    while (1) 
      {
      struct dirent * entry;
-     
      entry = readdir (d_h);
      if (! entry) 
        {
@@ -237,8 +230,6 @@ void  vtkMRMLNDLibraryBuilder::GetSubDirs(std::vector<std::string > * path_vec, 
            {
            std::cout << "cout: ignore"<< dir_name.c_str() << "/" << entry->d_name<< "\n";
            }
-
-
          }
        }
      }
@@ -248,7 +239,90 @@ void  vtkMRMLNDLibraryBuilder::GetSubDirs(std::vector<std::string > * path_vec, 
      return;
      std::cout<< "Cannot open directory "<< dir_name.c_str() << " : " << strerror (errno);
      }
-   
-   
+#else
+  HANDLE d_h;
+  WIN32_FIND_DATA file_data;
+
+  if ((d_h = FindFirstFile((dir_name + "/ *").c_str(), &file_data)) == INVALID_HANDLE_VALUE)
+    return; / * No files found * /
+
+  do {
+    const std::string file_name = file_data.cFileName;
+    const std::string full_file_name = dir_name + "/" + file_name;
+    const bool is_directory = (file_data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
+
+    if (file_name[0] == '.')
+      continue;
+
+    if (is_directory)
+      continue;
+
+    path_vec.push_back(full_file_name);
+  } while (FindNextFile(dir, &file_data));
+
+  FindClose(dir);
+#endif
+  
    return ;
 }
+
+
+
+//----------------------------------------------------------------------------
+// GetFilesInDirectory function code >90% copy pasta from website(in comments). user was Andreas Bonini
+// http://stackoverflow.com/questions/306533/how-do-i-get-a-list-of-files-in-a-directory-in-c
+/* Returns a list of files in a directory (except the ones that begin with a dot) */
+void vtkMRMLNDLibraryBuilder::GetFilesInDirectory(std::vector<std::string> &out, const std::string &directory)
+{
+  
+#ifdef WIN32
+  HANDLE dir;
+  WIN32_FIND_DATA file_data;
+
+  if ((dir = FindFirstFile((directory + "/ *").c_str(), &file_data)) == INVALID_HANDLE_VALUE)
+    return; / * No files found * /
+
+  do {
+    const std::string file_name = file_data.cFileName;
+    const std::string full_file_name = directory + "/" + file_name;
+    const bool is_directory = (file_data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
+
+    if (file_name[0] == '.')
+      continue;
+
+    if (is_directory)
+      continue;
+
+    out.push_back(full_file_name);
+  } while (FindNextFile(dir, &file_data));
+
+  FindClose(dir);
+#else
+// unix way
+/*  DIR *dir;
+  class dirent *ent;
+  class stat st;
+
+  dir = opendir(directory);
+  while ((ent = readdir(dir)) != NULL) {
+  const std::string file_name = ent->d_name;
+  const std::string full_file_name = directory + "/" + file_name;
+
+    if (file_name[0] == '.')
+      continue;
+
+    if (stat(full_file_name.c_str(), &st) == -1)
+      continue;
+
+    const bool is_directory = (st.st_mode & S_IFDIR) != 0;
+
+    if (is_directory)
+      continue;
+
+    out.push_back(full_file_name);
+  }
+  closedir(dir); */
+#endif
+
+    return;
+} // GetFilesInDirectory

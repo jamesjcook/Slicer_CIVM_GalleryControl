@@ -64,7 +64,7 @@ class VTK_MRML_EXPORT vtkMRMLNDLibraryBuilder : public vtkMRMLStorableNode
  private:
   vtkMRMLNDLibraryNode * LibPointer;
   //vtkMRMLNDLibraryBuilder(const vtkMRMLNDLibraryBuilder&);//Not implemented
-  //void GetFilesInDirectory(std::vector<std::string> &, const std::string &);
+  void GetFilesInDirectory(std::vector<std::string> &, const std::string &);
   void GetSubDirs(std::vector<std::string> * , std::string ) ; 
   void GetSubCategoryies(std::vector<std::string> * , std::string ) ; // temporary placeholder for planning purposes.
   
