@@ -29,38 +29,29 @@
 // placeholder constructor, just creates itself and gives fills fields with bad info(error check vars)
 vtkMRMLNDLibraryNode::vtkMRMLNDLibraryNode(void)
 {
-  //this->DataRoot="";
-  //   cout << "Library Node instantiated";
-  //this->SlicerDataType="";//.clear();
-  //this->SetLibRoot("/");
   LibRoot = "NoPath";
   Category= "NoCategory";
   LibName = "NoName";
   CurrentSelection = 0 ;
   ParentNode = 0 ;
-  //this->SubLibraries["Parent"]=this;
 }
 
 
 //----------------------------------------------------------------------------
-//vtkMRMLNodeNewMacro(vtkMRMLNDLibraryNode);
 vtkMRMLNDLibraryNode::vtkMRMLNDLibraryNode( std::string name,std::string path)
 {
   LibRoot = path;
   Category= "NoCategory";
-  //ResetLibrary(path);! cant do that...
   LibName = name;
   CurrentSelection = 0 ;
   ParentNode = 0 ;
 }
 
 //----------------------------------------------------------------------------
-//vtkMRMLNodeNewMacro(vtkMRMLNDLibraryNode);
 vtkMRMLNDLibraryNode::vtkMRMLNDLibraryNode( std::string name,std::string category,std::string path)
 {
   LibRoot = path;
   Category= category;
-  //ResetLibrary(path);! cant do that...
   LibName = name;
   CurrentSelection = 0 ;
   ParentNode = 0 ;
@@ -70,10 +61,8 @@ vtkMRMLNDLibraryNode::vtkMRMLNDLibraryNode( std::string name,std::string categor
 //vtkMRMLNodeNewMacro(vtkMRMLNDLibraryNode);
 vtkMRMLNDLibraryNode::vtkMRMLNDLibraryNode(std::string path)
 {
-  //   //  this->SetLibRoot("/DataLibraries");
-  //   //
   LibRoot=path;//"/DataLibraries";
-  //this->BuildLibrary();
+
   if ( LibRoot == "/DataLibraries/Brain/Rattus_norvegicus/average/00006912000" ) 
     {
       Category="time";
@@ -109,10 +98,6 @@ vtkMRMLNode*  vtkMRMLNDLibraryNode::CreateNodeInstance(void)
   vtkSmartPointer<vtkMRMLNode> sp ;
   return sp;
 }
-//  {
-//    vtkMRMLVolumeNode* np=new vtkMRMLVolumeNode();
-//   return np;
-//  }
 
 //----------------------------------------------------------------------------
 std::vector<std::string> * vtkMRMLNDLibraryNode::GetAllPaths() 
@@ -120,32 +105,19 @@ std::vector<std::string> * vtkMRMLNDLibraryNode::GetAllPaths()
   std::vector<std::string> * pathList = new std::vector<std::string>;
   //pathList->reserve(SubLibraries->size());# nice idea but doesnt work...
   pathList->push_back(LibRoot);
-//   for ( int i=0; i< SubLibraries->size(); i++ )
-//     {
-//       SubLibraries->at(i)->GetAllPaths(pathList);
-//     }
-
   for(std::map<std::string,vtkMRMLNDLibraryNode *>::iterator subIter= SubLibraries.begin(); subIter!=SubLibraries.end();++subIter)
     {
       //subIter->second->PrintSelf(os,indent.GetNextIndent());
       subIter->second->GetAllPaths(pathList);
     }
-  
-  //std::pair<std::string, vtkMRMLNDLibraryNode *> l_p=SubLibraries[i];
-  //vtkMRMLNDLibraryNode * l_p=SubLibraries[].second();
-  //SubLibraries[i].second().GetAllPaths(pathList);
   return pathList;
 }
 
 //----------------------------------------------------------------------------
 void vtkMRMLNDLibraryNode::GetAllPaths(std::vector<std::string> * pathList) 
 {
-  //std::vector<std::string> * pathList = new std::vector<std::string>;
+
   pathList->push_back(LibRoot);  
-//   for ( int i=0; i< SubLibraries->size(); i++ )
-//     {
-//       SubLibraries->at(i)->GetAllPaths(pathList);
-//     }
   for(std::map<std::string,vtkMRMLNDLibraryNode *>::iterator subIter= SubLibraries.begin(); subIter!=SubLibraries.end();++subIter)
     {
       //subIter->second->PrintSelf(os,indent.GetNextIndent());

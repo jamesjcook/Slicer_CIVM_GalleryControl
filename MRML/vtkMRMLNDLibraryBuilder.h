@@ -13,6 +13,7 @@
 
 // MRML includes
 #include "vtkMRML.h"
+#include "vtkMRMLNode.h"
 #include "vtkMRMLStorableNode.h"
 #include "vtkMRMLNDLibraryNode.h"
 // StdIncludes
@@ -21,6 +22,8 @@
 
 
 //VTK_SLICER_VOLUMERENDERING_MODULE_MRML_EXPORT
+//should change inherritance to vtkmrmlnode.h
+//class VTK_EXPORT vtkMRMLNDLibraryBuilder //: public vtkMRMLNode
 class VTK_MRML_EXPORT vtkMRMLNDLibraryBuilder : public vtkMRMLStorableNode
 {
   // declare friends
@@ -35,9 +38,9 @@ class VTK_MRML_EXPORT vtkMRMLNDLibraryBuilder : public vtkMRMLStorableNode
   void PrintSelf(ostream& os, vtkIndent indent);
   
   void SetSlicerDataType ( const char *type) ;
-  vtkSetMacro(LibPointer,vtkMRMLNDLibraryNode *);    
-  //vtkGetMacro(LibRoot,std::string);    
   vtkMRMLNode* CreateNodeInstance() ;
+  vtkSetMacro(LibPointer,vtkMRMLNDLibraryNode *);    
+  //void SetLibPointer(vtkMRMLNDLibraryNode * ) ;
   
   /// Get node XML tag name (like Volume, Model)
   virtual const char* GetNodeTagName() {return "NDLibraryBuilder";};

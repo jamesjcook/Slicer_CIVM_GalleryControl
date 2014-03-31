@@ -69,6 +69,7 @@ void vtkMRMLNDLibraryBuilder::SetSlicerDataType( const char * type )
   this->SlicerDataType.clear();
   this->SlicerDataType = type;
 }
+
 //----------------------------------------------------------------------------
 void vtkMRMLNDLibraryBuilder::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -84,10 +85,6 @@ vtkMRMLNode*  vtkMRMLNDLibraryBuilder::CreateNodeInstance(void)
   vtkSmartPointer<vtkMRMLNode> sp ;
   return sp;
 }
-//  {
-//    vtkMRMLVolumeNode* np=new vtkMRMLVolumeNode();
-//   return np;
-//  }
 
 //----------------------------------------------------------------------------
 bool vtkMRMLNDLibraryBuilder::Build(std_str_hash tagCloud)
@@ -181,6 +178,12 @@ bool vtkMRMLNDLibraryBuilder::Build(vtkMRMLNDLibraryNode * lib, std::string path
   bool status = this->Build(lib,std::string("NoName"),path);
   return status;
 }
+
+// //----------------------------------------------------------------------------
+// void vtkMRMLNDLibraryBuilder::SetLibPointer(vtkMRMLNDLibraryNode * lib)
+// {
+//   LibPointer = lib;
+// }
 
 //----------------------------------------------------------------------------
 void  vtkMRMLNDLibraryBuilder::GetSubCategoryies(std::vector<std::string > * path_vec, std::string dir_name) 
