@@ -132,7 +132,7 @@ class VTK_VTKMRMLNDLIBRARYNODE_MRML_EXPORT vtkMRMLNDLibraryNode : public vtkMRML
 
 
   vtkMRMLNDLibraryNode(void);
-/*   void operator=(vtkMRMLStorageNode const & ) ; */
+  void operator=(vtkMRMLHierarchyStorageNode const & ) ;
 
  private:
   void GetAllPaths(std::vector<std::string> *); // called for each sub library of a current library(recursively!) each adding their entries to the vector
