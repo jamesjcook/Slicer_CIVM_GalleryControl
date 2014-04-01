@@ -46,12 +46,7 @@ class VTK_MRML_EXPORT vtkMRMLNDLibraryNode : public vtkMRMLStorableNode
   // this should be rename=repurposed to gather a map of name-path values.
   // * ndlibrary=GetSublibAtPath(path) should return pointer to ndlib to go from path to values for later modules.
   //  void GetSubDirs(std::vector<std::string> * , std::string ) ; 
-  
 
-
-  void PrintSelf(ostream& os, vtkIndent indent);
-  
-  void SetSlicerDataType ( const char *type) ;
   vtkSetMacro(LibRoot,std::string);    
   vtkGetMacro(LibRoot,std::string);    
 
@@ -71,7 +66,7 @@ class VTK_MRML_EXPORT vtkMRMLNDLibraryNode : public vtkMRMLStorableNode
   void ResetLibrary(void);
   void ResetLibrary(std::string);
 
-  vtkMRMLNode* CreateNodeInstance() ;
+
   
   // moving away from the self populating lib in the future
   std::vector<std::string> * GetAllPaths();
@@ -80,6 +75,22 @@ class VTK_MRML_EXPORT vtkMRMLNDLibraryNode : public vtkMRMLStorableNode
   /// Get node XML tag name (like Volume, Model)
   virtual const char* GetNodeTagName() {return "NDLibraryNode";};
   virtual const char* GetClassNameInternal() {return "NDLibraryNode";};
+
+  vtkMRMLNode* CreateNodeInstance() ;
+  //  virtual vtkMRMLNode * CreateNodeInstance()=0;
+  //  virtual int IsA (const char *type);
+  //  vtkTagTable * GetUserTagTable ();
+
+  void PrintSelf(ostream& os, vtkIndent indent);
+  void ReadXMLAttributes (const char **atts);
+  void WriteXML (ostream &of, int indent);
+  void SetSlicerDataType ( const char *type) ;
+  void StorableModified ();
+  bool GetModifiedSinceRead();
+  //vtkMRMLStorageNode * CreateDefaultStorageNode(void);
+  void ProcessMRMLEvents (vtkObject *, unsigned long, void *);
+  void UpdateScene (vtkMRMLScene *scene);
+
   
   
  protected:   

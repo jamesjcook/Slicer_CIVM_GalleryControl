@@ -11,7 +11,7 @@
 #include <vtkMRMLVolumeNode.h>
 #include <vtkSmartPointer.h>
 #include <vtkMRMLNDLibraryNode.h>
-
+#include <vtkTagTable.h>
 
 // standard includes, most were added for our dir listing command.
 #include <stdlib.h>
@@ -90,13 +90,6 @@ vtkMRMLNDLibraryNode::vtkMRMLNDLibraryNode(std::string path)
   // set sublibs
   CurrentSelection = 0 ;
   ParentNode = 0 ;
-}
-
-//----------------------------------------------------------------------------
-vtkMRMLNode*  vtkMRMLNDLibraryNode::CreateNodeInstance(void)
-{
-  vtkSmartPointer<vtkMRMLNode> sp ;
-  return sp;
 }
 
 //----------------------------------------------------------------------------
@@ -211,11 +204,15 @@ return;
 }
 
 
-void vtkMRMLNDLibraryNode::SetSlicerDataType( const char * type ) 
-{ 
-  this->SlicerDataType.clear();
-  this->SlicerDataType = type;
-}
+// vtkTagTable * vtkMRMLNDLibraryNode::
+// GetUserTagTable ()
+// {
+//   //vtkTagTable * tp = new vtkTagTable;
+//   //return tp; 
+//   vtkTagTable tb = vtkTagTable(new vtkTagTable);//("a","b");
+//   return &tb;
+// }
+
 
 //----------------------------------------------------------------------------
 void vtkMRMLNDLibraryNode::PrintSelf(ostream& os, vtkIndent indent)
@@ -244,6 +241,58 @@ void vtkMRMLNDLibraryNode::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Leaf Node Sub" << "\n";
   }
 
+  return;
+}
+void vtkMRMLNDLibraryNode::
+ReadXMLAttributes (const char **atts)
+{
+  return;
+}
+void vtkMRMLNDLibraryNode::
+WriteXML (ostream &of, int indent)
+{
+  return;
+}
+
+void vtkMRMLNDLibraryNode::
+SetSlicerDataType( const char * type ) 
+{ 
+  this->SlicerDataType.clear();
+  this->SlicerDataType = type;
+  return;
+}
+void vtkMRMLNDLibraryNode::
+StorableModified ()
+{
+  return;
+}
+bool vtkMRMLNDLibraryNode::
+GetModifiedSinceRead()
+{
+  return false;
+}
+//#include "vtkMRMLStorageNode.h"
+// vtkMRMLStorageNode * vtkMRMLNDLibraryNode::
+// CreateDefaultStorageNode(void)
+// {
+//   return new vtkMRMLStorageNode;
+// }
+
+//----------------------------------------------------------------------------
+vtkMRMLNode*  vtkMRMLNDLibraryNode::
+CreateNodeInstance(void)
+{
+  vtkSmartPointer<vtkMRMLNode> sp ;
+  return sp;
+}
+void vtkMRMLNDLibraryNode::
+ProcessMRMLEvents (vtkObject *, unsigned long, void *)
+{
+  return;
+}
+void vtkMRMLNDLibraryNode::
+UpdateScene (vtkMRMLScene *scene)
+{
   return;
 }
 
