@@ -28,6 +28,9 @@ typedef std::map<std::string,std::string> std_str_hash ;
 #include <string.h>
 
 
+//#define storable
+
+
 //----------------------------------------------------------------------------
 //vtkMRMLNodeNewMacro(vtkMRMLNDLibraryBuilder);
 vtkMRMLNDLibraryBuilder::vtkMRMLNDLibraryBuilder(void)
@@ -69,12 +72,13 @@ vtkMRMLNode*  vtkMRMLNDLibraryBuilder::CreateNodeInstance(void)
   vtkSmartPointer<vtkMRMLNode> sp ;
   return sp;
 }
-
+#ifdef storablenode 
 bool vtkMRMLNDLibraryBuilder::
 GetModifiedSinceRead()
 {
   return false;
 }
+
 //----------------------------------------------------------------------------
 void vtkMRMLNDLibraryBuilder::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -96,11 +100,13 @@ ReadXMLAttributes (const char **atts)
   return;
 }
 
+
 void vtkMRMLNDLibraryBuilder::SetSlicerDataType( const char * type ) 
 { 
   this->SlicerDataType.clear();
   this->SlicerDataType = type;
 }
+
 
 void vtkMRMLNDLibraryBuilder::
 StorableModified ()
@@ -119,7 +125,7 @@ WriteXML (ostream &of, int indent)
 {
   return;
 }
-
+#endif
 
 //----------------------------------------------------------------------------
 bool vtkMRMLNDLibraryBuilder::Build(std_str_hash tagCloud)

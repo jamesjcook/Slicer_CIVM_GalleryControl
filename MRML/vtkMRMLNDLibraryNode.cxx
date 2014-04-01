@@ -254,18 +254,18 @@ WriteXML (ostream &of, int indent)
   return;
 }
 
-void vtkMRMLNDLibraryNode::
-SetSlicerDataType( const char * type ) 
-{ 
-  this->SlicerDataType.clear();
-  this->SlicerDataType = type;
-  return;
-}
-void vtkMRMLNDLibraryNode::
-StorableModified ()
-{
-  return;
-}
+// void vtkMRMLNDLibraryNode::
+// SetSlicerDataType( const char * type ) 
+// { 
+//   this->SlicerDataType.clear();
+//   this->SlicerDataType = type;
+//   return;
+// }
+// void vtkMRMLNDLibraryNode::
+// StorableModified ()
+// {
+//   return;
+// }
 bool vtkMRMLNDLibraryNode::
 GetModifiedSinceRead()
 {

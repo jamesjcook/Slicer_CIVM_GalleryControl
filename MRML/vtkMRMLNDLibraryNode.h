@@ -14,7 +14,7 @@
 
 // MRML includes
 //#include "vtkMRML.h"
-#include <vtkMRMLStorableNode.h>
+#include <vtkMRMLHierarchyStorageNode.h>
 
 // StdIncludes
 #include <string>
@@ -34,13 +34,13 @@
 
 
 //VTK_SLICER_MODULE_MRML_EXPORT
-//class VTK_MRML_LOGIC_EXPORT vtkMRMLNDLibraryNode : public vtkMRMLStorableNode // fail
-//class VTK_MRML_EXPORT vtkMRMLNDLibraryNode : public vtkMRMLStorableNode // works
-//class VTK_EXPORT vtkMRMLNDLibraryNode : public vtkMRMLStorableNode //works
-//class VTK_SLICER_VTKMRMLNDLIBRARYNODE_MRML_EXPORT vtkMRMLNDLibraryNode : public vtkMRMLStorableNode
-//class VTK_SLICER_VTKMRMLNDLIBRARYNODE_MODULE_LOGIC_EXPORT vtkMRMLNDLibraryNode : public vtkMRMLStorableNode
+//class VTK_MRML_LOGIC_EXPORT vtkMRMLNDLibraryNode : public vtkMRMLHierarchyStorageNode // fail
+//class VTK_MRML_EXPORT vtkMRMLNDLibraryNode : public vtkMRMLHierarchyStorageNode // works
+//class VTK_EXPORT vtkMRMLNDLibraryNode : public vtkMRMLHierarchyStorageNode //works
+//class VTK_SLICER_VTKMRMLNDLIBRARYNODE_MRML_EXPORT vtkMRMLNDLibraryNode : public vtkMRMLHierarchyStorageNode
+//class VTK_SLICER_VTKMRMLNDLIBRARYNODE_MODULE_LOGIC_EXPORT vtkMRMLNDLibraryNode : public vtkMRMLHierarchyStorageNode
 #include "vtkMRMLNDLibraryNodeExport.h"//works
-class VTK_VTKMRMLNDLIBRARYNODE_MRML_EXPORT vtkMRMLNDLibraryNode : public vtkMRMLStorableNode//works(the capslock section is referenced in the cmake lists.
+class VTK_VTKMRMLNDLIBRARYNODE_MRML_EXPORT vtkMRMLNDLibraryNode : public vtkMRMLHierarchyStorageNode//works(the capslock section is referenced in the cmake lists.
 {
   // declare friends
   // friend class qslicer_CIVM_GalleryControlModule;// maybe?
@@ -49,8 +49,8 @@ class VTK_VTKMRMLNDLIBRARYNODE_MRML_EXPORT vtkMRMLNDLibraryNode : public vtkMRML
  public:
 /// Create a new vtkMRMLNDLibraryNode
   //static vtkMRMLNDLibraryNode *New();
-  //typedef vtkMRMLStorableNode Superclass;//instead usetype macro
-  vtkTypeMacro(vtkMRMLNDLibraryNode,vtkMRMLStorableNode);
+  //typedef vtkMRMLHierarchyStorageNode Superclass;//instead usetype macro
+  vtkTypeMacro(vtkMRMLNDLibraryNode,vtkMRMLHierarchyStorageNode);
   vtkMRMLNDLibraryNode(std::string);
   vtkMRMLNDLibraryNode(std::string,std::string );
   vtkMRMLNDLibraryNode(std::string,std::string,std::string );
@@ -97,13 +97,14 @@ class VTK_VTKMRMLNDLIBRARYNODE_MRML_EXPORT vtkMRMLNDLibraryNode : public vtkMRML
   //  virtual int IsA (const char *type);
   //  vtkTagTable * GetUserTagTable ();
 
+  bool CanReadInReferenceNode(vtkMRMLNode * RefNode) {return false; };
   void PrintSelf(ostream& os, vtkIndent indent);
   void ReadXMLAttributes (const char **atts);
   void WriteXML (ostream &of, int indent);
-  void SetSlicerDataType ( const char *type) ;
-  void StorableModified ();
+  //  void SetSlicerDataType ( const char *type) ;
+  //  void StorableModified ();
   bool GetModifiedSinceRead();
-  //vtkMRMLStorageNode * CreateDefaultStorageNode(void);
+  //vtkMRMLHierarchyStorageNode * CreateDefaultStorageNode(void);
   void ProcessMRMLEvents (vtkObject *, unsigned long, void *);
   void UpdateScene (vtkMRMLScene *scene);
   
@@ -131,7 +132,7 @@ class VTK_VTKMRMLNDLIBRARYNODE_MRML_EXPORT vtkMRMLNDLibraryNode : public vtkMRML
 
 
   vtkMRMLNDLibraryNode(void);
-  void operator=(vtkMRMLStorableNode const & ) ;
+/*   void operator=(vtkMRMLStorageNode const & ) ; */
 
  private:
   void GetAllPaths(std::vector<std::string> *); // called for each sub library of a current library(recursively!) each adding their entries to the vector

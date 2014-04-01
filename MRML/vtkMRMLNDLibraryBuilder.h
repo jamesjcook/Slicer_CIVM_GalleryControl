@@ -13,13 +13,14 @@
 
 // MRML includes
 //#include "vtkMRML.h"
-//#include "vtkMRMLNode.h"
-#include "vtkMRMLStorableNode.h"
+#include "vtkMRMLNode.h"
+//#include "vtkMRMLStorableNode.h"
 #include "vtkMRMLNDLibraryNode.h"
 // StdIncludes
 #include <string>
 #include <map>
 
+//#define storable
 
 //VTK_SLICER_VOLUMERENDERING_MODULE_MRML_EXPORT
 //should change inherritance to vtkmrmlnode.h
@@ -30,7 +31,8 @@
 //class VTK_EXPORT vtkMRMLNDLibraryBuilder : public vtkMRMLStorableNode //works
 //class VTKMRMLNDLIBRARYBUILDER_MRML_EXPORT vtkMRMLNDLibraryBuilder : public vtkMRMLStorableNode
 #include "vtkMRMLNDLibraryBuilderExport.h"//works
-class VTK_VTKMRMLNDLIBRARYBUILDER_MRML_EXPORT vtkMRMLNDLibraryBuilder : public vtkMRMLStorableNode//works(the capslock section is referenced in the cmake lists.
+//class VTK_VTKMRMLNDLIBRARYBUILDER_MRML_EXPORT vtkMRMLNDLibraryBuilder : public vtkMRMLStorableNode//works(the capslock section is referenced in the cmake lists.
+class VTK_VTKMRMLNDLIBRARYBUILDER_MRML_EXPORT vtkMRMLNDLibraryBuilder : public vtkMRMLNode
 {
   // declare friends
   // friend class qslicer_CIVM_GalleryControlModule;// maybe?
@@ -40,15 +42,23 @@ class VTK_VTKMRMLNDLIBRARYBUILDER_MRML_EXPORT vtkMRMLNDLibraryBuilder : public v
 /// Create a new vtkMRMLNDLibraryBuilder
   //static vtkMRMLNDLibraryBuilder *New();
   //typedef vtkMRMLStorableNode Superclass;//instead usetype macro
+#ifndef storable
+  typedef vtkMRMLNode Superclass;//instead usetype macro
+#endif
+
+  //these two are required for any mrmlnode
+  vtkMRMLNode* CreateNodeInstance() ;
+  virtual const char* GetNodeTagName() {return "NDLibraryBuilder";};
+
+
+#ifdef storable
   vtkTypeMacro(vtkMRMLNDLibraryBuilder,vtkMRMLStorableNode);
 
   /// Get node XML tag name (like Volume, Model)
-  virtual const char* GetNodeTagName() {return "NDLibraryBuilder";};
   virtual const char* GetClassNameInternal() {return "NDLibraryBuilder";};
 
   void PrintSelf(ostream& os, vtkIndent indent);
   void SetSlicerDataType ( const char *type) ;
-  vtkMRMLNode* CreateNodeInstance() ;
 
   void ReadXMLAttributes (const char **atts);
   void WriteXML (ostream &of, int indent);
@@ -57,9 +67,9 @@ class VTK_VTKMRMLNDLIBRARYBUILDER_MRML_EXPORT vtkMRMLNDLibraryBuilder : public v
   //vtkMRMLStorageNode * CreateDefaultStorageNode(void);
   void ProcessMRMLEvents (vtkObject *, unsigned long, void *);
   void UpdateScene (vtkMRMLScene *scene);
+#endif
 
-  vtkSetMacro(LibPointer,vtkMRMLNDLibraryNode *);    
-
+  vtkSetMacro(LibPointer,vtkMRMLNDLibraryNode *);
   vtkMRMLNDLibraryBuilder(void);
   //vtkMRMLNDLibraryBuilder(vtkMRMLNDLibraryNode * libPointer=0);
   vtkMRMLNDLibraryBuilder(std::string);
