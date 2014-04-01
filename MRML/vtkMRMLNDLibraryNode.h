@@ -50,7 +50,7 @@ class VTK_VTKMRMLNDLIBRARY_MRML_EXPORT vtkMRMLNDLibraryNode : public vtkMRMLHier
   friend class vtkMRMLNDLibraryBuilder;
  public:
 /// Create a new vtkMRMLNDLibraryNode
-  //static vtkMRMLNDLibraryNode *New();
+  static vtkMRMLNDLibraryNode *New();
   //typedef vtkMRMLHierarchyStorageNode Superclass;//instead usetype macro
   vtkTypeMacro(vtkMRMLNDLibraryNode,vtkMRMLHierarchyStorageNode);
   vtkMRMLNDLibraryNode(std::string);
@@ -115,6 +115,7 @@ class VTK_VTKMRMLNDLIBRARY_MRML_EXPORT vtkMRMLNDLibraryNode : public vtkMRMLHier
   void ProcessMRMLEvents (vtkObject *, unsigned long, void *);
   void UpdateScene (vtkMRMLScene *scene);
 #endif
+
  protected:   
   std::string LibRoot;  // base path for the library
   std::string LibName;  // name displayed to user, the shortest unique name possible given the starting point of libroot. 
@@ -143,6 +144,14 @@ class VTK_VTKMRMLNDLIBRARY_MRML_EXPORT vtkMRMLNDLibraryNode : public vtkMRMLHier
   
   void operator=(vtkMRMLNDLibraryNode const & ) ; 
 
+#ifdef modlogic
+  virtual void SetMRMLSceneInternal(vtkMRMLScene* newScene);
+  /// Register MRML Node classes to Scene. Gets called automatically when the MRMLScene is attached to this logic class.
+  virtual void RegisterNodes();
+  virtual void UpdateFromMRMLScene();
+  virtual void OnMRMLSceneNodeAdded(vtkMRMLNode* node);
+  virtual void OnMRMLSceneNodeRemoved(vtkMRMLNode* node);
+#endif
  private:
   void GetAllPaths(std::vector<std::string> *); // called for each sub library of a current library(recursively!) each adding their entries to the vector
   std::vector<std::string>* SubPaths(); // returns the list of sub libraries paths we need to continue building on.

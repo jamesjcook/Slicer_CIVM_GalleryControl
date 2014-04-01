@@ -23,7 +23,7 @@
 
 
 
-//vtkMRMLNodeNewMacro(vtkMRMLNDLibraryNode);
+vtkMRMLNodeNewMacro(vtkMRMLNDLibraryNode);
 //----------------------------------------------------------------------------
 // placeholder constructor, just creates itself and gives fills fields with bad info(error check vars)
 vtkMRMLNDLibraryNode::vtkMRMLNDLibraryNode(void)
@@ -259,6 +259,44 @@ void vtkMRMLNDLibraryNode::PrintSelf(ostream& os, vtkIndent indent)
 
   return;
 }
+
+#ifdef modlogic
+//---------------------------------------------------------------------------
+void vtkMRMLNDLibraryNode::SetMRMLSceneInternal(vtkMRMLScene * newScene)
+{
+  vtkNew<vtkIntArray> events;
+  events->InsertNextValue(vtkMRMLScene::NodeAddedEvent);
+  events->InsertNextValue(vtkMRMLScene::NodeRemovedEvent);
+  events->InsertNextValue(vtkMRMLScene::EndBatchProcessEvent);
+  this->SetAndObserveMRMLSceneEventsInternal(newScene, events.GetPointer());
+}
+
+//-----------------------------------------------------------------------------
+void vtkMRMLNDLibraryNode::RegisterNodes()
+{
+  assert(this->GetMRMLScene() != 0);
+}
+
+//---------------------------------------------------------------------------
+void vtkMRMLNDLibraryNode::UpdateFromMRMLScene()
+{
+  assert(this->GetMRMLScene() != 0);
+}
+
+//---------------------------------------------------------------------------
+void vtkMRMLNDLibraryNode
+::OnMRMLSceneNodeAdded(vtkMRMLNode* vtkNotUsed(node))
+{
+}
+
+//---------------------------------------------------------------------------
+void vtkMRMLNDLibraryNode
+::OnMRMLSceneNodeRemoved(vtkMRMLNode* vtkNotUsed(node))
+{
+}
+#endif
+
+#ifdef storable
 void vtkMRMLNDLibraryNode::
 ReadXMLAttributes (const char **atts)
 {
@@ -287,6 +325,7 @@ GetModifiedSinceRead()
 {
   return false;
 }
+
 //#include "vtkMRMLStorageNode.h"
 // vtkMRMLStorageNode * vtkMRMLNDLibraryNode::
 // CreateDefaultStorageNode(void)
@@ -311,7 +350,7 @@ UpdateScene (vtkMRMLScene *scene)
 {
   return;
 }
-
+#endif
 //----------------------------------------------------------------------------
 std::vector<std::string> * vtkMRMLNDLibraryNode::SubPaths()
 {
