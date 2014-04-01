@@ -164,8 +164,9 @@ qSlicerCIVM_GalleryControlPanelPGRWidget
   ////
   // SLOPPY PRG CODE BEGIN
   // PGR REMOVAL COMMENT this->Superclass::setup();
+  this->ps=('/');
 #ifdef WIN32 
-  this->ps=('\\');
+ // this->ps=('\\')
   this->DataRoot="C:"+ps;
 #else
   this->ps=('/');

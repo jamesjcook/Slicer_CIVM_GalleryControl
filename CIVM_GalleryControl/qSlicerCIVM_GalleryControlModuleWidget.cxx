@@ -89,8 +89,9 @@ void qSlicerCIVM_GalleryControlModuleWidget::setup()
   Q_D(qSlicerCIVM_GalleryControlModuleWidget);
   d->setupUi(this); // handle the .ui file.
   this->Superclass::setup();
+  this->ps=('/');
 #ifdef WIN32 
-  this->ps=('\\');
+  //this->ps=('\\');
   this->DataRoot=QString("C:");
 #else
   this->ps=('/');
