@@ -285,13 +285,17 @@ void  vtkMRMLNDLibraryBuilder::GetSubDirs(std::vector<std::string > * path_vec, 
     {
 #ifndef WIN32
       entry = readdir (d_h);
-#else
-      FindNextFile(d_h, &entry);
-#endif
       if (! entry) 
 	{
 	  break;
 	} 
+#else
+      if ( ! FindNextFile(d_h, &entry))
+	{
+	  break;
+	}
+      
+#endif
       bool is_directory=false;
 #ifndef WIN32
       if ( entry->d_type == 4 )
