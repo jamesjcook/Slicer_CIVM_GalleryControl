@@ -256,57 +256,92 @@ void  vtkMRMLNDLibraryBuilder::GetSubDirs(std::vector<std::string > * path_vec, 
   DIR * d_h;
   // Open the current directory. 
   d_h = opendir (dir_name.c_str());
-   if (! d_h) 
-     {
-     std::cout << "Cout:Cannot open directory "<< dir_name.c_str() << " : " << strerror (errno) << "\n";
-     return;
-     }
-   while (1) 
-     {
-     struct dirent * entry;
-     entry = readdir (d_h);
-     if (! entry) 
-       {
-       break;
-       } 
-     else 
-       { 
-       // if is dir, get entry.
-       if ( entry->d_type == 4 )
-         //d_type==4
-         {
-         
-         //for entry in ignore list, if ! match ignore list, add, else skip
-         
-         if ( entry->d_name[0] != '.' && entry->d_name[0] != '_' ) //&& entry->d_name[0] != '0') 
-           {
-           std::cout << "cout: diradd"<< dir_name.c_str() << "/" << entry->d_name<< "\n";
-           path_vec->push_back(dir_name+"/"+entry->d_name);
-           }
-         else 
-           {
-           std::cout << "cout: ignore"<< dir_name.c_str() << "/" << entry->d_name<< "\n";
-           }
-         }
-       }
-     }
-   // Close the directory. 
-   if (closedir (d_h)) 
-     {
-     return;
-     std::cout<< "Cannot open directory "<< dir_name.c_str() << " : " << strerror (errno);
-     }
+  if (! d_h) 
+    {
+      std::cout << "Cout:Cannot open directory "<< dir_name.c_str() << " : " << strerror (errno) << "\n";
+      return;
+    }
+  struct dirent * entry;
 #else
   HANDLE d_h;
-  WIN32_FIND_DATA file_data;
+  WIN32_FIND_DATA entry;
+  if ((d_h = FindFirstFile((dir_name + "/*").c_str(), &entry)) == INVALID_HANDLE_VALUE)
+    {
+      return; // No files found 
+    }
+  
+#endif
+  
+// #ifndef WIN32
+//   while (1) //unixloop
+// { 
+// }
+// #else
+//   while (! (!entry)) //winloop // hopefully this is a null check.
+// { 
+// }
+// #endif
+    while(1)
+    {
+#ifndef WIN32
+      entry = readdir (d_h);
+#else
+      FindNextFile(d_h, &entry);
+#endif
+      if (! entry) 
+	{
+	  break;
+	} 
+      bool is_directory=false;
+#ifndef WIN32
+      if ( entry->d_type == 4 )
+	is_directory = true;
+      const std::string file_name = entry->d_name;
+#else
+      is_directory = (entry.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
+      const std::string file_name = entry.cFileName;
+#endif
 
-  if ((d_h = FindFirstFile((dir_name + "/*").c_str(), &file_data)) == INVALID_HANDLE_VALUE)
+      if ( is_directory) 
+	{
+	  //for entry in ignore list, if ! match ignore list, add, else skip
+	  if ( file_name[0] != '.' && file_name[0] != '_' ) //&& entry->d_name[0] != '0') 
+	    {
+	      std::cout << "cout: diradd"<< dir_name.c_str() << "/" << entry->d_name<< "\n";
+	      path_vec->push_back(dir_name+"/"+entry->d_name);
+	    }
+	  else 
+	    {
+	      std::cout << "cout: ignore"<< dir_name.c_str() << "/" << entry->d_name<< "\n";
+	    }
+	}
+    }
+
+
+#ifndef WIN32
+  // Close the directory. 
+  if (closedir (d_h)) 
+    {
+      return;
+      std::cout<< "Cannot open directory "<< dir_name.c_str() << " : " << strerror (errno);
+    }
+#else
+  FindClose(d_h);
+#endif
+
+#ifndef WIN32
+#else
+   if ( 0 ) {
+  HANDLE d_h;
+  WIN32_FIND_DATA entry;
+
+  if ((d_h = FindFirstFile((dir_name + "/*").c_str(), &entry)) == INVALID_HANDLE_VALUE)
     return; // No files found 
 
   do {
-    const std::string file_name = file_data.cFileName;
+    const std::string file_name = entry.cFileName;
     const std::string full_file_name = dir_name + "/" + file_name;
-    const bool is_directory = (file_data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
+    const bool is_directory = (entry.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
 
     //handle exclusions
     if (file_name[0] == '.' && file_name[0] == '_')
@@ -316,10 +351,13 @@ void  vtkMRMLNDLibraryBuilder::GetSubDirs(std::vector<std::string > * path_vec, 
       continue;
 
     path_vec->push_back(full_file_name);
-  } while (FindNextFile(d_h, &file_data));
+  } while (FindNextFile(d_h, &entry));
 
   FindClose(d_h);
+}
 #endif
+
+
   
    return ;
 }
