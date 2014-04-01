@@ -18,6 +18,7 @@ typedef std::map<std::string,std::string> std_str_hash ;
 // standard includes, most were added for our dir listing command.
 #include <stdlib.h>
 #include <stdio.h>
+
 #ifndef WIN32
 #include <sys/types.h>
 #include <dirent.h>
@@ -307,10 +308,11 @@ void  vtkMRMLNDLibraryBuilder::GetSubDirs(std::vector<std::string > * path_vec, 
     const std::string full_file_name = dir_name + "/" + file_name;
     const bool is_directory = (file_data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
 
-    if (file_name[0] == '.')
+    //handle exclusions
+    if (file_name[0] == '.' && file_name[0] == '_')
       continue;
-
-    if (is_directory)
+    //exclude non-directories
+    if (!is_directory)
       continue;
 
     path_vec->push_back(full_file_name);
