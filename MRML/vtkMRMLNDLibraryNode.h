@@ -33,6 +33,7 @@
 //// END EXAMPLE
 
 #include "vtkMRMLNDLibraryNodeExport.h"//works
+#include "vtkMRMLNDLibraryExport.h"//works
 
 //VTK_SLICER_MODULE_MRML_EXPORT
 //class VTK_MRML_LOGIC_EXPORT vtkMRMLNDLibraryNode : public vtkMRMLHierarchyStorageNode // fail
@@ -40,8 +41,8 @@
 //class VTK_EXPORT vtkMRMLNDLibraryNode : public vtkMRMLHierarchyStorageNode //works
 //class VTK_SLICER_VTKMRMLNDLIBRARYNODE_MRML_EXPORT vtkMRMLNDLibraryNode : public vtkMRMLHierarchyStorageNode
 //class VTK_SLICER_VTKMRMLNDLIBRARYNODE_MODULE_LOGIC_EXPORT vtkMRMLNDLibraryNode : public vtkMRMLHierarchyStorageNode
-
-class VTK_MRML_EXPORT vtkMRMLNDLibraryNode : public vtkMRMLHierarchyStorageNode//works(the capslock section is referenced in the cmake lists.
+//class VTK_SLICER_CIVM_GALLERYCONTROL_MODULE_LOGIC_EXPORT vtkMRMLNDLibraryNode : public vtkMRMLHierarchyStorageNode//fails
+class VTK_VTKMRMLNDLIBRARY_MRML_EXPORT vtkMRMLNDLibraryNode : public vtkMRMLHierarchyStorageNode//works(the capslock section is referenced in the cmake lists.
 {
   // declare friends
   // friend class qslicer_CIVM_GalleryControlModule;// maybe?
@@ -90,16 +91,21 @@ class VTK_MRML_EXPORT vtkMRMLNDLibraryNode : public vtkMRMLHierarchyStorageNode/
   std::vector<std::map<std::string,std::string> > * GetLibTree(void); // 
 
   /// Get node XML tag name (like Volume, Model)
+  vtkMRMLNode* CreateNodeInstance() ;
   virtual const char* GetNodeTagName() {return "NDLibraryNode";};
+
+
   virtual const char* GetClassNameInternal() {return "NDLibraryNode";};
 
-  vtkMRMLNode* CreateNodeInstance() ;
+
   //  virtual vtkMRMLNode * CreateNodeInstance()=0;
   //  virtual int IsA (const char *type);
   //  vtkTagTable * GetUserTagTable ();
+  void PrintSelf(ostream& os, vtkIndent indent);
+#ifdef storable
 
   bool CanReadInReferenceNode(vtkMRMLNode * RefNode) {return false; };
-  void PrintSelf(ostream& os, vtkIndent indent);
+
   void ReadXMLAttributes (const char **atts);
   void WriteXML (ostream &of, int indent);
   //  void SetSlicerDataType ( const char *type) ;
@@ -108,7 +114,7 @@ class VTK_MRML_EXPORT vtkMRMLNDLibraryNode : public vtkMRMLHierarchyStorageNode/
   //vtkMRMLHierarchyStorageNode * CreateDefaultStorageNode(void);
   void ProcessMRMLEvents (vtkObject *, unsigned long, void *);
   void UpdateScene (vtkMRMLScene *scene);
-  
+#endif
  protected:   
   std::string LibRoot;  // base path for the library
   std::string LibName;  // name displayed to user, the shortest unique name possible given the starting point of libroot. 
@@ -135,7 +141,7 @@ class VTK_MRML_EXPORT vtkMRMLNDLibraryNode : public vtkMRMLHierarchyStorageNode/
   vtkMRMLNDLibraryNode(void);
   vtkMRMLNDLibraryNode(vtkMRMLNDLibraryNode &);
   
-   void operator=(vtkMRMLNDLibraryNode const & ) ; 
+  void operator=(vtkMRMLNDLibraryNode const & ) ; 
 
  private:
   void GetAllPaths(std::vector<std::string> *); // called for each sub library of a current library(recursively!) each adding their entries to the vector

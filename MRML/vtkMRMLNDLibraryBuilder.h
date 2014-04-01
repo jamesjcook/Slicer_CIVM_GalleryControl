@@ -31,8 +31,9 @@
 //class VTK_EXPORT vtkMRMLNDLibraryBuilder : public vtkMRMLStorableNode //works
 //class VTKMRMLNDLIBRARYBUILDER_MRML_EXPORT vtkMRMLNDLibraryBuilder : public vtkMRMLStorableNode
 #include "vtkMRMLNDLibraryBuilderExport.h"//works
+#include "vtkMRMLNDLibraryExport.h"//works
 //class VTK_VTKMRMLNDLIBRARYBUILDER_MRML_EXPORT vtkMRMLNDLibraryBuilder : public vtkMRMLStorableNode//works(the capslock section is referenced in the cmake lists.
-class VTK_MRML_EXPORT vtkMRMLNDLibraryBuilder : public vtkMRMLNode
+class VTK_MRML_EXPORT vtkMRMLNDLibraryBuilder : public vtkMRMLNode //(the capslock section is referenced in the cmake lists.
 {
   // declare friends
   // friend class qslicer_CIVM_GalleryControlModule;// maybe?
