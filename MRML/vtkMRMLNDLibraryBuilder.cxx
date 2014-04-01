@@ -309,14 +309,14 @@ void  vtkMRMLNDLibraryBuilder::GetSubDirs(std::vector<std::string > * path_vec, 
       if ( is_directory) 
 	{
 	  //for entry in ignore list, if ! match ignore list, add, else skip
-	  if ( file_name[0] != '.' && file_name[0] != '_' ) //&& entry->d_name[0] != '0') 
+	  if ( file_name[0] != '.' && file_name[0] != '_' ) //&& file_name[0] != '0') 
 	    {
-	      std::cout << "cout: diradd"<< dir_name.c_str() << "/" << entry->d_name<< "\n";
-	      path_vec->push_back(dir_name+"/"+entry->d_name);
+	      std::cout << "cout: diradd"<< dir_name.c_str() << "/" << file_name<< "\n";
+	      path_vec->push_back(dir_name+"/"+file_name);
 	    }
 	  else 
 	    {
-	      std::cout << "cout: ignore"<< dir_name.c_str() << "/" << entry->d_name<< "\n";
+	      std::cout << "cout: ignore"<< dir_name.c_str() << "/" << file_name<< "\n";
 	    }
 	}
     }
