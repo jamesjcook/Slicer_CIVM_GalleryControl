@@ -69,7 +69,6 @@ vtkMRMLNDLibraryNode::vtkMRMLNDLibraryNode( std::string name,std::string categor
 }
 
 //----------------------------------------------------------------------------
-//vtkMRMLNodeNewMacro(vtkMRMLNDLibraryNode);
 vtkMRMLNDLibraryNode::vtkMRMLNDLibraryNode(std::string path)
 {
   LibRoot=path;//"/DataLibraries";

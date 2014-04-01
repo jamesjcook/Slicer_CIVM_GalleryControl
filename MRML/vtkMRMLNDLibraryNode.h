@@ -42,7 +42,7 @@
 //class VTK_SLICER_VTKMRMLNDLIBRARYNODE_MRML_EXPORT vtkMRMLNDLibraryNode : public vtkMRMLHierarchyStorageNode
 //class VTK_SLICER_VTKMRMLNDLIBRARYNODE_MODULE_LOGIC_EXPORT vtkMRMLNDLibraryNode : public vtkMRMLHierarchyStorageNode
 //class VTK_SLICER_CIVM_GALLERYCONTROL_MODULE_LOGIC_EXPORT vtkMRMLNDLibraryNode : public vtkMRMLHierarchyStorageNode//fails
-class VTK_VTKMRMLNDLIBRARY_MRML_EXPORT vtkMRMLNDLibraryNode : public vtkMRMLHierarchyStorageNode//works(the capslock section is referenced in the cmake lists.
+class VTK_VTKMRMLNDLIBRARYNODE_MRML_EXPORT vtkMRMLNDLibraryNode : public vtkMRMLHierarchyStorageNode//works(the capslock section is referenced in the cmake lists.
 {
   // declare friends
   // friend class qslicer_CIVM_GalleryControlModule;// maybe?
