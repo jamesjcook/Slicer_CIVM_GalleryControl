@@ -26,10 +26,10 @@
 //// EXAMPLE from vtkSlicerCIVM_GalleryControlModuelLogic.h
 /* #include "vtkSlicerCIVM_GalleryControlModuleLogicExport.h" */
 
-
 /* /// \ingroup Slicer_QtModules_ExtensionTemplate */
 /* class VTK_SLICER_CIVM_GALLERYCONTROL_MODULE_LOGIC_EXPORT vtkSlicerCIVM_GalleryControlLogic : */
 /* public vtkSlicerModuleLogic */
+/* { */
 //// END EXAMPLE
 
 
@@ -51,7 +51,6 @@ class VTK_VTKMRMLNDLIBRARYNODE_MRML_EXPORT vtkMRMLNDLibraryNode : public vtkMRML
   //static vtkMRMLNDLibraryNode *New();
   //typedef vtkMRMLStorableNode Superclass;//instead usetype macro
   vtkTypeMacro(vtkMRMLNDLibraryNode,vtkMRMLStorableNode);
-  vtkMRMLNDLibraryNode(void);
   vtkMRMLNDLibraryNode(std::string);
   vtkMRMLNDLibraryNode(std::string,std::string );
   vtkMRMLNDLibraryNode(std::string,std::string,std::string );
@@ -129,6 +128,10 @@ class VTK_VTKMRMLNDLIBRARYNODE_MRML_EXPORT vtkMRMLNDLibraryNode : public vtkMRML
   vtkMRMLNDLibraryNode * ParentNode;  // holds pointer to our parent dataset for use when we've got a hierarchy so the gui knows where we are.
   vtkMRMLNDLibraryNode * CurrentSelection;  // holds our selected dataset for use when we've got a hierarchy so the gui knows where we are.
   std::map<std::string,vtkMRMLNDLibraryNode *> SubLibraries;
+
+
+  vtkMRMLNDLibraryNode(void);
+  void operator=(vtkMRMLStorableNode const & ) ;
 
  private:
   void GetAllPaths(std::vector<std::string> *); // called for each sub library of a current library(recursively!) each adding their entries to the vector
