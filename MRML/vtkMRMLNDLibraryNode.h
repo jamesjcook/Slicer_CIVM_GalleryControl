@@ -32,6 +32,7 @@
 /* { */
 //// END EXAMPLE
 
+#include "vtkMRMLNDLibraryNodeExport.h"//works
 
 //VTK_SLICER_MODULE_MRML_EXPORT
 //class VTK_MRML_LOGIC_EXPORT vtkMRMLNDLibraryNode : public vtkMRMLHierarchyStorageNode // fail
@@ -39,8 +40,8 @@
 //class VTK_EXPORT vtkMRMLNDLibraryNode : public vtkMRMLHierarchyStorageNode //works
 //class VTK_SLICER_VTKMRMLNDLIBRARYNODE_MRML_EXPORT vtkMRMLNDLibraryNode : public vtkMRMLHierarchyStorageNode
 //class VTK_SLICER_VTKMRMLNDLIBRARYNODE_MODULE_LOGIC_EXPORT vtkMRMLNDLibraryNode : public vtkMRMLHierarchyStorageNode
-#include "vtkMRMLNDLibraryNodeExport.h"//works
-class VTK_VTKMRMLNDLIBRARYNODE_MRML_EXPORT vtkMRMLNDLibraryNode : public vtkMRMLHierarchyStorageNode//works(the capslock section is referenced in the cmake lists.
+
+class VTK_MRML_EXPORT vtkMRMLNDLibraryNode : public vtkMRMLHierarchyStorageNode//works(the capslock section is referenced in the cmake lists.
 {
   // declare friends
   // friend class qslicer_CIVM_GalleryControlModule;// maybe?
