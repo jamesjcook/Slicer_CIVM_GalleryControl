@@ -89,7 +89,9 @@ class VTK_VTKMRMLNDLIBRARY_MRML_EXPORT vtkMRMLNDLibraryBuilder : public vtkMRMLN
 
   
  protected:
+  vtkMRMLNDLibraryBuilder(vtkMRMLNDLibraryBuilder &);
   
+  void operator=(vtkMRMLNDLibraryBuilder const & ) ; 
  private:
   vtkMRMLNDLibraryNode * LibPointer;
   //vtkMRMLNDLibraryBuilder(const vtkMRMLNDLibraryBuilder&);//Not implemented

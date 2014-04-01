@@ -62,6 +62,18 @@ vtkMRMLNDLibraryBuilder::vtkMRMLNDLibraryBuilder(void)
  }
 
 //----------------------------------------------------------------------------
+ vtkMRMLNDLibraryBuilder::vtkMRMLNDLibraryBuilder(vtkMRMLNDLibraryBuilder & builder)
+ {
+   
+ }
+
+//----------------------------------------------------------------------------
+void vtkMRMLNDLibraryBuilder::operator=(vtkMRMLNDLibraryBuilder const & builder)
+{
+  return;
+}
+
+//----------------------------------------------------------------------------
 vtkMRMLNDLibraryBuilder::~vtkMRMLNDLibraryBuilder(void)
 {
   // this->SlicerDataType.clear();
