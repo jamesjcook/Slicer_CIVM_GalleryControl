@@ -23,9 +23,8 @@
 
 
 
-
-//----------------------------------------------------------------------------
 //vtkMRMLNodeNewMacro(vtkMRMLNDLibraryNode);
+//----------------------------------------------------------------------------
 // placeholder constructor, just creates itself and gives fills fields with bad info(error check vars)
 vtkMRMLNDLibraryNode::vtkMRMLNDLibraryNode(void)
 {
@@ -36,6 +35,18 @@ vtkMRMLNDLibraryNode::vtkMRMLNDLibraryNode(void)
   ParentNode = 0 ;
 }
 
+//----------------------------------------------------------------------------
+vtkMRMLNDLibraryNode::vtkMRMLNDLibraryNode(vtkMRMLNDLibraryNode & lib)
+{
+  LibRoot = lib.GetLibRoot();
+  Category= lib.GetCategory();
+  LibName = lib.GetLibName();
+  //CurrentSelection = lib.GetCurrentSelection() ;
+  //ParentNode = lib.GetParentNode() ;
+  CurrentSelection = 0;
+  ParentNode = 0;
+  
+}
 
 //----------------------------------------------------------------------------
 vtkMRMLNDLibraryNode::vtkMRMLNDLibraryNode( std::string name,std::string path)
@@ -92,6 +103,11 @@ vtkMRMLNDLibraryNode::vtkMRMLNDLibraryNode(std::string path)
   ParentNode = 0 ;
 }
 
+//----------------------------------------------------------------------------
+void vtkMRMLNDLibraryNode::operator=(vtkMRMLNDLibraryNode const & lib)
+{
+  return;
+}
 //----------------------------------------------------------------------------
 std::vector<std::string> * vtkMRMLNDLibraryNode::GetAllPaths() 
 {
