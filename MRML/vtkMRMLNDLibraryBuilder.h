@@ -24,7 +24,13 @@
 //VTK_SLICER_VOLUMERENDERING_MODULE_MRML_EXPORT
 //should change inherritance to vtkmrmlnode.h
 //class VTK_EXPORT vtkMRMLNDLibraryBuilder //: public vtkMRMLNode
-class VTK_MRML_EXPORT vtkMRMLNDLibraryBuilder : public vtkMRMLStorableNode
+
+//class VTK_MRML_LOGIC_EXPORT vtkMRMLNDLibraryBuilder : public vtkMRMLStorableNode
+//class VTK_MRML_EXPORT vtkMRMLNDLibraryBuilder : public vtkMRMLStorableNode // works
+//class VTK_EXPORT vtkMRMLNDLibraryBuilder : public vtkMRMLStorableNode //works
+//class VTKMRMLNDLIBRARYBUILDER_MRML_EXPORT vtkMRMLNDLibraryBuilder : public vtkMRMLStorableNode
+#include "vtkMRMLNDLibraryBuilderExport.h"//works
+class VTKMRMLNDLIBRARYBUILDER_MRML_EXPORT vtkMRMLNDLibraryBuilder : public vtkMRMLStorableNode//works(the capslock section is referenced in the cmake lists.
 {
   // declare friends
   // friend class qslicer_CIVM_GalleryControlModule;// maybe?

@@ -14,7 +14,7 @@
 
 // MRML includes
 //#include "vtkMRML.h"
-#include "vtkMRMLStorableNode.h"
+#include <vtkMRMLStorableNode.h>
 
 // StdIncludes
 #include <string>
@@ -22,8 +22,25 @@
 #include <map>
 
 
-//VTK_SLICER_VOLUMERENDERING_MODULE_MRML_EXPORT
-class VTK_MRML_EXPORT vtkMRMLNDLibraryNode : public vtkMRMLStorableNode
+
+//// EXAMPLE from vtkSlicerCIVM_GalleryControlModuelLogic.h
+/* #include "vtkSlicerCIVM_GalleryControlModuleLogicExport.h" */
+
+
+/* /// \ingroup Slicer_QtModules_ExtensionTemplate */
+/* class VTK_SLICER_CIVM_GALLERYCONTROL_MODULE_LOGIC_EXPORT vtkSlicerCIVM_GalleryControlLogic : */
+/* public vtkSlicerModuleLogic */
+//// END EXAMPLE
+
+
+//VTK_SLICER_MODULE_MRML_EXPORT
+//class VTK_MRML_LOGIC_EXPORT vtkMRMLNDLibraryNode : public vtkMRMLStorableNode // fail
+//class VTK_MRML_EXPORT vtkMRMLNDLibraryNode : public vtkMRMLStorableNode // works
+//class VTK_EXPORT vtkMRMLNDLibraryNode : public vtkMRMLStorableNode //works
+//class VTK_SLICER_VTKMRMLNDLIBRARYNODE_MRML_EXPORT vtkMRMLNDLibraryNode : public vtkMRMLStorableNode
+//class VTK_SLICER_VTKMRMLNDLIBRARYNODE_MODULE_LOGIC_EXPORT vtkMRMLNDLibraryNode : public vtkMRMLStorableNode
+#include "vtkMRMLNDLibraryNodeExport.h"//works
+class VTKMRMLNDLIBRARYNODE_MRML_EXPORT vtkMRMLNDLibraryNode : public vtkMRMLStorableNode//works(the capslock section is referenced in the cmake lists.
 {
   // declare friends
   // friend class qslicer_CIVM_GalleryControlModule;// maybe?

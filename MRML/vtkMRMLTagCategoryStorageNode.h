@@ -18,8 +18,9 @@ class vtkIntArray;
 #ifndef WIN32
 #include <regex.h>
 #endif
+#include "vtkMRMLTagCategoryStorageNodeExport.h"// must include this classnameExport.h for windows compile
 //VTK_SLICER_VOLUMERENDERING_MODULE_MRML_EXPORT
-class VTK_MRML_EXPORT vtkMRMLTagCategoryStorageNode
+class VTK_MRML_EXPORT vtkMRMLTagCategoryStorageNode //VTK_MRML_EXPORT must match entry in CMakeLists
 //class vtkMRMLTagCategoryStorageNode
 : public vtkMRMLStorableNode 
 //: qSlicerCIVM_GalleryControl

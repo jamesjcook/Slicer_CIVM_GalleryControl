@@ -1,6 +1,7 @@
 set(KIT "vtkMRMLNDLibraryNode")
 project(${KIT})
-set(${KIT}_EXPORT_DIRECTIVE "VTK_MRML_EXPORT")
+string(TOUPPER ${KIT} KIT_NAME_UPPER)
+set(${KIT}_EXPORT_DIRECTIVE "${KIT_NAME_UPPER}_MRML_EXPORT")
 
 set(${KIT}_INCLUDE_DIRECTORIES
   )
@@ -35,7 +36,9 @@ SlicerMacroBuildModuleMRML(
 #-----------------------------------------------------------------------------
 set(KIT "vtkMRMLNDLibraryBuilder")
 project(${KIT})
-set(${KIT}_EXPORT_DIRECTIVE "VTK_MRML_EXPORT")
+string(TOUPPER ${KIT} KIT_NAME_UPPER)
+set(${KIT}_EXPORT_DIRECTIVE "${KIT_NAME_UPPER}_MRML_EXPORT")
+#set(${KIT}_EXPORT_DIRECTIVE "VTK_MRML_EXPORT")
 
 set(${KIT}_INCLUDE_DIRECTORIES
   )

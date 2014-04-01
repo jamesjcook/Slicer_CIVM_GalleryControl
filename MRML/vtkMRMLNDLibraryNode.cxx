@@ -511,4 +511,5 @@ vtkMRMLNDLibraryNode::~vtkMRMLNDLibraryNode(void)
       //delete subIter->second();// failure, objectype is not a function of funtion pointer
     }
   //
+  return;
 }
