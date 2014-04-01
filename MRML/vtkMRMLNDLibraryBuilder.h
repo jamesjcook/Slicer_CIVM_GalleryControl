@@ -12,8 +12,8 @@
 
 
 // MRML includes
-#include "vtkMRML.h"
-#include "vtkMRMLNode.h"
+//#include "vtkMRML.h"
+//#include "vtkMRMLNode.h"
 #include "vtkMRMLStorableNode.h"
 #include "vtkMRMLNDLibraryNode.h"
 // StdIncludes
@@ -35,16 +35,24 @@ class VTK_MRML_EXPORT vtkMRMLNDLibraryBuilder : public vtkMRMLStorableNode
   //static vtkMRMLNDLibraryBuilder *New();
   //typedef vtkMRMLStorableNode Superclass;//instead usetype macro
   vtkTypeMacro(vtkMRMLNDLibraryBuilder,vtkMRMLStorableNode);
-  void PrintSelf(ostream& os, vtkIndent indent);
-  
-  void SetSlicerDataType ( const char *type) ;
-  vtkMRMLNode* CreateNodeInstance() ;
-  vtkSetMacro(LibPointer,vtkMRMLNDLibraryNode *);    
-  //void SetLibPointer(vtkMRMLNDLibraryNode * ) ;
-  
+
   /// Get node XML tag name (like Volume, Model)
   virtual const char* GetNodeTagName() {return "NDLibraryBuilder";};
   virtual const char* GetClassNameInternal() {return "NDLibraryBuilder";};
+
+  void PrintSelf(ostream& os, vtkIndent indent);
+  void SetSlicerDataType ( const char *type) ;
+  vtkMRMLNode* CreateNodeInstance() ;
+
+  void ReadXMLAttributes (const char **atts);
+  void WriteXML (ostream &of, int indent);
+  void StorableModified ();
+  bool GetModifiedSinceRead();
+  //vtkMRMLStorageNode * CreateDefaultStorageNode(void);
+  void ProcessMRMLEvents (vtkObject *, unsigned long, void *);
+  void UpdateScene (vtkMRMLScene *scene);
+
+  vtkSetMacro(LibPointer,vtkMRMLNDLibraryNode *);    
 
   vtkMRMLNDLibraryBuilder(void);
   //vtkMRMLNDLibraryBuilder(vtkMRMLNDLibraryNode * libPointer=0);

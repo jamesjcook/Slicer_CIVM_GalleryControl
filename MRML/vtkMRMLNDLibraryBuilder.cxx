@@ -64,12 +64,17 @@ vtkMRMLNDLibraryBuilder::~vtkMRMLNDLibraryBuilder(void)
   // this->SlicerDataType.clear();
 }
 
-void vtkMRMLNDLibraryBuilder::SetSlicerDataType( const char * type ) 
-{ 
-  this->SlicerDataType.clear();
-  this->SlicerDataType = type;
+vtkMRMLNode*  vtkMRMLNDLibraryBuilder::CreateNodeInstance(void)
+{
+  vtkSmartPointer<vtkMRMLNode> sp ;
+  return sp;
 }
 
+bool vtkMRMLNDLibraryBuilder::
+GetModifiedSinceRead()
+{
+  return false;
+}
 //----------------------------------------------------------------------------
 void vtkMRMLNDLibraryBuilder::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -79,12 +84,42 @@ void vtkMRMLNDLibraryBuilder::PrintSelf(ostream& os, vtkIndent indent)
 
   return;
 }
-
-vtkMRMLNode*  vtkMRMLNDLibraryBuilder::CreateNodeInstance(void)
+void vtkMRMLNDLibraryBuilder::
+ProcessMRMLEvents (vtkObject *, unsigned long, void *)
 {
-  vtkSmartPointer<vtkMRMLNode> sp ;
-  return sp;
+  return;
 }
+
+void vtkMRMLNDLibraryBuilder::
+ReadXMLAttributes (const char **atts)
+{
+  return;
+}
+
+void vtkMRMLNDLibraryBuilder::SetSlicerDataType( const char * type ) 
+{ 
+  this->SlicerDataType.clear();
+  this->SlicerDataType = type;
+}
+
+void vtkMRMLNDLibraryBuilder::
+StorableModified ()
+{
+  return;
+}
+
+void vtkMRMLNDLibraryBuilder::
+UpdateScene (vtkMRMLScene *scene)
+{
+  return;
+}
+
+void vtkMRMLNDLibraryBuilder::
+WriteXML (ostream &of, int indent)
+{
+  return;
+}
+
 
 //----------------------------------------------------------------------------
 bool vtkMRMLNDLibraryBuilder::Build(std_str_hash tagCloud)

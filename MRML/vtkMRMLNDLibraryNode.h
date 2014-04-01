@@ -13,7 +13,7 @@
 #define __vtkMRMLNDLibraryNode_h
 
 // MRML includes
-#include "vtkMRML.h"
+//#include "vtkMRML.h"
 #include "vtkMRMLStorableNode.h"
 
 // StdIncludes
@@ -90,8 +90,6 @@ class VTK_MRML_EXPORT vtkMRMLNDLibraryNode : public vtkMRMLStorableNode
   //vtkMRMLStorageNode * CreateDefaultStorageNode(void);
   void ProcessMRMLEvents (vtkObject *, unsigned long, void *);
   void UpdateScene (vtkMRMLScene *scene);
-
-  
   
  protected:   
   std::string LibRoot;  // base path for the library
@@ -108,17 +106,16 @@ class VTK_MRML_EXPORT vtkMRMLNDLibraryNode : public vtkMRMLStorableNode
 
   // valuemap...?
   //   for each dimesnsion(by name) a list of entries. 
-  std::map<std::string,std::string> Dimension_tags;
-
-
- private:
-  void GetAllPaths(std::vector<std::string> *); // called for each sub library of a current library(recursively!) each adding their entries to the vector
-  std::vector<std::string>* SubPaths(); // returns the list of sub libraries paths we need to continue building on.
+  std::map<std::string,std::string> Dimension_tags;///maybe make vtkTagtable here:?
 
   //private vars
   vtkMRMLNDLibraryNode * ParentNode;  // holds pointer to our parent dataset for use when we've got a hierarchy so the gui knows where we are.
   vtkMRMLNDLibraryNode * CurrentSelection;  // holds our selected dataset for use when we've got a hierarchy so the gui knows where we are.
   std::map<std::string,vtkMRMLNDLibraryNode *> SubLibraries;
+
+ private:
+  void GetAllPaths(std::vector<std::string> *); // called for each sub library of a current library(recursively!) each adding their entries to the vector
+  std::vector<std::string>* SubPaths(); // returns the list of sub libraries paths we need to continue building on.
   //std::vector<vtkMRMLNDLibraryNode *> * SubLibraries;
   //vtkMRMLNDLibraryNode(const vtkMRMLNDLibraryNode&);//Not implemented
   // helper functions
