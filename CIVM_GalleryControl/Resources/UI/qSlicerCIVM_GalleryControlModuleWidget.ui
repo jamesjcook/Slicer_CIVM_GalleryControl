@@ -6,14 +6,17 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>379</width>
-    <height>258</height>
+    <width>209</width>
+    <height>100</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_3">
+  <layout class="QVBoxLayout" name="verticalLayout_3" stretch="0,0,0,100">
+   <property name="spacing">
+    <number>0</number>
+   </property>
    <property name="sizeConstraint">
     <enum>QLayout::SetNoConstraint</enum>
    </property>
@@ -27,7 +30,7 @@
     <number>0</number>
    </property>
    <property name="bottomMargin">
-    <number>0</number>
+    <number>25</number>
    </property>
    <item>
     <widget class="QFrame" name="SelectionArea">
@@ -53,11 +56,18 @@
       <number>0</number>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_2">
+      <property name="spacing">
+       <number>0</number>
+      </property>
       <property name="margin">
        <number>0</number>
       </property>
       <item>
-       <layout class="QVBoxLayout" name="SelectionLayout"/>
+       <layout class="QVBoxLayout" name="SelectionLayout">
+        <property name="spacing">
+         <number>0</number>
+        </property>
+       </layout>
       </item>
      </layout>
     </widget>
@@ -70,27 +80,22 @@
      <property name="collapsed">
       <bool>false</bool>
      </property>
-     <layout class="QGridLayout" name="gridLayout">
-      <property name="sizeConstraint">
-       <enum>QLayout::SetNoConstraint</enum>
+     <property name="collapsedHeight">
+      <number>0</number>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_4">
+      <property name="spacing">
+       <number>0</number>
       </property>
       <property name="margin">
        <number>0</number>
       </property>
-      <item row="2" column="0">
-       <widget class="QFrame" name="GalleryFrame">
-        <property name="frameShape">
-         <enum>QFrame::StyledPanel</enum>
+      <item>
+       <layout class="QGridLayout" name="GalleryLayout">
+        <property name="spacing">
+         <number>0</number>
         </property>
-        <property name="frameShadow">
-         <enum>QFrame::Raised</enum>
-        </property>
-        <layout class="QVBoxLayout" name="verticalLayout">
-         <item>
-          <layout class="QGridLayout" name="GalleryLayout"/>
-         </item>
-        </layout>
-       </widget>
+       </layout>
       </item>
      </layout>
     </widget>
@@ -103,25 +108,22 @@
      <property name="collapsed">
       <bool>false</bool>
      </property>
-     <layout class="QGridLayout" name="gridLayout_3">
+     <property name="collapsedHeight">
+      <number>0</number>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_5">
+      <property name="spacing">
+       <number>0</number>
+      </property>
       <property name="margin">
        <number>0</number>
       </property>
-      <item row="2" column="0">
-       <widget class="QFrame" name="ControlFrame">
-        <layout class="QGridLayout" name="gridLayout_4">
-         <property name="margin">
-          <number>0</number>
-         </property>
-         <item row="0" column="0">
-          <layout class="QVBoxLayout" name="ControlLayout">
-           <item>
-            <widget class="qSlicerCIVM_GalleryControlFooBarWidget" name="FooBar" native="true"/>
-           </item>
-          </layout>
-         </item>
-        </layout>
-       </widget>
+      <item>
+       <layout class="QGridLayout" name="ControlLayout">
+        <property name="spacing">
+         <number>0</number>
+        </property>
+       </layout>
       </item>
      </layout>
     </widget>
@@ -131,10 +133,13 @@
      <property name="orientation">
       <enum>Qt::Vertical</enum>
      </property>
+     <property name="sizeType">
+      <enum>QSizePolicy::MinimumExpanding</enum>
+     </property>
      <property name="sizeHint" stdset="0">
       <size>
-       <width>20</width>
-       <height>40</height>
+       <width>0</width>
+       <height>0</height>
       </size>
      </property>
     </spacer>
@@ -152,12 +157,6 @@
    <class>ctkCollapsibleButton</class>
    <extends>QWidget</extends>
    <header>ctkCollapsibleButton.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>qSlicerCIVM_GalleryControlFooBarWidget</class>
-   <extends>QWidget</extends>
-   <header>qSlicerCIVM_GalleryControlFooBarWidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
