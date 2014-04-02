@@ -104,6 +104,7 @@ qSlicerCIVM_GalleryControlPanelDataSelectorWidget
   connect(d->LibrarySelectorDropList,SIGNAL(currentIndexChanged(int)),SLOT(SelectionChange()));
   connect(d->HomeDataPushButton,SIGNAL(clicked()),SLOT(HomeButton()));
   connect(d->BackDataPushButton,SIGNAL(clicked()),SLOT(BackButton()));
+  connect(d->ResetDataPushButton,SIGNAL(clicked()),SLOT(ResetButton()));
  
 }
 
@@ -187,16 +188,21 @@ void qSlicerCIVM_GalleryControlPanelDataSelectorWidget
 ::SelectionChange(void)
 {
   this->PrintMethod("SelectionChange");
-  vtkMRMLNDLibraryNode * selection = DataHash.value(this->ReadLibraryName());
-  vtkMRMLNDLibraryNode * ancestor  = GetOldestNDAncestor(selection);
-  ancestor->SetCurrentSelection(selection);
-  
-  if ( LibBuilder->Build(selection)  )
+
+  if ( DataHash.size() > 0 )  // dont try to look things up in data hash if its empty
     {
-    this->UpdateSelector(selection);
+      vtkMRMLNDLibraryNode * selection = DataHash.value(this->ReadLibraryName());
+      
+      vtkMRMLNDLibraryNode * ancestor  = GetOldestNDAncestor(selection);
+      ancestor->SetCurrentSelection(selection);
+      
+      if ( LibBuilder->Build(selection)  )
+	{
+	  this->UpdateSelector(selection);
+	}
+      //Let world know we've selected data.
+      emit DataSelected();
     }
-  //Let world know we've selected data.
-  emit DataSelected();
    
   return;
 }
@@ -244,6 +250,37 @@ void qSlicerCIVM_GalleryControlPanelDataSelectorWidget::PrintDataHash(void)
 // }
 
 //-----------------------------------------------------------------------------
+void qSlicerCIVM_GalleryControlPanelDataSelectorWidget
+::ResetButton(void)
+{
+  this->PrintMethod("ResetButton");
+  Q_D(qSlicerCIVM_GalleryControlPanelDataSelectorWidget);
+
+  ///
+  if ( 1 ) 
+    {
+      //order of operations is important here.
+      DataHash.clear();
+      LibPointer->GetSubLibraries().clear(); // this doesnt work because we dont have accesss to the real datasubs structrure, need to give that to us.
+      LibPointer->ResetLibrary(); // this doesnt work because we dont have accesss to the real datasubs structrure, need to give that to us.
+      d->LibrarySelectorDropList->setCurrentIndex(-1);
+      d->LibrarySelectorDropList->clear();
+
+      if ( LibBuilder->Build(LibPointer))
+	{
+	  this->PrintText("updating selector after clear");
+	  this->UpdateSelector(LibPointer);
+	}
+      
+    }
+  ///
+
+  //  d->LibrarySelectorDropList->setCurrentIndex(0); // this triggers a combobox signal, currentindexchanged, which should trigger SelectionChange
+//  LibPointer->GetSubLibraries().clear();
+  return;
+}
+
+//-----------------------------------------------------------------------------
 // Run each time we make a selection and we udpated our lib.
 // Adds to our DataHash mapping, and our ComboBox listing.
 // DataHash names match combobox listings exactly. 
@@ -257,7 +294,7 @@ void qSlicerCIVM_GalleryControlPanelDataSelectorWidget
   int indentSize=GetNameIndent();
   QStringList libList;
   while (printIndent.size()<indentSize)
-    {
+    { 
     printIndent=printIndent+" ";
     }
   

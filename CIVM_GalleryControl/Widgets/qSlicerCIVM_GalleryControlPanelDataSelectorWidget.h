@@ -52,7 +52,7 @@ class Q_SLICER_MODULE_CIVM_GALLERYCONTROL_WIDGETS_EXPORT qSlicerCIVM_GalleryCont
   
  protected slots:
   void HomeButton(void);     // handles home button, select first position. 
-  //void ResetButton(void);    //handles the reset lib button, clear out our data hash and data store and set to first position
+  void ResetButton(void);    //handles the reset lib button, clear out our data hash and data store and set to first position
   void BackButton(void);     // handles back button, starting at current combo text, move up until spacing is less.
   void SelectionChange(void);// handles change in data selected
     
