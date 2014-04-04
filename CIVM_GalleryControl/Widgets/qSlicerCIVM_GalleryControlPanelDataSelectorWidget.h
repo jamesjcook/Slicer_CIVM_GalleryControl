@@ -64,7 +64,7 @@ class Q_SLICER_MODULE_CIVM_GALLERYCONTROL_WIDGETS_EXPORT qSlicerCIVM_GalleryCont
 //  bool ReadLib(vtkMRMLNDLibraryNode *);  // not necessary, libbuilder->build does this
 
  private:
-  QHash<QString,vtkMRMLNDLibraryNode * >  DataHash;
+  QHash<QString,vtkMRMLNDLibraryNode * > DataHash;
   void UpdateSelector(vtkMRMLNDLibraryNode * );
   vtkMRMLNDLibraryNode * GetOldestNDAncestor(vtkMRMLNDLibraryNode * );
 

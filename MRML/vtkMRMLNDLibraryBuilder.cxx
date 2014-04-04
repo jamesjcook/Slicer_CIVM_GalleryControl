@@ -430,6 +430,8 @@ void vtkMRMLNDLibraryBuilder::GetFilesInDirectory(std::vector<std::string> &out,
 
 void vtkMRMLNDLibraryBuilder::ResetLib()   // clear out the lib
 {
+  // i think we should loop over each element of sublibraries calling delete on the value part of the map, and then clear.
+  //For now we'll leave this behavior
   LibPointer->SubLibraries.clear();
   return;
 }

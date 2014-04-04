@@ -13,11 +13,24 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
-   <property name="margin">
-    <number>0</number>
+  <widget class="QWidget" name="formLayoutWidget">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>0</y>
+     <width>160</width>
+     <height>80</height>
+    </rect>
    </property>
-  </layout>
+   <layout class="QFormLayout" name="AbstractPanelLayout">
+    <property name="horizontalSpacing">
+     <number>0</number>
+    </property>
+    <property name="verticalSpacing">
+     <number>0</number>
+    </property>
+   </layout>
+  </widget>
  </widget>
  <resources/>
  <connections/>
