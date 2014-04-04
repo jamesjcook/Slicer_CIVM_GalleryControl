@@ -381,10 +381,14 @@ QString qSlicerCIVM_GalleryControlModuleWidget::ReadLibraryPath(QString libraryN
   // Read the library path from the ndlib referenced by the libraryName entry in our datastore qhash 
   this->PrintMethod("ReadLibraryPath");
   QString libraryPath="NoPath";
+  
+  if ( 0 ) 
+    {// this is old and BAD BAD BAD.
     if ( !DataStore->GetCurrentSelection() )//if no selection
       {
       return libraryPath;
       }
+    
   this->PrintText("ReadLibraryName "+libraryName);
   if (libraryName=="<No Data Selected>"|| libraryName=="NoName") 
     {
@@ -399,6 +403,7 @@ QString qSlicerCIVM_GalleryControlModuleWidget::ReadLibraryPath(QString libraryN
     libraryPath=QString::fromStdString(DataStore->GetCurrentSelection()->GetLibRoot());
     this->PrintText("ReadLibraryPath "+libraryName+":"+libraryPath);
     }
+    }
   return libraryPath;
 }
 
@@ -407,6 +412,8 @@ QString qSlicerCIVM_GalleryControlModuleWidget::ReadLibraryPath(QString libraryN
 QString qSlicerCIVM_GalleryControlModuleWidget::ReadLibraryName(void) {
   Q_D(qSlicerCIVM_GalleryControlModuleWidget);
   QString libraryName="<No Data Selected>"; 
+  if ( 0 ) 
+    {// this is old and BAD BAD BAD.
   if ( !DataStore->GetCurrentSelection() )//if no selection
     {
     this->PrintText("No current selection!");
@@ -418,6 +425,7 @@ QString qSlicerCIVM_GalleryControlModuleWidget::ReadLibraryName(void) {
     {
     this->PrintText("Lib name blank");
     libraryName="NoName";
+    }
     }
   return libraryName;
 }
@@ -440,7 +448,7 @@ void qSlicerCIVM_GalleryControlModuleWidget::BuildGallery(vtkMRMLNDLibraryNode *
   else
     {
     CurrentNode = selectedLib;
-    this->PrintText("Lib select good");
+    this->PrintText("Lib select good, retaining CurrentNode");
     }
   this->BuildGallery(QString::fromStdString(selectedLib->GetLibName()));
   return;
@@ -500,7 +508,7 @@ void qSlicerCIVM_GalleryControlModuleWidget::BuildGallery(QString libraryName) {
         widge->setText(protocols[i]);
         widge->setObjectName(protocols[i]);
         
-        QString iconPath=ReadLibraryPath(libraryName)+"/GalleryIcons"+ps+libraryName+'_'+protocols[i]+".png"; 
+        QString iconPath=QString::fromStdString(CurrentNode->GetLibRoot())+"/GalleryIcons"+ps+libraryName+'_'+protocols[i]+".png"; 
         this->PrintText(iconPath);
         widge->setIcon(QIcon(iconPath));
         galleryButtons.push_back(widge);
@@ -565,13 +573,13 @@ void qSlicerCIVM_GalleryControlModuleWidget::SetControls()
       //qSlicerCIVM_GalleryControlPanelPGRWidget * panel = new qSlicerCIVM_GalleryControlPanelPGRWidget(this); //Ui_
     //qSlicerCIVM_GalleryControlPanelPGRWidget * panelPGR = new qSlicerCIVM_GalleryControlPanelPGRWidget(this,this->ReadLibraryPath(this->ReadLibraryName())); 
     qSlicerCIVM_GalleryControlPanelPGRWidget * panelPGR = new qSlicerCIVM_GalleryControlPanelPGRWidget(this,QString::fromStdString(CurrentNode->GetLibRoot()));
-    this->PrintText( "adding controls using "+this->ReadLibraryName());
+    this->PrintText( "adding controls using "+QString::fromStdString(CurrentNode->GetLibName()));
       //QSlicerModuleWidget
       d->ControlLayout->addWidget(panelPGR);
     } 
   else if ( panelName == "FA_Render" ) 
     {
-    QString out_path = "FARenderScenes"+ps+this->ReadLibraryName()+".mrml";
+    QString out_path = "FARenderScenes"+ps+QString::fromStdString(CurrentNode->GetLibName())+".mrml";
     out_path.replace(':','_');
     out_path=this->DataRoot+ps+out_path;
     this->PrintText("FA_Render load of "+out_path);
