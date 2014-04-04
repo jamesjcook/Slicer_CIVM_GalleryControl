@@ -52,7 +52,9 @@ class VTK_VTKMRMLNDLIBRARYNODE_MRML_EXPORT vtkMRMLNDLibraryNode : public vtkMRML
 /// Create a new vtkMRMLNDLibraryNode
   static vtkMRMLNDLibraryNode *New();
   //typedef vtkMRMLHierarchyStorageNode Superclass;//instead usetype macro
+  //constructors
   vtkTypeMacro(vtkMRMLNDLibraryNode,vtkMRMLHierarchyStorageNode);
+  vtkMRMLNDLibraryNode(void);
   vtkMRMLNDLibraryNode(std::string);
   vtkMRMLNDLibraryNode(std::string,std::string );
   vtkMRMLNDLibraryNode(std::string,std::string,std::string );
@@ -60,11 +62,15 @@ class VTK_VTKMRMLNDLIBRARYNODE_MRML_EXPORT vtkMRMLNDLibraryNode : public vtkMRML
   //void GatherSubLibs();  // Uses libroot and builds our library, recursively building a lib
                          // for each directory encountered and storing it to sublibraries.
                          // this is the builder class's job.
-                         //   
+                         //
   // this should be rename=repurposed to gather a map of name-path values.
   // * ndlibrary=GetSublibAtPath(path) should return pointer to ndlib to go from path to values for later modules.
   //  void GetSubDirs(std::vector<std::string> * , std::string ) ; 
 
+
+  ////
+  // Accessors
+  //   GETSET macros
   vtkSetMacro(LibRoot,std::string);    
   vtkGetMacro(LibRoot,std::string);    
 
@@ -79,26 +85,27 @@ class VTK_VTKMRMLNDLIBRARYNODE_MRML_EXPORT vtkMRMLNDLibraryNode : public vtkMRML
 
   vtkSetMacro(ParentNode,vtkMRMLNDLibraryNode *);
   vtkGetMacro(ParentNode,vtkMRMLNDLibraryNode *);
-  //vtkGetObjectMacro(SubLibraries,);
+
   std::map<std::string,vtkMRMLNDLibraryNode *>  GetSubLibraries(void); 
-  void ResetLibrary(void);
-  void ResetLibrary(std::string);
+  std::vector<vtkMRMLNDLibraryNode * >          GetAncestorList(void);
+  std::vector<std::string>                      GetCategoryPath(void);
+  
 
-
+  //public functions
+  // perhaps these reset functions should be private? and only called by our builder?
+/*   void ResetLibrary(void); */
+/*   void ResetLibrary(std::string);  //reset lib using path sent in. */
   
   // moving away from the self populating lib in the future
-  std::vector<std::string> * GetAllPaths();
+/*   std::vector<std::string> * GetAllPaths(); */
   std::vector<std::map<std::string,std::string> > * GetLibTree(void); // 
 
-  /// Get node XML tag name (like Volume, Model)
+
+  /// required virtuals
   vtkMRMLNode* CreateNodeInstance() ;
   virtual const char* GetNodeTagName() {return "NDLibraryNode";};
-
-
   virtual const char* GetClassNameInternal() {return "NDLibraryNode";};
 
-
-  //  virtual vtkMRMLNode * CreateNodeInstance()=0;
   //  virtual int IsA (const char *type);
   //  vtkTagTable * GetUserTagTable ();
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -125,24 +132,22 @@ class VTK_VTKMRMLNDLIBRARYNODE_MRML_EXPORT vtkMRMLNDLibraryNode : public vtkMRML
                         // name is Brain, category is organ, 
                         // name is AdultRat, category is specimen. 
                         // name is Macaca_mulatta, category is species
-  
+
+  // Still unsre how to use/set these fields, they will reamain blank for now. 
   // dimensions and dimension tags should be filled out during the buildlibrary stage, reported back from the children. 
   std::map<std::string,int> Dimensions; // dimension(category)/ size map, 
-
   // valuemap...?
   //   for each dimesnsion(by name) a list of entries. 
   std::map<std::string,std::string> Dimension_tags;///maybe make vtkTagtable here:?
 
-  //private vars
-  vtkMRMLNDLibraryNode * ParentNode;  // holds pointer to our parent dataset for use when we've got a hierarchy so the gui knows where we are.
-  vtkMRMLNDLibraryNode * CurrentSelection;  // holds our selected dataset for use when we've got a hierarchy so the gui knows where we are.
-  std::map<std::string,vtkMRMLNDLibraryNode *> SubLibraries;
-
-
-  vtkMRMLNDLibraryNode(void);
-  vtkMRMLNDLibraryNode(vtkMRMLNDLibraryNode &);
-  
   void operator=(vtkMRMLNDLibraryNode const & ) ; 
+
+
+
+  void clear(void);      //a clear self function.... should ONLY clear our subs.
+  vtkMRMLNDLibraryNode(vtkMRMLNDLibraryNode &);
+
+
 
 #ifdef modlogic
   virtual void SetMRMLSceneInternal(vtkMRMLScene* newScene);
@@ -153,15 +158,18 @@ class VTK_VTKMRMLNDLIBRARYNODE_MRML_EXPORT vtkMRMLNDLibraryNode : public vtkMRML
   virtual void OnMRMLSceneNodeRemoved(vtkMRMLNode* node);
 #endif
  private:
-  void GetAllPaths(std::vector<std::string> *); // called for each sub library of a current library(recursively!) each adding their entries to the vector
-  std::vector<std::string>* SubPaths(); // returns the list of sub libraries paths we need to continue building on.
+  //private vars
+  vtkMRMLNDLibraryNode * ParentNode;  // holds pointer to our parent dataset for use when we've got a hierarchy so the gui knows where we are.
+  vtkMRMLNDLibraryNode * CurrentSelection;  // can hold our selected dataset for use when we've got a hierarchy so the gui knows where we are. this is a bad way to handle the selection problem!, changed to emit a selected signal with a anode pointer in our guis
+  std::map<std::string,vtkMRMLNDLibraryNode *> SubLibraries;
+  //void GetAllPaths(std::vector<std::string> *); // called for each sub library of a current library(recursively!) each adding their entries to the vector
+  //std::vector<std::string>* SubPaths(); // returns the list of sub libraries paths we need to continue building on.
   //std::vector<vtkMRMLNDLibraryNode *> * SubLibraries;
   //vtkMRMLNDLibraryNode(const vtkMRMLNDLibraryNode&);//Not implemented
   // helper functions
   //  void GetFilesInDirectory(std::vector<std::string> &, const std::string &);
-  std::vector<std::string> &split(const std::string &, char, std::vector<std::string> &);
-  std::vector<std::string> split(const std::string &, char);
-  
+/*   std::vector<std::string> &split(const std::string &, char, std::vector<std::string> &); */
+/*   std::vector<std::string> split(const std::string &, char); */
 };
 
 #endif

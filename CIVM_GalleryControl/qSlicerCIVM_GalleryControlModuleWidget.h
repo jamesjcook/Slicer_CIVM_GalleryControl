@@ -51,26 +51,31 @@ public:
 /*   QStringList GetLibraries(QString ); */
 /*   QStringList GetLibraries(QString, int); */
 /*   void SetLibraries(QString); */
-  QString ReadLibraryPath(void); // reads the library path for our selected lib first calling readlibraryname
+/*   QString ReadLibraryPath(void); // reads the library path for our selected lib first calling readlibraryname */
   QString ReadLibraryPath(QString); // reads the gui data selector and gets the path for that library
   QString ReadLibraryName(); // reads the gui data selector and gets the name selected
 /*   QStringList GetLibDims(QString  ); */
 /*   QStringList GetDimEntries(QString, QString ); */
-  QStringList GetDisplayProtocols();   // function to list any/all display protocols supported by this module
+  QStringList GetDisplayProtocols();                   // function to list any/all display protocols supported 
+  QStringList GetDisplayProtocols(vtkMRMLNDLibraryNode *); // function to list any/all display protocols supported by this library
   void LoadData(); 
   void SetDisplayLayout(QString ); 
   void BuildDisplayControls(QString, QWidget);
   void nothing();
 
-
+ signals:
+  void NoSupportedProtocols(std::string);
+  void NoSupportedProtocols(vtkMRMLNDLibraryNode * );
 
 public slots:
-
+  
 protected slots:
 
   void BuildGallery(void); 
+  void BuildGallery(vtkMRMLNDLibraryNode *); 
   void BuildGallery(QString );
-  void DataSelected(void);        //get the selected lib from the data container. 
+  void DataSelected(void);                   //get the selected lib from the data container(as set by sub panel).
+  void DataSelected(vtkMRMLNDLibraryNode *); //set our 
 /*   void FillDataLibraries(void);   //get sublibs out of datastore */
 /*   bool FillDataLibraries(QString);   //get sublibs out of datastore */
 /*   void FillLibrarySelector(void); //fill out our select data gui from datalibraries */
@@ -79,13 +84,13 @@ protected slots:
 
  protected:
   QScopedPointer<qSlicerCIVM_GalleryControlModuleWidgetPrivate> d_ptr;
-  
+  void SetDataRoot();
   virtual void setup(void);
   
   private slots: 
 /*   void HomeButton(void ); // slot to listen to the HomeDataPushButtonObject; */
 /*   void BackButton(void ); // slot to listen to the BackDataPushButtonObject; */
-
+  
  private:
   Q_DECLARE_PRIVATE(qSlicerCIVM_GalleryControlModuleWidget);
   Q_DISABLE_COPY(qSlicerCIVM_GalleryControlModuleWidget);
@@ -98,7 +103,7 @@ protected slots:
   //DataObject *DataLibrary. // this should have somekind of method like librarylist returinging a list/vector/something of data libraries
   // we'll simulate that now using a qhash
   //QHash<QString, QFileInfo> DataLibraries;
-  std::map<std::string,vtkMRMLNDLibraryNode *>  DataLibraries;
+  //std::map<std::string,vtkMRMLNDLibraryNode *>  DataLibraries;
   //std::map<std::string,displayprotcolclass *> DisplayProtocols; // to be filled in later.
 
   void PrintText(const QString);
@@ -107,7 +112,7 @@ protected slots:
   
   vtkMRMLNDLibraryNode * DataStore;
   vtkMRMLNDLibraryNode * FullDataLibrary;
-
+  vtkMRMLNDLibraryNode * CurrentNode;    // the current node selected, to be passed to sub panels. (not in current use, but is set by our dataselected slot.
 };
 
 #endif

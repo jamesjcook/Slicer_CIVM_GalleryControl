@@ -85,6 +85,7 @@ vtkMRMLNode*  vtkMRMLNDLibraryBuilder::CreateNodeInstance(void)
   vtkSmartPointer<vtkMRMLNode> sp ;
   return sp;
 }
+
 #ifdef storablenode 
 bool vtkMRMLNDLibraryBuilder::
 GetModifiedSinceRead()
@@ -113,13 +114,11 @@ ReadXMLAttributes (const char **atts)
   return;
 }
 
-
 void vtkMRMLNDLibraryBuilder::SetSlicerDataType( const char * type ) 
 { 
   this->SlicerDataType.clear();
   this->SlicerDataType = type;
 }
-
 
 void vtkMRMLNDLibraryBuilder::
 StorableModified ()
@@ -147,33 +146,35 @@ bool vtkMRMLNDLibraryBuilder::Build(std_str_hash tagCloud)
   return true; 
 }
 
-
 //----------------------------------------------------------------------------
-bool vtkMRMLNDLibraryBuilder::Build(std::string path)
-{
-  this->Build(LibPointer,path);
-  return true; 
-}
-
-
-
-//----------------------------------------------------------------------------
-bool vtkMRMLNDLibraryBuilder::Build(vtkMRMLNDLibraryNode * lib, std_str_hash)
+bool vtkMRMLNDLibraryBuilder::Build(vtkMRMLNDLibraryNode * lib, std_str_hash tagCloud)
 {
   //this->Build(LibPointer,path);
   return true; 
 }
 
 //----------------------------------------------------------------------------
+bool vtkMRMLNDLibraryBuilder::Build(void) 
+{
+  return this->Build(LibPointer);
+}
+
+//----------------------------------------------------------------------------
+bool vtkMRMLNDLibraryBuilder::Build(std::string path)
+{
+  return this->Build(LibPointer,path);
+}
+
+//----------------------------------------------------------------------------
 bool vtkMRMLNDLibraryBuilder::Build(vtkMRMLNDLibraryNode * lib)
 {
-  //lib->GatherSubLibs();
+  //does a create by path of the sublibs in lib. 
   std::vector<std::string> * pathList = new std::vector<std::string>;
   this->GetSubDirs(pathList,lib->GetLibRoot());
   bool status=false;
-  
+ 
   bool singleEntryOptimization=false;
-  // this optimizatoin removed for now, it will be harder to follow this through in the future.
+  // this optimization removed for now, it will be harder to follow this through in the future.
   
   if( pathList->size() == 1 && singleEntryOptimization) // if singular path remove it and descend one more.
     {
@@ -184,11 +185,15 @@ bool vtkMRMLNDLibraryBuilder::Build(vtkMRMLNDLibraryNode * lib)
   if( pathList->size() != lib->SubLibraries.size() ) 
     {
     lib->SubLibraries.clear();
-
+    char delim = '/';
     for ( int i=0; i< pathList->size(); i++ ) 
       {
       std::cout << "Cout: Build libpointer(constructor call with path)" << pathList->at(i)<< "\n";    
-      vtkMRMLNDLibraryNode * subLib = new vtkMRMLNDLibraryNode(pathList->at(i));
+      
+      //std::string subName=this->split(pathList->at(i),delim).back();//cacl path parts
+      //vtkMRMLNDLibraryNode * subLib = new vtkMRMLNDLibraryNode(pathList->at(i),subName); // these two commands do not produce expected result
+      std::vector<std::string> libPathParts=this->split(pathList->at(i),delim);
+      vtkMRMLNDLibraryNode * subLib = new vtkMRMLNDLibraryNode(pathList->at(i),libPathParts.back());
       // build sublib from path, should create sublib with name and path set.
       // limited sub gathering for now
       subLib->SetParentNode(lib);
@@ -210,27 +215,27 @@ bool vtkMRMLNDLibraryBuilder::Build(vtkMRMLNDLibraryNode * lib)
 }
 
 //----------------------------------------------------------------------------
-bool vtkMRMLNDLibraryBuilder::Build(vtkMRMLNDLibraryNode * lib,  std::string name,std::string path)
+bool vtkMRMLNDLibraryBuilder::Build(vtkMRMLNDLibraryNode * lib, std::string path)
 {
-  bool status = this->Build(lib,name,std::string("NoCategory"),path);
-  return status;
+  char delim='/';
+  std::vector<std::string> libPathParts=this->split(path,delim);
+  //LibName=libPathParts.back();// this should be modified to give a better name.
+  return this->Build(lib,path,libPathParts.back());
 }
 
 //----------------------------------------------------------------------------
-bool vtkMRMLNDLibraryBuilder::Build(vtkMRMLNDLibraryNode * lib, std::string name,std::string category,std::string path)
+bool vtkMRMLNDLibraryBuilder::Build(vtkMRMLNDLibraryNode * lib,std::string path, std::string name)
+{
+  return this->Build(lib,path,name,std::string("NoCategory"));
+}
+
+//----------------------------------------------------------------------------
+bool vtkMRMLNDLibraryBuilder::Build(vtkMRMLNDLibraryNode * lib,std::string path, std::string name,std::string category)
 {
   lib->SetLibName(name);
   lib->SetCategory(category);
   lib->SetLibRoot(path); 
-  bool status = this->Build(lib);
-  return status;
-}
-
-//----------------------------------------------------------------------------
-bool vtkMRMLNDLibraryBuilder::Build(vtkMRMLNDLibraryNode * lib, std::string path)
-{
-  bool status = this->Build(lib,std::string("NoName"),path);
-  return status;
+  return this->Build(lib);
 }
 
 // //----------------------------------------------------------------------------
@@ -242,9 +247,10 @@ bool vtkMRMLNDLibraryBuilder::Build(vtkMRMLNDLibraryNode * lib, std::string path
 //----------------------------------------------------------------------------
 void  vtkMRMLNDLibraryBuilder::GetSubCategoryies(std::vector<std::string > * path_vec, std::string dir_name) 
 { // get sub fields for a given nd library. This is hard problem since our cloud of data can have a very variable associateion. 
-  
-}
 
+
+  return;
+}
 
 //----------------------------------------------------------------------------
 void  vtkMRMLNDLibraryBuilder::GetSubDirs(std::vector<std::string > * path_vec, std::string dir_name) 
@@ -271,17 +277,8 @@ void  vtkMRMLNDLibraryBuilder::GetSubDirs(std::vector<std::string > * path_vec, 
     }
   
 #endif
-  
-// #ifndef WIN32
-//   while (1) //unixloop
-// { 
-// }
-// #else
-//   while (! (!entry)) //winloop // hopefully this is a null check.
-// { 
-// }
-// #endif
-    while(1)
+
+  while(1) // loop until we call our break condition, breaks on bad entry.
     {
 #ifndef WIN32
       entry = readdir (d_h);
@@ -309,7 +306,7 @@ void  vtkMRMLNDLibraryBuilder::GetSubDirs(std::vector<std::string > * path_vec, 
       if ( is_directory) 
 	{
 	  //for entry in ignore list, if ! match ignore list, add, else skip
-	  if ( file_name[0] != '.' && file_name[0] != '_' ) //&& file_name[0] != '0') 
+	  if ( file_name[0] != '.' ) //&& file_name[0] != '_' ) //&& file_name[0] != '0') 
 	    {
 	      std::cout << "cout: diradd"<< dir_name.c_str() << "/" << file_name<< "\n";
 	      path_vec->push_back(dir_name+"/"+file_name);
@@ -321,13 +318,16 @@ void  vtkMRMLNDLibraryBuilder::GetSubDirs(std::vector<std::string > * path_vec, 
 	}
     }
 
-
 #ifndef WIN32
   // Close the directory. 
-  if (closedir (d_h)) 
+    if (closedir (d_h)) //return on sucessful unix close?
     {
       return;
-      std::cout<< "Cannot open directory "<< dir_name.c_str() << " : " << strerror (errno);
+    } 
+  else 
+    {
+      //not sure this is where this belongs.
+      //std::cout<< "Cannot open directory "<< dir_name.c_str() << " : " << strerror (errno);
     }
 #else
   FindClose(d_h);
@@ -426,3 +426,35 @@ void vtkMRMLNDLibraryBuilder::GetFilesInDirectory(std::vector<std::string> &out,
 
     return;
 } // GetFilesInDirectory
+
+
+void vtkMRMLNDLibraryBuilder::ResetLib()   // clear out the lib
+{
+  LibPointer->SubLibraries.clear();
+  return;
+}
+bool vtkMRMLNDLibraryBuilder::ReBuild()    // rebuild the lib(first resets)
+{
+  this->ResetLib();
+  return this->Build(LibPointer);
+}
+//----------------------------------------------------------------------------
+// split function code >90% copy pasta from website(in comments). user was Evan Teran
+// http://stackoverflow.com/questions/236129/how-to-split-a-string-in-c
+//std::vector<std::string> &vtkMRMLNDLibraryBuilder::split(const std::string &s, char delim, std::vector<std::string> &elems);
+//std::vector<std::string> vtkMRMLNDLibraryBuilder::split(const std::string &s, char delim);
+
+std::vector<std::string> & vtkMRMLNDLibraryBuilder::split(const std::string &s, char delim, std::vector<std::string> &elems) {
+  std::stringstream ss(s);
+  std::string item;
+  while (std::getline(ss, item, delim)) {
+  elems.push_back(item);
+  }
+  return elems;
+}
+
+std::vector<std::string> vtkMRMLNDLibraryBuilder::split(const std::string &s, char delim) {
+  std::vector<std::string> elems;
+  split(s, delim, elems);
+  return elems;
+}

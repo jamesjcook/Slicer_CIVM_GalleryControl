@@ -44,6 +44,7 @@ class Q_SLICER_MODULE_CIVM_GALLERYCONTROL_WIDGETS_EXPORT qSlicerCIVM_GalleryCont
   Q_OBJECT;
  signals:
   void DataSelected(void);
+  void DataSelected(vtkMRMLNDLibraryNode * );
  public:
   typedef qSlicerAbstractModuleWidget Superclass;
   //qSlicerCIVM_GalleryControlPanelDataSelectorWidget(QWidget *parent=0);
@@ -55,6 +56,8 @@ class Q_SLICER_MODULE_CIVM_GALLERYCONTROL_WIDGETS_EXPORT qSlicerCIVM_GalleryCont
   void ResetButton(void);    //handles the reset lib button, clear out our data hash and data store and set to first position
   void BackButton(void);     // handles back button, starting at current combo text, move up until spacing is less.
   void SelectionChange(void);// handles change in data selected
+  //  void SelectNext(vtkMRMLNDLibraryNode * ); // if another module says that our data selection is unsupported we can do something.
+  void SelectNext(std::string); // if another module says that our data selection is unsupported we can do something.
     
  protected:
   QScopedPointer<qSlicerCIVM_GalleryControlPanelDataSelectorWidgetPrivate> d_ptr;

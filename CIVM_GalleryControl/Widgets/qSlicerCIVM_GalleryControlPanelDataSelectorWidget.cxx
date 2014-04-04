@@ -185,23 +185,79 @@ vtkMRMLNDLibraryNode * qSlicerCIVM_GalleryControlPanelDataSelectorWidget
 
 //-----------------------------------------------------------------------------
 void qSlicerCIVM_GalleryControlPanelDataSelectorWidget
+//::SelectNext(vtkMRMLNDLibraryNode * )
+::SelectNext(std::string libName)
+{
+  this->PrintMethod("SelectNext");
+  Q_D(qSlicerCIVM_GalleryControlPanelDataSelectorWidget);
+
+  if ( d->LibrarySelectorDropList->currentIndex()+1 < d->LibrarySelectorDropList->count() )
+    d->LibrarySelectorDropList->setCurrentIndex(d->LibrarySelectorDropList->currentIndex()+1);
+  return;
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerCIVM_GalleryControlPanelDataSelectorWidget
 ::SelectionChange(void)
 {
   this->PrintMethod("SelectionChange");
-
+  Q_D(qSlicerCIVM_GalleryControlPanelDataSelectorWidget);
+  bool setAncestor=false;
   if ( DataHash.size() > 0 )  // dont try to look things up in data hash if its empty
     {
       vtkMRMLNDLibraryNode * selection = DataHash.value(this->ReadLibraryName());
-      
-      vtkMRMLNDLibraryNode * ancestor  = GetOldestNDAncestor(selection);
-      ancestor->SetCurrentSelection(selection);
-      
-      if ( LibBuilder->Build(selection)  )
+      bool optim=false;
+      // the pathextendor optimization is neat but it falls down on no support.
+      if ( !optim) 
 	{
-	  this->UpdateSelector(selection);
+	  if ( LibBuilder->Build(selection)  )
+	    {
+	      this->UpdateSelector(selection);
+	    }
 	}
+      else
+	{
+	  //build while we have one option!.
+	  bool buildstatus=true;
+	  while (buildstatus)
+	    {
+	      buildstatus = LibBuilder->Build(selection);
+	      if ( buildstatus) 
+		{
+		  this->UpdateSelector(selection);
+		}
+	      
+	      if ( selection->GetSubLibraries().size()==1 )
+		{
+		  d->LibrarySelectorDropList->setCurrentIndex(d->LibrarySelectorDropList->currentIndex()+1);
+		  this->PrintText("engage depth build optimazation");
+		  std::string name=selection->GetSubLibraries().begin()->second->GetLibName();
+		  vtkMRMLNDLibraryNode * nextsel=selection->GetSubLibraries()[name];
+		  selection=nextsel;
+		}
+	    }
+	}
+//       while ( LibBuilder->Build(selection)  )
+// 	{
+// 	  this->UpdateSelector(selection);
+// 	  if(selection->GetSubLibraries().size()==1 ){
+// 	    selection=selection->GetSubLibraries().at(0);
+// 	  }
+// 	}      
+
       //Let world know we've selected data.
-      emit DataSelected();
+      if( setAncestor) 
+	{
+	  // move get oldest to a get ancestry function in librarynode?
+	  vtkMRMLNDLibraryNode * ancestor  = GetOldestNDAncestor(selection);
+	  ancestor->SetCurrentSelection(selection);
+	  emit DataSelected();
+	} 
+      else 
+	{
+	  emit DataSelected(selection);
+	}
+
     }
    
   return;
@@ -261,12 +317,12 @@ void qSlicerCIVM_GalleryControlPanelDataSelectorWidget
     {
       //order of operations is important here.
       DataHash.clear();
-      LibPointer->GetSubLibraries().clear(); // this doesnt work because we dont have accesss to the real datasubs structrure, need to give that to us.
-      LibPointer->ResetLibrary(); // this doesnt work because we dont have accesss to the real datasubs structrure, need to give that to us.
+      //LibPointer->clear(); // this doesnt work because we dont have accesss to the real datasubs structrure, need to give that to us.
+      //LibPointer->ResetLibrary(); // this doesnt work because we dont have accesss to the real datasubs structrure, need to give that to us.
       d->LibrarySelectorDropList->setCurrentIndex(-1);
       d->LibrarySelectorDropList->clear();
 
-      if ( LibBuilder->Build(LibPointer))
+      if ( LibBuilder->ReBuild())
 	{
 	  this->PrintText("updating selector after clear");
 	  this->UpdateSelector(LibPointer);
@@ -336,46 +392,18 @@ void qSlicerCIVM_GalleryControlPanelDataSelectorWidget
     }
   
   int libInsertPoint=d->LibrarySelectorDropList->currentIndex()+1;// should be good even for first insert as we start with index =-1
-  //getname of data point in hash at number.
-  int startIndex=d->LibrarySelectorDropList->currentIndex();
-  // vtkMRMLNDLibraryNode * libname=DataHash->qHash(startIndex+1);
-  QString nextName;//=DataHash(startIndex+1)->GetLibName();
 
-  //int indentSize=this->ReadLibraryName().trimmed().size()-this->ReadLibraryName().size();
-  //use that to get update position of hash
-  // int nextIndent=indentSize;
-//   while(nextIndent==indentSize)
-//     {
-    //starting from that place insert new elements
-    //... this will fail because we don thave new elements
-    //new organization is needed.
-    
-//     break;
-//     }
-  this->PrintText("  fill lib selector: Insert Items");
-  d->LibrarySelectorDropList->insertItems(libInsertPoint,libList); // if we dont clear
-
+  if( libList.size() > 0 ) 
+    {
+      this->PrintText("  fill lib selector: Insert Items");
+      d->LibrarySelectorDropList->insertItems(libInsertPoint,libList); // if we dont clear
+    }
+  else
+    {
+      this->PrintText("  fill lib selector: No new items");
+    }
   return;
 }
-
-// //-----------------------------------------------------------------------------
-// QString qSlicerCIVM_GalleryControlPanelDataSelectorWidget::ReadLibraryPath(QString libraryName) {
-//   // Read the library path from the ndlib referenced by the libraryName entry in our datastore qhash
-//   QString library;
-//   this->PrintText("ReadLibraryName "+libraryName);
-//   if (libraryName=="<No Data Selected>"|| libraryName=="NoName")
-//     {
-//     this->PrintText("Lib path blank");
-//     library="NoPath";
-//     }
-//   else
-//     {
-//     std::string path = DataHash[library]->GetLibRoot();
-//     library=QString::fromStdString(path);
-//     this->PrintText("ReadLibraryPath "+libraryName+":"+library);
-//     }
-//   return library;
-// }
 
 //-----------------------------------------------------------------------------
 // gets current name in the combobox(including spaces)
@@ -387,7 +415,6 @@ QString qSlicerCIVM_GalleryControlPanelDataSelectorWidget::ReadLibraryName(void)
   if (libraryName=="<No Data Selected>")
     {
     this->PrintText("Lib name blank");
-//    libraryName="NoName";
     }
   return libraryName;
 }

@@ -10,6 +10,8 @@
 #ifndef __vtkMRMLNDLibraryBuilder_h
 #define __vtkMRMLNDLibraryBuilder_h
 
+//to change to inherrrit from storaeble if that make smore sense.
+// #define storable 
 
 // MRML includes
 //#include "vtkMRML.h"
@@ -31,7 +33,7 @@
 //class VTK_EXPORT vtkMRMLNDLibraryBuilder : public vtkMRMLStorableNode //works
 //class VTKMRMLNDLIBRARYBUILDER_MRML_EXPORT vtkMRMLNDLibraryBuilder : public vtkMRMLStorableNode
 #include "vtkMRMLNDLibraryBuilderExport.h"//works
-#include "vtkMRMLNDLibraryExport.h"//works
+#include "vtkMRMLNDLibraryExport.h"//only active in windows, test comment out in windows
 //class VTK_VTKMRMLNDLIBRARYBUILDER_MRML_EXPORT vtkMRMLNDLibraryBuilder : public vtkMRMLStorableNode//works(the capslock section is referenced in the cmake lists.
 class VTK_VTKMRMLNDLIBRARYBUILDER_MRML_EXPORT vtkMRMLNDLibraryBuilder : public vtkMRMLNode //(the capslock section is referenced in the cmake lists.
 {
@@ -42,15 +44,23 @@ class VTK_VTKMRMLNDLIBRARYBUILDER_MRML_EXPORT vtkMRMLNDLibraryBuilder : public v
  public:
 /// Create a new vtkMRMLNDLibraryBuilder
   //static vtkMRMLNDLibraryBuilder *New();
-  //typedef vtkMRMLStorableNode Superclass;//instead usetype macro
+
 #ifndef storable
   typedef vtkMRMLNode Superclass;//instead usetype macro
+#else 
+  //typedef vtkMRMLStorableNode Superclass;//instead usetype macro
 #endif
+  ////
+  // *constructors
+  vtkMRMLNDLibraryBuilder(void);
+  //vtkMRMLNDLibraryBuilder(vtkMRMLNDLibraryNode * libPointer=0);
+  vtkMRMLNDLibraryBuilder(std::string);
+  ~vtkMRMLNDLibraryBuilder(void);
+
 
   //these two are required for any mrmlnode
   vtkMRMLNode* CreateNodeInstance() ;
   virtual const char* GetNodeTagName() {return "NDLibraryBuilder";};
-
 
 #ifdef storable
   vtkTypeMacro(vtkMRMLNDLibraryBuilder,vtkMRMLStorableNode);
@@ -69,28 +79,28 @@ class VTK_VTKMRMLNDLIBRARYBUILDER_MRML_EXPORT vtkMRMLNDLibraryBuilder : public v
   void ProcessMRMLEvents (vtkObject *, unsigned long, void *);
   void UpdateScene (vtkMRMLScene *scene);
 #endif
-
+  ////
+  //accessors
   vtkSetMacro(LibPointer,vtkMRMLNDLibraryNode *);
-  vtkMRMLNDLibraryBuilder(void);
-  //vtkMRMLNDLibraryBuilder(vtkMRMLNDLibraryNode * libPointer=0);
-  vtkMRMLNDLibraryBuilder(std::string);
-  ~vtkMRMLNDLibraryBuilder(void);
   
   // differnet builder funtions
-  // return true on success or false on fail
-  //bool Build(void);
-  bool Build(std::string);  // build an nd lib which must be set before hand in our ndlib pointer using a tag cloud at string.
+  // return true on success with work done or false for no work done(or fail)
+  bool Build(void);         // build our currently set lib
+  bool Build(std::string);  // build an nd lib which must be set before hand in our ndlib pointer.
+
   bool Build(std_str_hash); // build an nd lib which must be set before hand in our ndlib pointer using a tag cloud at string.
   bool Build(vtkMRMLNDLibraryNode *, std_str_hash);   // build an nd lib using a tag cloud at string.
+  
   bool Build(vtkMRMLNDLibraryNode *);                                      // build the nd lib, which presumeable has alredy had its path name and category set.
   bool Build(vtkMRMLNDLibraryNode *,std::string);                          // build lib at path,
   bool Build(vtkMRMLNDLibraryNode *,std::string,std::string );             // build lib at path with name
   bool Build(vtkMRMLNDLibraryNode *,std::string,std::string,std::string ); // build lib at path with name and category
-
+  
+  void ResetLib();   // clear out the lib
+  bool ReBuild();    // rebuild the lib(first resets)
   
  protected:
   vtkMRMLNDLibraryBuilder(vtkMRMLNDLibraryBuilder &);
-  
   void operator=(vtkMRMLNDLibraryBuilder const & ) ; 
  private:
   vtkMRMLNDLibraryNode * LibPointer;
@@ -98,7 +108,8 @@ class VTK_VTKMRMLNDLIBRARYBUILDER_MRML_EXPORT vtkMRMLNDLibraryBuilder : public v
   void GetFilesInDirectory(std::vector<std::string> &, const std::string &);
   void GetSubDirs(std::vector<std::string> * , std::string ) ; 
   void GetSubCategoryies(std::vector<std::string> * , std::string ) ; // temporary placeholder for planning purposes.
-  
+  std::vector<std::string> &split(const std::string &, char, std::vector<std::string> &);
+  std::vector<std::string> split(const std::string &, char);
 
 
   

@@ -49,21 +49,21 @@ vtkMRMLNDLibraryNode::vtkMRMLNDLibraryNode(vtkMRMLNDLibraryNode & lib)
 }
 
 //----------------------------------------------------------------------------
-vtkMRMLNDLibraryNode::vtkMRMLNDLibraryNode( std::string name,std::string path)
+vtkMRMLNDLibraryNode::vtkMRMLNDLibraryNode( std::string path, std::string name)
 {
   LibRoot = path;
-  Category= "NoCategory";
   LibName = name;
+  Category= "NoCategory";
   CurrentSelection = 0 ;
   ParentNode = 0 ;
 }
 
 //----------------------------------------------------------------------------
-vtkMRMLNDLibraryNode::vtkMRMLNDLibraryNode( std::string name,std::string category,std::string path)
+vtkMRMLNDLibraryNode::vtkMRMLNDLibraryNode( std::string path,std::string name,std::string category)
 {
   LibRoot = path;
-  Category= category;
   LibName = name;
+  Category= category;
   CurrentSelection = 0 ;
   ParentNode = 0 ;
 }
@@ -72,29 +72,30 @@ vtkMRMLNDLibraryNode::vtkMRMLNDLibraryNode( std::string name,std::string categor
 vtkMRMLNDLibraryNode::vtkMRMLNDLibraryNode(std::string path)
 {
   LibRoot=path;//"/DataLibraries";
-
-  if ( LibRoot == "/DataLibraries/Brain/Rattus_norvegicus/average/00006912000" ) 
-    {
-      Category="time";
-    }
-  else if ( LibRoot == "/DataLibraries/Brain/Rattus_norvegicus/Wistar/average" ) 
-    {
-      Category="specimen"; 
-    }
-  else if ( LibRoot == "/DataLibraries/Brain/Rattus_norvegicus/Wistar" ) 
-    {
-      Category="Strain";  
-    }
-  else if ( LibRoot != "/DataLibraries/Brain")
-    {
-      Category="Species";
-    } else {
-    Category="organ";
-  }
-  char delim='/';
-  std::vector<std::string> libPathParts=this->split(LibRoot,delim);
-  //  LibName=libPathParts[libPathParts.size()-1];
-  LibName=libPathParts.back();// this should be modified to give a better name.
+  LibName = "NoName";
+  Category= "NoCategory";
+//   if ( LibRoot == "/DataLibraries/Brain/Rattus_norvegicus/average/00006912000" ) 
+//     {
+//       Category="time";
+//     }
+//   else if ( LibRoot == "/DataLibraries/Brain/Rattus_norvegicus/Wistar/average" ) 
+//     {
+//       Category="specimen"; 
+//     }
+//   else if ( LibRoot == "/DataLibraries/Brain/Rattus_norvegicus/Wistar" ) 
+//     {
+//       Category="Strain";  
+//     }
+//   else if ( LibRoot != "/DataLibraries/Brain")
+//     {
+//       Category="Species";
+//     } else {
+//     Category="organ";
+//   }
+//   char delim='/';
+//   std::vector<std::string> libPathParts=this->split(LibRoot,delim);
+//   //  LibName=libPathParts[libPathParts.size()-1];
+//   LibName=libPathParts.back();// this should be modified to give a better name.
   // read tag data from some where?
   // set name some way...
   // set sublibs
@@ -107,47 +108,68 @@ void vtkMRMLNDLibraryNode::operator=(vtkMRMLNDLibraryNode const & lib)
 {
   return;
 }
+
 //----------------------------------------------------------------------------
-std::vector<std::string> * vtkMRMLNDLibraryNode::GetAllPaths() 
+// std::vector<std::string> * vtkMRMLNDLibraryNode::GetAllPaths() 
+// {
+//   std::vector<std::string> * pathList = new std::vector<std::string>;
+//   //pathList->reserve(SubLibraries->size());# nice idea but doesnt work...
+//   pathList->push_back(LibRoot);
+//   for(std::map<std::string,vtkMRMLNDLibraryNode *>::iterator subIter= SubLibraries.begin(); subIter!=SubLibraries.end();++subIter)
+//     {
+//       //subIter->second->PrintSelf(os,indent.GetNextIndent());
+//       subIter->second->GetAllPaths(pathList);
+//     }
+//   return pathList;
+// }
+void vtkMRMLNDLibraryNode::clear()
 {
-  std::vector<std::string> * pathList = new std::vector<std::string>;
-  //pathList->reserve(SubLibraries->size());# nice idea but doesnt work...
-  pathList->push_back(LibRoot);
   for(std::map<std::string,vtkMRMLNDLibraryNode *>::iterator subIter= SubLibraries.begin(); subIter!=SubLibraries.end();++subIter)
     {
-      //subIter->second->PrintSelf(os,indent.GetNextIndent());
-      subIter->second->GetAllPaths(pathList);
+      subIter->second->clear();
     }
-  return pathList;
+  return;
+}
+//----------------------------------------------------------------------------
+std::vector<vtkMRMLNDLibraryNode *> vtkMRMLNDLibraryNode::GetAncestorList(void)
+{
+  std::cout<< "GetAncestorList NOT IMPLIMENTED" << "\n";
+  std::vector<vtkMRMLNDLibraryNode *> ancestorlist;
+  
+  return ancestorlist;
 }
 
-//----------------------------------------------------------------------------
-void vtkMRMLNDLibraryNode::GetAllPaths(std::vector<std::string> * pathList) 
+std::vector<std::string> vtkMRMLNDLibraryNode::GetCategoryPath(void) 
 {
+  std::cout<< "GetCategoryPath NOT IMPLIMENTED" << "\n";
+// //----------------------------------------------------------------------------
+// void vtkMRMLNDLibraryNode::GetAllPaths(std::vector<std::string> * pathList) 
+// {
 
-  pathList->push_back(LibRoot);  
-  for(std::map<std::string,vtkMRMLNDLibraryNode *>::iterator subIter= SubLibraries.begin(); subIter!=SubLibraries.end();++subIter)
-    {
-      //subIter->second->PrintSelf(os,indent.GetNextIndent());
-      subIter->second->GetAllPaths(pathList);
-    }    
-  return ;
-}
-
-
-//----------------------------------------------------------------------------
-std::map<std::string,vtkMRMLNDLibraryNode *> vtkMRMLNDLibraryNode::GetSubLibraries(void)
-{
-  return SubLibraries;
+//   pathList->push_back(LibRoot);  
+//   for(std::map<std::string,vtkMRMLNDLibraryNode *>::iterator subIter= SubLibraries.begin(); subIter!=SubLibraries.end();++subIter)
+//     {
+//       //subIter->second->PrintSelf(os,indent.GetNextIndent());
+//       subIter->second->GetAllPaths(pathList);
+//     }    
+//   return ;
+// }
+  std::vector<std::string> catpath;
+  
+  return catpath; 
 }
 
 //----------------------------------------------------------------------------
 std::vector<std::map<std::string,std::string> > * vtkMRMLNDLibraryNode::GetLibTree() 
 {
   std::vector<std::map<std::string,std::string> > * libTree = new std::vector<std::map<std::string,std::string> > ; 
-
-
   return libTree;
+}
+
+//----------------------------------------------------------------------------
+std::map<std::string,vtkMRMLNDLibraryNode *> vtkMRMLNDLibraryNode::GetSubLibraries(void)
+{
+  return SubLibraries;
 }
 
 // //----------------------------------------------------------------------------
@@ -174,49 +196,49 @@ std::vector<std::map<std::string,std::string> > * vtkMRMLNDLibraryNode::GetLibTr
 
 
 
-//----------------------------------------------------------------------------
-void vtkMRMLNDLibraryNode::ResetLibrary(void)
-{
-  ResetLibrary(this->LibRoot);
-  return;
-}
+// //----------------------------------------------------------------------------
+// void vtkMRMLNDLibraryNode::ResetLibrary(void)
+// {
+//   ResetLibrary(this->LibRoot);
+//   return;
+// }
 
-//----------------------------------------------------------------------------
-void vtkMRMLNDLibraryNode::ResetLibrary(std::string path)
-{
-  LibRoot=path;//"/DataLibraries";
-  //this->BuildLibrary();
-  if ( LibRoot == "/DataLibraries/Brain/Rattus_norvegicus/average/00006912000" ) 
-    {
-      Category="time";
-    }
-  else if ( LibRoot == "/DataLibraries/Brain/Rattus_norvegicus/Wistar/average" ) 
-    {
-      Category="specimen"; 
-    }
-  else if ( LibRoot == "/DataLibraries/Brain/Rattus_norvegicus/Wistar" ) 
-    {
-      Category="Strain";  
-    }
-  else if ( LibRoot != "/DataLibraries/Brain")
-    {
-      Category="Species";
-    } else {
-    Category="organ";
-  }
-  char delim='/';
-  std::vector<std::string> libPathParts=this->split(LibRoot,delim);
-  //  LibName=libPathParts[libPathParts.size()-1];
-  LibName=libPathParts.back();// this should be modified to give a better name.
-  SubLibraries.clear();
-  //SubLibraries = new std::map<std::string,vtkMRMLNDLibraryNode *>;
+// //----------------------------------------------------------------------------
+// void vtkMRMLNDLibraryNode::ResetLibrary(std::string path)
+// {
+//   LibRoot=path;//"/DataLibraries";
+//   //this->BuildLibrary();
+//   if ( LibRoot == "/DataLibraries/Brain/Rattus_norvegicus/average/00006912000" ) 
+//     {
+//       Category="time";
+//     }
+//   else if ( LibRoot == "/DataLibraries/Brain/Rattus_norvegicus/Wistar/average" ) 
+//     {
+//       Category="specimen"; 
+//     }
+//   else if ( LibRoot == "/DataLibraries/Brain/Rattus_norvegicus/Wistar" ) 
+//     {
+//       Category="Strain";  
+//     }
+//   else if ( LibRoot != "/DataLibraries/Brain")
+//     {
+//       Category="Species";
+//     } else {
+//     Category="organ";
+//   }
+//   char delim='/';
+//   std::vector<std::string> libPathParts=this->split(LibRoot,delim);
+//   //  LibName=libPathParts[libPathParts.size()-1];
+//   LibName=libPathParts.back();// this should be modified to give a better name.
+//   SubLibraries.clear();
+//   //SubLibraries = new std::map<std::string,vtkMRMLNDLibraryNode *>;
 
-  // read tag data from some where?
+//   // read tag data from some where?
   
-  // set name some way...
-  // set sublibs
-return; 
-}
+//   // set name some way...
+//   // set sublibs
+// return; 
+// }
 
 
 // vtkTagTable * vtkMRMLNDLibraryNode::
@@ -350,91 +372,90 @@ UpdateScene (vtkMRMLScene *scene)
   return;
 }
 #endif
-//----------------------------------------------------------------------------
-std::vector<std::string> * vtkMRMLNDLibraryNode::SubPaths()
-{
-  std::vector<std::string> * pathList = new std::vector<std::string>;
-  //may want to convert this to 
-  //    a pointer to a vector of pointers to strings instead of
-  //    a pointer to a vector of strings
-  int const_paths=false;
-  // get vector of dirs in LibRoot
-  // for each dir which has a lib.conf inside it add to the path list
-  // lib.conf handling not implimented yet.
+// //----------------------------------------------------------------------------
+// std::vector<std::string> * vtkMRMLNDLibraryNode::SubPaths()
+// {
+//   std::vector<std::string> * pathList = new std::vector<std::string>;
+//   //may want to convert this to 
+//   //    a pointer to a vector of pointers to strings instead of
+//   //    a pointer to a vector of strings
+//   int const_paths=false;
+//   // get vector of dirs in LibRoot
+//   // for each dir which has a lib.conf inside it add to the path list
+//   // lib.conf handling not implimented yet.
   
-  // hack to stop recursion while our paths are hard coded;
+//   // hack to stop recursion while our paths are hard coded;
 
-  if ( const_paths ) { 
-  if ( LibRoot == "/DataLibraries/Brain/Rattus_norvegicus/Wistar/average" ) 
-    {
-      pathList->push_back(LibRoot + "/00006912000");
-      return pathList;
-    }
-  else if ( LibRoot == "/DataLibraries/Brain/Rattus_norvegicus/Wistar" ) 
-    {
-      pathList->push_back(LibRoot + "/average");    
-      return pathList;
-    }
-  else if ( LibRoot == "/DataLibraries/Brain/Rattus_norvegicus" ) 
-    {
-      pathList->push_back(LibRoot + "/Wistar");    
-      return pathList;
-    }
-  else if ( LibRoot == "/DataLibraries/Brain")
-    {
-      //pathList=NULL;
+//   if ( const_paths ) { 
+//   if ( LibRoot == "/DataLibraries/Brain/Rattus_norvegicus/Wistar/average" ) 
+//     {
+//       pathList->push_back(LibRoot + "/00006912000");
+//       return pathList;
+//     }
+//   else if ( LibRoot == "/DataLibraries/Brain/Rattus_norvegicus/Wistar" ) 
+//     {
+//       pathList->push_back(LibRoot + "/average");    
+//       return pathList;
+//     }
+//   else if ( LibRoot == "/DataLibraries/Brain/Rattus_norvegicus" ) 
+//     {
+//       pathList->push_back(LibRoot + "/Wistar");    
+//       return pathList;
+//     }
+//   else if ( LibRoot == "/DataLibraries/Brain")
+//     {
+//       //pathList=NULL;
 
-  //this->PrintSelf(std::cout,vtkIndent::vtkIndent(0));
-  pathList->push_back(LibRoot + "/0_species");
-  pathList->push_back(LibRoot + "/Canis_lupus");
-  pathList->push_back(LibRoot + "/Human");
-  pathList->push_back(LibRoot + "/Macaca_fascicularis");
-  pathList->push_back(LibRoot + "/Macaca_mulatta");
-  pathList->push_back(LibRoot + "/Mus_Musculus");
-  pathList->push_back(LibRoot + "/Rattus_norvegicus");
+//   //this->PrintSelf(std::cout,vtkIndent::vtkIndent(0));
+//   pathList->push_back(LibRoot + "/0_species");
+//   pathList->push_back(LibRoot + "/Canis_lupus");
+//   pathList->push_back(LibRoot + "/Human");
+//   pathList->push_back(LibRoot + "/Macaca_fascicularis");
+//   pathList->push_back(LibRoot + "/Macaca_mulatta");
+//   pathList->push_back(LibRoot + "/Mus_Musculus");
+//   pathList->push_back(LibRoot + "/Rattus_norvegicus");
   
-    } else
-    {
-      return pathList;
-    }  
-  } else {
-    //GetFilesInDirectory(*pathList,LibRoot);
-//     GetSubDirs(pathList,LibRoot);
+//     } else
+//     {
+//       return pathList;
+//     }  
+//   } else {
+//     //GetFilesInDirectory(*pathList,LibRoot);
+// //     GetSubDirs(pathList,LibRoot);
     
-//     if( pathList->size() == 1 )
-//       {
-// 	GetSubDirs(pathList,pathList->at(0));
-// 	pathList->erase(pathList->begin());
-//       }
-  }
+// //     if( pathList->size() == 1 )
+// //       {
+// // 	GetSubDirs(pathList,pathList->at(0));
+// // 	pathList->erase(pathList->begin());
+// //       }
+//   }
 
 
-  // for each entry of pathlist, check if valid.
+//   // for each entry of pathlist, check if valid.
   
 
-  return pathList;
-}
+//   return pathList;
+// }
 
-//----------------------------------------------------------------------------
-// split function code >90% copy pasta from website(in comments). user was Evan Teran
-// http://stackoverflow.com/questions/236129/how-to-split-a-string-in-c
-//std::vector<std::string> &vtkMRMLNDLibraryNode::split(const std::string &s, char delim, std::vector<std::string> &elems);
-//std::vector<std::string> vtkMRMLNDLibraryNode::split(const std::string &s, char delim);
+// //----------------------------------------------------------------------------
+// // split function code >90% copy pasta from website(in comments). user was Evan Teran
+// // http://stackoverflow.com/questions/236129/how-to-split-a-string-in-c
+// //std::vector<std::string> &vtkMRMLNDLibraryNode::split(const std::string &s, char delim, std::vector<std::string> &elems);
+// //std::vector<std::string> vtkMRMLNDLibraryNode::split(const std::string &s, char delim);
+// std::vector<std::string> & vtkMRMLNDLibraryNode::split(const std::string &s, char delim, std::vector<std::string> &elems) {
+//   std::stringstream ss(s);
+//   std::string item;
+//   while (std::getline(ss, item, delim)) {
+//   elems.push_back(item);
+//   }
+//   return elems;
+// }
 
-std::vector<std::string> & vtkMRMLNDLibraryNode::split(const std::string &s, char delim, std::vector<std::string> &elems) {
-  std::stringstream ss(s);
-  std::string item;
-  while (std::getline(ss, item, delim)) {
-  elems.push_back(item);
-  }
-  return elems;
-}
-
-std::vector<std::string> vtkMRMLNDLibraryNode::split(const std::string &s, char delim) {
-  std::vector<std::string> elems;
-  split(s, delim, elems);
-  return elems;
-}
+// std::vector<std::string> vtkMRMLNDLibraryNode::split(const std::string &s, char delim) {
+//   std::vector<std::string> elems;
+//   split(s, delim, elems);
+//   return elems;
+// }
 
 // //----------------------------------------------------------------------------
 // // GetSubDirs based on heavilty modified code at website. 

@@ -22,6 +22,7 @@
 #include <QIcon>
 #include <QRadioButton>
 #include <QPushButton>
+#include <QLabel>
 
 #include <QFrame>
 
@@ -97,11 +98,17 @@ void qSlicerCIVM_GalleryControlModuleWidget::setup()
   this->ps=('/');
   this->DataRoot=QString("");
 #endif
-  DataRoot=DataRoot+ps+"DataLibraries"+ps+"Brain"; //
-  DataStore = new vtkMRMLNDLibraryNode(DataRoot.toStdString());
-  //DataStore -> SetParentNode(DataStore);// becuase of behavior this has to be added.
+  QString DataStoreName="Brain";
+  QString DataStoreCategory="Organ";
+  DataRoot=DataRoot+ps+"DataLibraries"+ps+DataStoreName; //
+  DataStore = new vtkMRMLNDLibraryNode(DataRoot.toStdString(),DataStoreName.toStdString(),DataStoreCategory.toStdString());
+  // perhaps it would be best to use default constructor here and just let panelDataSelector do the setting/building and other. Investigate later, but here is the code in an if ( 0 ) set
+  if ( 0 ) {
+  DataStore = new vtkMRMLNDLibraryNode();
+  DataStore->SetLibRoot(DataRoot.toStdString());
+  }
 
-  //DataStore->SetLibRoot();
+
 //   this->FullDataLibrary = new vtkMRMLNDLibraryNode(DataRoot.toStdString(),std::string("Brain"),std::string("organ"));
 //   vtkMRMLNDLibraryBuilder * libBuilder= new vtkMRMLNDLibraryBuilder();
 //   bool status = libBuilder->Build(FullDataLibrary);
@@ -123,7 +130,12 @@ void qSlicerCIVM_GalleryControlModuleWidget::setup()
     new qSlicerCIVM_GalleryControlPanelDataSelectorWidget(this,DataStore);
   d->SelectionLayout->addWidget(panelDataSelector);
   //d->SelectionLayout->
+//   connect(panelDataSelector,SIGNAL(DataSelected(vtkMRMLNDLibraryNode *)),SLOT(BuildGallery(vtkMRMLNDLibraryNode *)));
+//   connect(panelDataSelector,SIGNAL(DataSelected(vtkMRMLNDLibraryNode *)),SLOT(DataSelected(vtkMRMLNDLibraryNode *)));
+
   connect(panelDataSelector,SIGNAL(DataSelected()),SLOT(BuildGallery()));
+  connect(panelDataSelector,SIGNAL(DataSelected(vtkMRMLNDLibraryNode *)),SLOT(BuildGallery(vtkMRMLNDLibraryNode *)));
+  connect(this,SIGNAL(NoSupportedProtocols(std::string)),panelDataSelector,SLOT(SelectNext(std::string) ));
   
 //   if ( 0 )
 //     {//code superseeded by the paneldataselctor
@@ -133,6 +145,10 @@ void qSlicerCIVM_GalleryControlModuleWidget::setup()
 //     connect(d->HomeDataPushButton,SIGNAL(clicked()),SLOT(HomeButton()));
 //     connect(d->BackDataPushButton,SIGNAL(clicked()),SLOT(BackButton()));
 //     }
+  
+#ifndef WIN32
+  //INSERT ADVANCED SECTION TO MAIN PANLE WITH DATA ROOT CHANGER FUNCTION
+#endif
   
   // preload data scene.
   if ( 0 ) 
@@ -176,12 +192,6 @@ void qSlicerCIVM_GalleryControlModuleWidget::setup()
 //   return;
 // }
 
-// void qSlicerCIVM_GalleryControlModuleWidget::DataSelected(void)
-// {
-  
-
-//   return;
-// }
 
 // //-----------------------------------------------------------------------------
 // void qSlicerCIVM_GalleryControlModuleWidget::FillDataLibraries(void) {
@@ -359,19 +369,21 @@ void qSlicerCIVM_GalleryControlModuleWidget::setup()
 //     }
 // }
 
-//-----------------------------------------------------------------------------
-QString qSlicerCIVM_GalleryControlModuleWidget::ReadLibraryPath(void) {
-  this->PrintText("ReadLibraryPath Slot");
-  return this->ReadLibraryPath(this->ReadLibraryName());
-}
+// //-----------------------------------------------------------------------------
+// QString qSlicerCIVM_GalleryControlModuleWidget::ReadLibraryPath(void) {
+//   this->PrintText("ReadLibraryPath Slot");
+//   return this->ReadLibraryPath(this->ReadLibraryName());
+// }
 
 //-----------------------------------------------------------------------------
-QString qSlicerCIVM_GalleryControlModuleWidget::ReadLibraryPath(QString libraryName) {
+QString qSlicerCIVM_GalleryControlModuleWidget::ReadLibraryPath(QString libraryName) 
+{
   // Read the library path from the ndlib referenced by the libraryName entry in our datastore qhash 
-  QString library="NoPath";
+  this->PrintMethod("ReadLibraryPath");
+  QString libraryPath="NoPath";
     if ( !DataStore->GetCurrentSelection() )//if no selection
       {
-      return library;
+      return libraryPath;
       }
   this->PrintText("ReadLibraryName "+libraryName);
   if (libraryName=="<No Data Selected>"|| libraryName=="NoName") 
@@ -380,14 +392,14 @@ QString qSlicerCIVM_GalleryControlModuleWidget::ReadLibraryPath(QString libraryN
     } 
   else if ( libraryName == QString::fromStdString(DataStore->GetLibName()) ) 
     {
-    library=QString::fromStdString(DataStore->GetLibRoot() );//GetCurrentSelection()
+    libraryPath=QString::fromStdString(DataStore->GetLibRoot() );//GetCurrentSelection()
     }
   else
     {
-    library=QString::fromStdString(DataStore->GetCurrentSelection()->GetLibRoot());
-    this->PrintText("ReadLibraryPath "+libraryName+":"+library);
+    libraryPath=QString::fromStdString(DataStore->GetCurrentSelection()->GetLibRoot());
+    this->PrintText("ReadLibraryPath "+libraryName+":"+libraryPath);
     }
-  return library;
+  return libraryPath;
 }
 
 //-----------------------------------------------------------------------------
@@ -395,9 +407,9 @@ QString qSlicerCIVM_GalleryControlModuleWidget::ReadLibraryPath(QString libraryN
 QString qSlicerCIVM_GalleryControlModuleWidget::ReadLibraryName(void) {
   Q_D(qSlicerCIVM_GalleryControlModuleWidget);
   QString libraryName="<No Data Selected>"; 
-  //libraryName=d->LibrarySelectorDropList->currentText().trimmed();
   if ( !DataStore->GetCurrentSelection() )//if no selection
     {
+    this->PrintText("No current selection!");
     return libraryName;
     }
   libraryName=QString::fromStdString(DataStore->GetCurrentSelection()->GetLibName());
@@ -411,20 +423,36 @@ QString qSlicerCIVM_GalleryControlModuleWidget::ReadLibraryName(void) {
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerCIVM_GalleryControlModuleWidget::BuildGallery (void) {
-  this->PrintMethod("BuildGallery slot");
-  this->BuildGallery(this->ReadLibraryName());
-  
+void qSlicerCIVM_GalleryControlModuleWidget::BuildGallery(void) {
+  this->PrintMethod("BuildGallery void slot");
+  this->BuildGallery(DataStore->GetCurrentSelection());
+  return;
+}
+//-----------------------------------------------------------------------------
+void qSlicerCIVM_GalleryControlModuleWidget::BuildGallery(vtkMRMLNDLibraryNode * selectedLib)
+{
+  this->PrintMethod("BuildGallery lib slot");
+  if ( !selectedLib)
+    {
+    this->PrintText("Lib select fail");
+    return;
+    } 
+  else
+    {
+    CurrentNode = selectedLib;
+    this->PrintText("Lib select good");
+    }
+  this->BuildGallery(QString::fromStdString(selectedLib->GetLibName()));
   return;
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerCIVM_GalleryControlModuleWidget::BuildGallery (QString library) {
+void qSlicerCIVM_GalleryControlModuleWidget::BuildGallery(QString libraryName) {
   // polls our data storage for the display protocols for a given library
   // this should be fired by any change to the library, eg connected to the drop down list of libraries.
   // insert a button into our gallery zone for each return value from GetDisplayProtocols
   this->PrintMethod("BuildGallery");  
-  if (library=="<No Data Selected>" || library=="NoName" || library == "" ) 
+  if (libraryName=="<No Data Selected>" || libraryName=="NoName" || libraryName == "" ) 
     {
     this->PrintText("Lib name blank");
     return;
@@ -440,11 +468,11 @@ void qSlicerCIVM_GalleryControlModuleWidget::BuildGallery (QString library) {
   // clear layout
   // d->GalleryLayout->delete
   this->clearLayout(d->GalleryLayout,true);
-  this->clearLayout(d->ControlLayout,true);
-  QStringList protocols = this->GetDisplayProtocols (); // currently a hardcoded list of PGR and FA_Render
+  this->clearLayout(d->ControlLayout,true); // not convinced i want to clear this all the time.
+  QStringList protocols = this->GetDisplayProtocols(CurrentNode); // decide what protocols are appropriate.
   QList<QPushButton*> galleryButtons;
-
   // prune protocol list
+  // this should occur in our getdisplayprotocols function, 
   for (int i = 0; i < protocols.size(); ++i)
     {
       //qSlicerCIVM_GalleryControlDisplayProtocol * check = new qSlicerCIVM_GalleryControlDisplayProtocol(protocol[i]);
@@ -466,41 +494,60 @@ void qSlicerCIVM_GalleryControlModuleWidget::BuildGallery (QString library) {
       this->PrintText(protocols[i]);  
 
   //// FOR EACH PROTOCOL
-      QPushButton * widge=  new QPushButton;
-      //QIcon * ico = new QIcon(this->DataRoot+ps+"GalleryIcons"+ps+library+"_"+protocols[i]);
-  
-      widge->setText(protocols[i]);
-      widge->setObjectName(protocols[i]);
-      //QString lP=library;
-      //QString lN=library;
-      //lP.replace(':',ps);
-      //this->ReadLibraryPath=this->DataRoot+ps+lP;
-      //this->ReadLibraryPath=this->ReadLibraryPath(this->ReadLibraryName());
-      
-      //this->SelectedLib=d->LibrarySelectorDropList->currentText().trimmed();
-      //this->SelectedLibName=this->ReadLibraryName();
-
-
-      //lN.replace(':','_');
-      //iconPath=iconPath+ps+"GalleryIcons"+ps+library+'_'+protocols[i]+".png"; //+ps+"GalleryIcons"
-      QString iconPath=ReadLibraryPath(library)+"/GalleryIcons"+ps+library+'_'+protocols[i]+".png"; 
-      this->PrintText(iconPath);
-      //iconPath.replace(':',ps);
-      widge->setIcon(QIcon(iconPath));
-      galleryButtons.push_back(widge);
-      d->GalleryLayout->addWidget(galleryButtons.at(i));
-      
-      //set button connections
-      connect(widge,SIGNAL(clicked()),SLOT(SetControls()));//widge->text())));
+      if ( protocols[i] != "NOSUPPORT" )
+        {
+        QPushButton * widge=  new QPushButton;
+        widge->setText(protocols[i]);
+        widge->setObjectName(protocols[i]);
+        
+        QString iconPath=ReadLibraryPath(libraryName)+"/GalleryIcons"+ps+libraryName+'_'+protocols[i]+".png"; 
+        this->PrintText(iconPath);
+        widge->setIcon(QIcon(iconPath));
+        galleryButtons.push_back(widge);
+        d->GalleryLayout->addWidget(galleryButtons.at(i));
+        
+        //set button connections
+        connect(widge,SIGNAL(clicked()),SLOT(SetControls()));
+        } 
+      else 
+        {
+        QLabel * lab= new QLabel(protocols[i]);
+        d->GalleryLayout->addWidget(lab);
+        }
     }
-  
-  d->GalleryArea->setCollapsed(false);
+  if ( protocols.size()>0 )
+    {
+    if ( protocols[0] != "NOSUPPORT" )
+      {
+      d->GalleryArea->setCollapsed(false);
+      }
+    else 
+      {
+      //emit NoSupportedProtocols(CurrentNode);
+      emit NoSupportedProtocols(libraryName.toStdString());
+      }
+    }
+
   return;
+}
+//-----------------------------------------------------------------------------
+void qSlicerCIVM_GalleryControlModuleWidget::DataSelected (vtkMRMLNDLibraryNode * selectedLib) {
+  this->PrintMethod("DataSelected lib arg");
+  //this->BuildGallery(QString::fromStdString(selectedLib->GetLibName()));
+  if ( !selectedLib) 
+    {
+    this->PrintText("Lib select fail");
+    return;
+    }
+  CurrentNode=selectedLib;
+  return;  
 }
 
 //-----------------------------------------------------------------------------
 void qSlicerCIVM_GalleryControlModuleWidget::DataSelected (void) {
-  this->BuildGallery(QString::fromStdString(DataStore->GetCurrentSelection()->GetLibName()));
+  this->PrintMethod("DataSelected void arg");
+  //this->BuildGallery(QString::fromStdString(DataStore->GetCurrentSelection()->GetLibName()));
+  CurrentNode=DataStore->GetCurrentSelection();
   return;
 }
 
@@ -516,7 +563,8 @@ void qSlicerCIVM_GalleryControlModuleWidget::SetControls()
   if ( panelName == "PGR" ) 
     {
       //qSlicerCIVM_GalleryControlPanelPGRWidget * panel = new qSlicerCIVM_GalleryControlPanelPGRWidget(this); //Ui_
-    qSlicerCIVM_GalleryControlPanelPGRWidget * panelPGR = new qSlicerCIVM_GalleryControlPanelPGRWidget(this,this->ReadLibraryPath(this->ReadLibraryName())); //Ui_
+    //qSlicerCIVM_GalleryControlPanelPGRWidget * panelPGR = new qSlicerCIVM_GalleryControlPanelPGRWidget(this,this->ReadLibraryPath(this->ReadLibraryName())); 
+    qSlicerCIVM_GalleryControlPanelPGRWidget * panelPGR = new qSlicerCIVM_GalleryControlPanelPGRWidget(this,QString::fromStdString(CurrentNode->GetLibRoot()));
     this->PrintText( "adding controls using "+this->ReadLibraryName());
       //QSlicerModuleWidget
       d->ControlLayout->addWidget(panelPGR);
@@ -530,8 +578,11 @@ void qSlicerCIVM_GalleryControlModuleWidget::SetControls()
     //out_path.replace("C_","C:");
     //out_path.replace("DataLibraries"+ps,"");
     qSlicerApplication::application()->ioManager()->loadScene(out_path,false);
-    
     }
+//   else if ( panelName == "NOSUPPORT" ) 
+//     {
+    
+//     }
   else
     {
     this->PrintText("Unreconized Panel selection");
@@ -577,6 +628,63 @@ QStringList qSlicerCIVM_GalleryControlModuleWidget::GetDisplayProtocols()
   return protocols;
 }
 
+//-----------------------------------------------------------------------------
+QStringList qSlicerCIVM_GalleryControlModuleWidget::GetDisplayProtocols(vtkMRMLNDLibraryNode * selectedLib)  
+{
+  this->PrintMethod("GetDisplayProtocols");
+
+  if ( !selectedLib) 
+    {
+    this->PrintText("Lib select fail");
+    QStringList e=this->GetDisplayProtocols();
+    return e;
+    }
+  QStringList protocols;
+  QString libName =QString::fromStdString(selectedLib->GetLibName());
+
+  // temporary listing of possible species for our FARender support.
+  QStringList species ;
+  species 
+    //<< "0_species" 
+    //<< "Canis_lupus" 
+    << "Human" 
+    << "Macaca_mulatta" 
+    //<< "Macaca_fascicularis" 
+    << "Mus_Musculus" 
+    << "Rattus_norvegicus";
+  QStringList pgrlist;
+  pgrlist 
+    << "130827-2-0"
+#ifndef WIN32
+    << "AdultCanisL"
+#endif
+    << "AdultMacacaM"
+#ifndef WIN32
+    << "AdultMacacaF"
+//    << "average"
+    << "00000172800"
+#endif
+    << "00006912000"
+    << "dti101";
+
+  
+  QRegExp protoCompare("^"+libName+"$");
+  if ( species.indexOf(protoCompare)>=0 )
+    {
+    protocols << "FA_Render";
+    }
+
+  //protoCompare=QRegExp("");
+  if ( pgrlist.indexOf(protoCompare)>=0 )
+    {
+    protocols << "PGR";
+    }  
+  if ( protocols.size()==0 ) 
+    {
+    protocols << "NOSUPPORT";
+    }
+  return protocols; 
+}
 // //-----------------------------------------------------------------------------
 // QStringList qSlicerCIVM_GalleryControlModuleWidget::GetLibDims(QString library ) {
 //   // make one in each gallery class
@@ -597,13 +705,15 @@ QStringList qSlicerCIVM_GalleryControlModuleWidget::GetDisplayProtocols()
 
 
 //-----------------------------------------------------------------------------
-void qSlicerCIVM_GalleryControlModuleWidget::SetDisplayLayout(QString name){
+void qSlicerCIVM_GalleryControlModuleWidget::SetDisplayLayout(QString name)
+{
   // make one in each gallery class
   return;
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerCIVM_GalleryControlModuleWidget::BuildDisplayControls(QString protocol,QWidget panel){
+void qSlicerCIVM_GalleryControlModuleWidget::BuildDisplayControls(QString protocol,QWidget panel)
+{
 // make one in each gallery class
   return;  
 }
