@@ -86,6 +86,8 @@ class VTK_VTKMRMLNDLIBRARYNODE_MRML_EXPORT vtkMRMLNDLibraryNode : public vtkMRML
   vtkSetMacro(ParentNode,vtkMRMLNDLibraryNode *);
   vtkGetMacro(ParentNode,vtkMRMLNDLibraryNode *);
 
+  vtkGetMacro(isLeaf,bool);
+
   std::map<std::string,vtkMRMLNDLibraryNode *>  GetSubLibraries(void); 
   std::vector<vtkMRMLNDLibraryNode * >          GetAncestorList(void);
   std::vector<std::string>                      GetCategoryPath(void);
@@ -144,7 +146,7 @@ class VTK_VTKMRMLNDLIBRARYNODE_MRML_EXPORT vtkMRMLNDLibraryNode : public vtkMRML
 
 
 
-  void clear(void);      //a clear self function.... should ONLY clear our subs.
+  void clearSubs(void);      //a clear self function.... for each sub , calls clear on sub, then calls delete on subour subs, once subs are done clears sublibraries map.
   vtkMRMLNDLibraryNode(vtkMRMLNDLibraryNode &);
 
 
@@ -161,7 +163,9 @@ class VTK_VTKMRMLNDLIBRARYNODE_MRML_EXPORT vtkMRMLNDLibraryNode : public vtkMRML
   //private vars
   vtkMRMLNDLibraryNode * ParentNode;  // holds pointer to our parent dataset for use when we've got a hierarchy so the gui knows where we are.
   vtkMRMLNDLibraryNode * CurrentSelection;  // can hold our selected dataset for use when we've got a hierarchy so the gui knows where we are. this is a bad way to handle the selection problem!, changed to emit a selected signal with a anode pointer in our guis
+  bool isLeaf;
   std::map<std::string,vtkMRMLNDLibraryNode *> SubLibraries;
+  std::vector<std::string> * FilePaths;
   //void GetAllPaths(std::vector<std::string> *); // called for each sub library of a current library(recursively!) each adding their entries to the vector
   //std::vector<std::string>* SubPaths(); // returns the list of sub libraries paths we need to continue building on.
   //std::vector<vtkMRMLNDLibraryNode *> * SubLibraries;

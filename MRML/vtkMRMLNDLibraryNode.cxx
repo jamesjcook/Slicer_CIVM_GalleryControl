@@ -33,6 +33,8 @@ vtkMRMLNDLibraryNode::vtkMRMLNDLibraryNode(void)
   LibName = "NoName";
   CurrentSelection = 0 ;
   ParentNode = 0 ;
+  FilePaths = new std::vector<std::string>;
+  isLeaf = false;
 }
 
 //----------------------------------------------------------------------------
@@ -45,7 +47,8 @@ vtkMRMLNDLibraryNode::vtkMRMLNDLibraryNode(vtkMRMLNDLibraryNode & lib)
   //ParentNode = lib.GetParentNode() ;
   CurrentSelection = 0;
   ParentNode = 0;
-  
+  FilePaths = new std::vector<std::string>;
+  isLeaf = false;
 }
 
 //----------------------------------------------------------------------------
@@ -56,6 +59,8 @@ vtkMRMLNDLibraryNode::vtkMRMLNDLibraryNode( std::string path, std::string name)
   Category= "NoCategory";
   CurrentSelection = 0 ;
   ParentNode = 0 ;
+  FilePaths = new std::vector<std::string>;
+  isLeaf = false;
 }
 
 //----------------------------------------------------------------------------
@@ -66,6 +71,8 @@ vtkMRMLNDLibraryNode::vtkMRMLNDLibraryNode( std::string path,std::string name,st
   Category= category;
   CurrentSelection = 0 ;
   ParentNode = 0 ;
+  FilePaths = new std::vector<std::string>;
+  isLeaf = false;
 }
 
 //----------------------------------------------------------------------------
@@ -101,6 +108,8 @@ vtkMRMLNDLibraryNode::vtkMRMLNDLibraryNode(std::string path)
   // set sublibs
   CurrentSelection = 0 ;
   ParentNode = 0 ;
+  FilePaths = new std::vector<std::string>;
+  isLeaf = false;
 }
 
 //----------------------------------------------------------------------------
@@ -122,14 +131,27 @@ void vtkMRMLNDLibraryNode::operator=(vtkMRMLNDLibraryNode const & lib)
 //     }
 //   return pathList;
 // }
-void vtkMRMLNDLibraryNode::clear()
+// void vtkMRMLNDLibraryNode::clear()
+// {
+//   for(std::map<std::string,vtkMRMLNDLibraryNode *>::iterator subIter= SubLibraries.begin(); subIter!=SubLibraries.end();++subIter)
+//     {
+//       subIter->second->clear();
+//     }
+//   return;
+// }
+
+//----------------------------------------------------------------------------
+void vtkMRMLNDLibraryNode::clearSubs(void)
 {
   for(std::map<std::string,vtkMRMLNDLibraryNode *>::iterator subIter= SubLibraries.begin(); subIter!=SubLibraries.end();++subIter)
     {
-      subIter->second->clear();
+      subIter->second->clearSubs();
+      delete subIter->second;
     }
+  SubLibraries.clear();
   return;
 }
+
 //----------------------------------------------------------------------------
 std::vector<vtkMRMLNDLibraryNode *> vtkMRMLNDLibraryNode::GetAncestorList(void)
 {
@@ -576,7 +598,7 @@ vtkMRMLNDLibraryNode::~vtkMRMLNDLibraryNode(void)
 
 {
   // this->SlicerDataType.clear();
-
+  this->clearSubs();
   for(std::map<std::string,vtkMRMLNDLibraryNode *>::iterator subIter= SubLibraries.begin(); subIter!=SubLibraries.end();++subIter)
     {
       //SubLibraries[]
