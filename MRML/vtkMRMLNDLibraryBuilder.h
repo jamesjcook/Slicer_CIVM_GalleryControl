@@ -106,7 +106,10 @@ class VTK_VTKMRMLNDLIBRARYBUILDER_MRML_EXPORT vtkMRMLNDLibraryBuilder : public v
   vtkMRMLNDLibraryNode * LibPointer;
   //vtkMRMLNDLibraryBuilder(const vtkMRMLNDLibraryBuilder&);//Not implemented
   void GetFilesInDirectory(std::vector<std::string> &, const std::string &);
+  void GetSubCont(std::vector<std::string> * , std::string ,std::vector<std::string> *, int) ;  
+  // core of get subdirs and get sub files, pass output pointer, path, exclusion list and, flag for get sub files, or get sub dirs
   void GetSubDirs(std::vector<std::string> * , std::string ) ; 
+  void GetSubFiles(std::vector<std::string> * , std::string ) ; 
   void GetSubCategoryies(std::vector<std::string> * , std::string ) ; // temporary placeholder for planning purposes.
   std::vector<std::string> &split(const std::string &, char, std::vector<std::string> &);
   std::vector<std::string> split(const std::string &, char);
