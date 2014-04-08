@@ -51,6 +51,8 @@
 #include "qSlicerCIVM_GalleryControlModuleWidget.h"
 #include "ui_qSlicerCIVM_GalleryControlModuleWidget.h"
 
+//#include "qSlicerCIVM_NDDisplayModule.h"
+#include "qSlicerCIVM_NDDisplayModuleWidget.h"
 
 
 //-----------------------------------------------------------------------------
@@ -523,8 +525,13 @@ void qSlicerCIVM_GalleryControlModuleWidget::BuildGallery(QString libraryName) {
         d->GalleryLayout->addWidget(lab);
         }
     }
+  
+  // Check if there were no supported protocols, 
+  // if we have protocols in our list and they were not unsupported expand the gallery area
+  // if we have found the unsupported protocol, emit a no supported protocols signal.
+  // (connection to data selector for now in setup function)
   if ( protocols.size()>0 )
-    {
+    { 
     if ( protocols[0] != "NOSUPPORT" )
       {
       d->GalleryArea->setCollapsed(false);
@@ -534,6 +541,7 @@ void qSlicerCIVM_GalleryControlModuleWidget::BuildGallery(QString libraryName) {
       //emit NoSupportedProtocols(CurrentNode);
       emit NoSupportedProtocols(libraryName.toStdString());
       }
+
     }
 
   return;
@@ -561,7 +569,7 @@ void qSlicerCIVM_GalleryControlModuleWidget::DataSelected (void) {
 
 
 //-----------------------------------------------------------------------------
-void qSlicerCIVM_GalleryControlModuleWidget::SetControls()
+void qSlicerCIVM_GalleryControlModuleWidget::SetControls(void)
 {
   Q_D(qSlicerCIVM_GalleryControlModuleWidget);
   QObject * panelButton=this->sender();
@@ -577,7 +585,7 @@ void qSlicerCIVM_GalleryControlModuleWidget::SetControls()
       //QSlicerModuleWidget
       d->ControlLayout->addWidget(panelPGR);
     } 
-  else if ( panelName == "FA_Render" ) 
+  else if ( panelName == "FA_Render_BySpeciesStatic" ) 
     {
     QString out_path = "FARenderScenes"+ps+QString::fromStdString(CurrentNode->GetLibName())+".mrml";
     out_path.replace(':','_');
@@ -585,7 +593,7 @@ void qSlicerCIVM_GalleryControlModuleWidget::SetControls()
     this->PrintText("FA_Render load of "+out_path);
     //out_path.replace("C_","C:");
     //out_path.replace("DataLibraries"+ps,"");
-    qSlicerApplication::application()->ioManager()->loadScene(out_path,false);
+    qSlicerApplication::application()->ioManager()->loadScene(out_path,true);
     }
 //   else if ( panelName == "NOSUPPORT" ) 
 //     {
@@ -593,7 +601,10 @@ void qSlicerCIVM_GalleryControlModuleWidget::SetControls()
 //     }
   else
     {
-    this->PrintText("Unreconized Panel selection");
+      this->PrintText("Unreconized Panel selection");
+      //qSlicerCIVM_NDDisplayModule * civmNDDisplay = new qSlicerCIVM_NDDisplayModule(this);
+      qSlicerCIVM_NDDisplayModuleWidget * civmNDDisplay = new qSlicerCIVM_NDDisplayModuleWidget(this);
+      d->ControlLayout->addWidget(civmNDDisplay);
     }
   d->ControlArea->setCollapsed(false); 
   d->GalleryArea->setCollapsed(true);
@@ -674,19 +685,23 @@ QStringList qSlicerCIVM_GalleryControlModuleWidget::GetDisplayProtocols(vtkMRMLN
 #endif
     << "00006912000"
     << "dti101";
-
+  QStringList organList ; 
+  organList
+    << "Brain";
   
   QRegExp protoCompare("^"+libName+"$");
   if ( species.indexOf(protoCompare)>=0 )
     {
-    protocols << "FA_Render";
+    protocols << "FA_Render_BySpeciesStatic";
     }
-
-  //protoCompare=QRegExp("");
   if ( pgrlist.indexOf(protoCompare)>=0 )
     {
     protocols << "PGR";
     }  
+  if( organList.indexOf(protoCompare)>=0 )
+    {
+      protocols << "NoOrganProtocol";
+    }
   if ( protocols.size()==0 ) 
     {
     protocols << "NOSUPPORT";
