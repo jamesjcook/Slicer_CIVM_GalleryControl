@@ -382,8 +382,15 @@ void qSlicerCIVM_GalleryControlPanelDataSelectorWidget
         }
       QString dhLibName=printIndent + QString::fromStdString(subIter->second->GetLibName());
       DataHash.insert(dhLibName,subIter->second);
-      libList << dhLibName;
-      this->PrintText(QString::fromStdString(subIter->second->GetLibName())+" added!");
+      if ( !subIter->second->GetisLeaf() )
+	{
+	  libList << dhLibName;
+	  this->PrintText(QString::fromStdString(subIter->second->GetLibName())+" added!");
+	}
+      else 
+	{
+	  this->PrintText("Leaf node detected"+dhLibName+", no print.");
+	}
       }
     }
   else 
