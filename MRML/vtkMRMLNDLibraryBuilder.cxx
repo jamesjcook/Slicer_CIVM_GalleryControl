@@ -12,7 +12,7 @@
 #include <vtkSmartPointer.h>
 #include <vtkMRMLNDLibraryBuilder.h>
 
-typedef std::map<std::string,std::string> std_str_hash ;
+typedef std::map<std::string,std::vector<std::string> * > * std_str_hash ;
 
 
 // standard includes, most were added for our dir listing command.
@@ -173,33 +173,144 @@ bool vtkMRMLNDLibraryBuilder::Build(vtkMRMLNDLibraryNode * lib)
   this->GetSubDirs(pathList,lib->GetLibRoot());
   bool status=false;
  
-  bool singleEntryOptimization=false;
-  // this optimization removed for now, it will be harder to follow this through in the future.
+//   if(lib->SubLibraries.size()>0 )
+//     {
+//     lib->clearSubs();
+//     }
+
   
-  if( pathList->size() == 1 && singleEntryOptimization) // if singular path remove it and descend one more.
+
+//this cant work with our category getting code.
+//   bool singleEntryOptimization=false;
+//   // this optimization removed for now, it will be harder to follow this through in the future.
+//   if( pathList->size() == 1 && singleEntryOptimization) // if singular path remove it and descend one more.
+//     {
+//     this->GetSubDirs(pathList,pathList->at(0));
+//     pathList->erase(pathList->begin());
+//     }
+  
+  
+  std::string pConfPath = lib->GetLibRoot();
+  pConfPath=pConfPath+"/lib.conf";
+  ifstream libConf ( pConfPath.c_str() );
+  std::string parentCategory("NoCategory");//<< b_file;//>> str;
+  //category << libConf ;//>> str;
+  libConf >> parentCategory;
+  std::string childCategory("NoCategory");//<< b_file;//>> str;  
+  libConf >> childCategory;
+  libConf.close();
+  
+  
+
+  //   for ( std::vector<std::string>::iterator it=pathList->end(); it!=pathList->begin(); it-- ) 
+  for ( std::vector<std::string>::iterator it=pathList->begin(); it!=pathList->end(); it++ ) 
+  //       {
+  //  std::vector<std::string>::iterator it=pathList->begin();
+    //while(c!="NoCategory")
     {
-    this->GetSubDirs(pathList,pathList->at(0));
-    pathList->erase(pathList->begin());
+    ////
+    // Check for lib.conf file
+    std::string confPath = *it;//pathList->at(i);
+    confPath=confPath+"/lib.conf";
+    std::string category("NoCategory");//<< b_file;//>> str;
+    
+    
+    ifstream libConf ( confPath.c_str() );
+    //category << libConf ;//>> str;
+    libConf >> category;
+    libConf.close();
+    ////
+    if ( category == "NoCategory" )
+      {
+      std::cout << "cout: Remove path from consideration" << *it << "\n";
+      pathList->erase(it);
+      it--;
+      }
     }
-  
-  if( pathList->size() != lib->SubLibraries.size() ) 
+
+  if( pathList->size() != lib->SubLibraries.size() && pathList->size()>0 ) 
     {
-    lib->SubLibraries.clear();
+    lib->clearSubs();
     char delim = '/';
     for ( int i=0; i< pathList->size(); i++ ) 
       {
-      std::cout << "Cout: Build libpointer(constructor call with path)" << pathList->at(i)<< "\n";    
       
       //std::string subName=this->split(pathList->at(i),delim).back();//cacl path parts
       //vtkMRMLNDLibraryNode * subLib = new vtkMRMLNDLibraryNode(pathList->at(i),subName); // these two commands do not produce expected result
+
+      ////
+      // Process lib.conf file
+      std::string confPath = pathList->at(i);
+      confPath=confPath+"/lib.conf";
+      ifstream libConf ( confPath.c_str() );
+      std::string category("NoCategory");//<< b_file;//>> str;
+      //category << libConf ;//>> str;
+      libConf >> category;
+      libConf.close();
+      ////
+      if ( category != "NoCategory" )
+        {        }
       std::vector<std::string> libPathParts=this->split(pathList->at(i),delim);
-      vtkMRMLNDLibraryNode * subLib = new vtkMRMLNDLibraryNode(pathList->at(i),libPathParts.back());
+      std::cout << "Cout: Build libpointer(constructor call with path), " << pathList->at(i)  << pathList->at(i)+"," << libPathParts.back()+"," << category << "\n";
       // build sublib from path, should create sublib with name and path set.
       // limited sub gathering for now
+      vtkMRMLNDLibraryNode * subLib = new vtkMRMLNDLibraryNode(pathList->at(i),libPathParts.back(),category);
       subLib->SetParentNode(lib);
       lib->SubLibraries[subLib->GetLibName()]=subLib; 
       }
-    
+    if ( pathList->size()>0 )
+      {
+      status=true;
+      //delete pathList;//no need to delete a 0 length path list so we dont always delete?
+      }
+    else 
+      { 
+      std::cout << "Cout: pathList empty.\n";
+      }
+    } 
+  if( pathList->size()>0 )
+    {
+    std::cout << "Clearing pathlist\n";
+    pathList->clear();      
+    }
+  this->GetSubFiles(pathList,lib->GetLibRoot());  
+  if( pathList->size() != lib->FilePaths->size() ) 
+    {
+    lib->FilePaths->clear();
+    char delim = '/';
+    for ( int i=0; i< pathList->size(); i++ ) 
+      {
+      if ( 0 ) 
+        {
+        std::cout << "Cout: FilePaths add, " << pathList->at(i)<< "\n";    
+        lib->FilePaths->push_back(pathList->at(i));
+        }
+      else 
+        {// our sub build code for example, lef thtis here for now in case we decide that files are also libs
+        vtkMRMLNDLibraryNode * subLib;
+        if ( childCategory != "NoCategory" )
+          {
+          std::string category=childCategory;
+          std::vector<std::string> libPathParts=this->split(pathList->at(i),delim);
+          std::cout << "Cout: Build libpointer(constructor call with path), " << pathList->at(i)+"," << libPathParts.back()+"," << category << "\n";
+          // build sublib from path, should create sublib with name and path set.
+          // limited sub gathering for now
+          subLib = new vtkMRMLNDLibraryNode(pathList->at(i),libPathParts.back(),category);
+          subLib->isLeaf=true;
+          //std::cout << "Cout: Setting leaf staus\n";
+          }
+        else 
+          {
+          std::vector<std::string> libPathParts=this->split(pathList->at(i),delim);
+          subLib = new vtkMRMLNDLibraryNode(pathList->at(i),libPathParts.back());
+          subLib->isLeaf=true;
+          }
+        // build sublib from path, should create sublib with name and path set.
+        // limited sub gathering for now
+        subLib->SetParentNode(lib);
+        lib->SubLibraries[subLib->GetLibName()]=subLib; 
+        }
+      }
     if ( pathList->size()>=1 )
       {
       status=true;
@@ -210,7 +321,8 @@ bool vtkMRMLNDLibraryBuilder::Build(vtkMRMLNDLibraryNode * lib)
       std::cout << "Cout: pathList empty.\n";
       }
     } 
-  
+
+
   return status; 
 }
 
@@ -238,12 +350,6 @@ bool vtkMRMLNDLibraryBuilder::Build(vtkMRMLNDLibraryNode * lib,std::string path,
   return this->Build(lib);
 }
 
-// //----------------------------------------------------------------------------
-// void vtkMRMLNDLibraryBuilder::SetLibPointer(vtkMRMLNDLibraryNode * lib)
-// {
-//   LibPointer = lib;
-// }
-
 //----------------------------------------------------------------------------
 void  vtkMRMLNDLibraryBuilder::GetSubCategoryies(std::vector<std::string > * path_vec, std::string dir_name) 
 { // get sub fields for a given nd library. This is hard problem since our cloud of data can have a very variable associateion. 
@@ -252,10 +358,15 @@ void  vtkMRMLNDLibraryBuilder::GetSubCategoryies(std::vector<std::string > * pat
   return;
 }
 
-//----------------------------------------------------------------------------
-void  vtkMRMLNDLibraryBuilder::GetSubDirs(std::vector<std::string > * path_vec, std::string dir_name) 
-//void vtkMRMLNDLibraryBuilder::GetFilesInDirectory(std::vector<std::string> &out, const std::string &directory)
+// core of get subdirs and get sub files, pass output pointer, path, exclusion list and, flag for get sub files, or get sub dirs
+void vtkMRMLNDLibraryBuilder::GetSubCont(std::vector<std::string> * path_vec, std::string dir_name,std::vector<std::string> *exclusionList, int fileTypeFlag)
 {
+  //fileTypeFlag, 
+  //  1 for directories, with exclusionfilter, 
+  //  2 for directories, with inclusionfilter
+  //  3 for files, with exclusionfilter
+  //  4 for files, with inclusionfilter
+  //  anythingelse, no get.
 
   //unix way.
 #ifndef WIN32
@@ -264,8 +375,8 @@ void  vtkMRMLNDLibraryBuilder::GetSubDirs(std::vector<std::string > * path_vec, 
   d_h = opendir (dir_name.c_str());
   if (! d_h) 
     {
-      std::cout << "Cout:Cannot open directory "<< dir_name.c_str() << " : " << strerror (errno) << "\n";
-      return;
+    std::cout << "Cout:Cannot open directory, "<< dir_name.c_str() << " : " << strerror (errno) << "\n";
+    return;
     }
   struct dirent * entry;
 #else
@@ -273,7 +384,7 @@ void  vtkMRMLNDLibraryBuilder::GetSubDirs(std::vector<std::string > * path_vec, 
   WIN32_FIND_DATA entry;
   if ((d_h = FindFirstFile((dir_name + "/*").c_str(), &entry)) == INVALID_HANDLE_VALUE)
     {
-      return; // No files found 
+    return; // No files found 
     }
   
 #endif
@@ -281,53 +392,109 @@ void  vtkMRMLNDLibraryBuilder::GetSubDirs(std::vector<std::string > * path_vec, 
   while(1) // loop until we call our break condition, breaks on bad entry.
     {
 #ifndef WIN32
-      entry = readdir (d_h);
-      if (! entry) 
-	{
-	  break;
-	} 
+    entry = readdir (d_h);
+    if (! entry) 
+      {
+      break;
+      } 
 #else
-      if ( ! FindNextFile(d_h, &entry))
-	{
-	  break;
-	}
+    if ( ! FindNextFile(d_h, &entry))
+      {
+      break;
+      }
       
 #endif
-      bool is_directory=false;
+    bool is_directory=false;
 #ifndef WIN32
-      if ( entry->d_type == 4 )
-	is_directory = true;
-      const std::string file_name = entry->d_name;
+    if ( entry->d_type == 4 )
+      is_directory = true;
+    const std::string file_name = entry->d_name;
 #else
-      is_directory = (entry.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
-      const std::string file_name = entry.cFileName;
+    is_directory = (entry.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
+    const std::string file_name = entry.cFileName;
 #endif
 
-      if ( is_directory) 
-	{
-	  //for entry in ignore list, if ! match ignore list, add, else skip
-	  if ( file_name[0] != '.' ) //&& file_name[0] != '_' ) //&& file_name[0] != '0') 
-	    {
-	      std::cout << "cout: diradd"<< dir_name.c_str() << "/" << file_name<< "\n";
-	      path_vec->push_back(dir_name+"/"+file_name);
-	    }
-	  else 
-	    {
-	      std::cout << "cout: ignore"<< dir_name.c_str() << "/" << file_name<< "\n";
-	    }
-	}
+    bool returnResults=false;
+    if ( is_directory && ( fileTypeFlag == 1 || fileTypeFlag == 2 ) ) 
+      {
+      returnResults=true;
+      } 
+    else if (!is_directory && ( fileTypeFlag == 3 || fileTypeFlag == 4 ) ) 
+      {
+      returnResults=true;
+      }
+    else 
+      {
+      //nothing
+      }
+    bool fileTypeContinue=returnResults;
+    if(fileTypeContinue)
+      {
+      //for entry in ignore list, if ! match ignore list, add, else skip
+      for (std::vector<std::string>::iterator sIt=exclusionList->begin();sIt<exclusionList->end();sIt++)
+        {
+        //std::cout
+        int fname_index;
+        if ( sIt->at(0) == '^' ) //check for front load exclusion
+          {//startswith
+          //fname_index=0;
+          for(int stridx=1;stridx<sIt->size();stridx++)
+            {
+            if( file_name[stridx-1]==sIt->at(stridx) )
+              {
+              if ( fileTypeFlag%2 != 0 ) 
+                returnResults = false;
+              } 
+            else
+              {
+              if ( fileTypeFlag%2 == 0  ) 
+                returnResults = false;
+              }
+            }
+
+          }
+        else if ( sIt->at(sIt->size()-1)== '$' ) //check for end load exclusion.
+          {//ends with
+          int n_idx=file_name.size();
+          for(int stridx=0;stridx<sIt->size()-1;stridx++)
+            {//iterates over our file ending, n h d r($) with the $ skipped.
+            n_idx=file_name.size()-((sIt->size()-1)-stridx);
+            if( file_name[n_idx]==sIt->at(stridx))
+              {
+              if ( fileTypeFlag%2 != 0  ) 
+                returnResults = false;
+              } 
+            else
+              {
+              if ( fileTypeFlag%2 == 0  ) 
+                returnResults = false;
+              }
+            }
+          }
+        }//end exclusionlist processing
+      }//end filetypecontinue
+    
+    if ( returnResults ) 
+      {
+      //std::cout << "cout: include, "<< dir_name.c_str() << "/" << file_name<< "\n";
+      path_vec->push_back(dir_name+"/"+file_name);
+      }
+    else 
+      {
+      //std::cout << "cout: exclude, "<< dir_name.c_str() << "/" << file_name<< "\n";
+      }
     }
 
 #ifndef WIN32
   // Close the directory. 
-    if (closedir (d_h)) //return on sucessful unix close?
+  if (closedir (d_h)) //return on sucessful unix close?
     {
-      return;
+    return;
     } 
   else 
     {
-      //not sure this is where this belongs.
-      //std::cout<< "Cannot open directory "<< dir_name.c_str() << " : " << strerror (errno);
+    //not sure this is where this belongs.
+    //std::cout<< "Cannot open directory "<< dir_name.c_str() << " : " << strerror (errno);
     }
 #else
   FindClose(d_h);
@@ -335,7 +502,7 @@ void  vtkMRMLNDLibraryBuilder::GetSubDirs(std::vector<std::string > * path_vec, 
 
 #ifndef WIN32
 #else
-   if ( 0 ) {
+  if ( 0 ) {
   HANDLE d_h;
   WIN32_FIND_DATA entry;
 
@@ -343,30 +510,53 @@ void  vtkMRMLNDLibraryBuilder::GetSubDirs(std::vector<std::string > * path_vec, 
     return; // No files found 
 
   do {
-    const std::string file_name = entry.cFileName;
-    const std::string full_file_name = dir_name + "/" + file_name;
-    const bool is_directory = (entry.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
+  const std::string file_name = entry.cFileName;
+  const std::string full_file_name = dir_name + "/" + file_name;
+  const bool is_directory = (entry.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
 
-    //handle exclusions
-    if (file_name[0] == '.' && file_name[0] == '_')
-      continue;
-    //exclude non-directories
-    if (!is_directory)
-      continue;
+  //handle exclusions
+  if (file_name[0] == '.' && file_name[0] == '_')
+    continue;
+  //exclude non-directories
+  if (!is_directory)
+    continue;
 
-    path_vec->push_back(full_file_name);
+  path_vec->push_back(full_file_name);
   } while (FindNextFile(d_h, &entry));
 
   FindClose(d_h);
-}
+  }
 #endif
 
 
   
-   return ;
+  return ;
+}
+  
+
+
+//----------------------------------------------------------------------------
+void  vtkMRMLNDLibraryBuilder::GetSubDirs(std::vector<std::string > * path_vec, std::string dir_name) 
+//void vtkMRMLNDLibraryBuilder::GetFilesInDirectory(std::vector<std::string> &out, const std::string &directory)
+{
+  std::vector<std::string> * exclusionList = new std::vector<std::string>;
+  exclusionList->push_back("^.");
+  int typeFlag = 1;
+  GetSubCont(path_vec,dir_name,exclusionList,typeFlag);
+  return;
 }
 
 
+//----------------------------------------------------------------------------
+void  vtkMRMLNDLibraryBuilder::GetSubFiles(std::vector<std::string > * path_vec, std::string dir_name) 
+//void vtkMRMLNDLibraryBuilder::GetFilesInDirectory(std::vector<std::string> &out, const std::string &directory)
+{
+  std::vector<std::string> * inclusionList = new std::vector<std::string>;
+  inclusionList->push_back("nhdr$");
+  int typeFlag = 4;
+  GetSubCont(path_vec,dir_name,inclusionList,typeFlag);
+  return;
+}
 
 //----------------------------------------------------------------------------
 // GetFilesInDirectory function code >90% copy pasta from website(in comments). user was Andreas Bonini
@@ -432,7 +622,7 @@ void vtkMRMLNDLibraryBuilder::ResetLib()   // clear out the lib
 {
   // i think we should loop over each element of sublibraries calling delete on the value part of the map, and then clear.
   //For now we'll leave this behavior
-  LibPointer->SubLibraries.clear();
+  LibPointer->clearSubs();
   return;
 }
 bool vtkMRMLNDLibraryBuilder::ReBuild()    // rebuild the lib(first resets)
