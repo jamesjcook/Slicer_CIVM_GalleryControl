@@ -33,7 +33,7 @@
 //class VTK_EXPORT vtkMRMLNDLibraryBuilder : public vtkMRMLStorableNode //works
 //class VTKMRMLNDLIBRARYBUILDER_MRML_EXPORT vtkMRMLNDLibraryBuilder : public vtkMRMLStorableNode
 #include "vtkMRMLNDLibraryBuilderExport.h"//works
-#include "vtkMRMLNDLibraryExport.h"//only active in windows, test comment out in windows
+//missing, hopefully the above is correct. #include "vtkMRMLNDLibraryExport.h"//only active in windows, test comment out in windows
 //class VTK_VTKMRMLNDLIBRARYBUILDER_MRML_EXPORT vtkMRMLNDLibraryBuilder : public vtkMRMLStorableNode//works(the capslock section is referenced in the cmake lists.
 class VTK_VTKMRMLNDLIBRARYBUILDER_MRML_EXPORT vtkMRMLNDLibraryBuilder : public vtkMRMLNode //(the capslock section is referenced in the cmake lists.
 {
