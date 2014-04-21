@@ -1,4 +1,4 @@
-
+#C:\src\CIVM_GalleryControl\CIVM_GalleryControl\CMakeLists.txt
 #-----------------------------------------------------------------------------
 set(MODULE_NAME CIVM_GalleryControl)
 set(MODULE_TITLE ${MODULE_NAME})
@@ -7,7 +7,6 @@ string(TOUPPER ${MODULE_NAME} MODULE_NAME_UPPER)
 
 #-----------------------------------------------------------------------------
 add_subdirectory(Logic)
-#add_subdirectory(MRML)
 add_subdirectory(Widgets)
 
 #-----------------------------------------------------------------------------
@@ -30,7 +29,11 @@ set(MODULE_INCLUDE_DIRECTORIES
    ${vtkMRMLNDLibraryBuilder_SOURCE_DIR}
    ${vtkMRMLNDLibraryBuilder_BINARY_DIR}
 ### 
+   ${CIVM_NDDisplayModuleWidget_SOURCE_DIR}
+   ##X${CIVM_NDDisplay_INCLUDE_DIR}
+   ${CIVM_NDDisplayModuleWidget_BINARY_DIR}
    ${CIVM_NDDisplay_SOURCE_DIR}
+   ##X${CIVM_NDDisplay_INCLUDE_DIR}
    ${CIVM_NDDisplay_BINARY_DIR}
   )
 
@@ -56,16 +59,19 @@ set(MODULE_TARGET_LIBRARIES
 ### next line to depend on custom mrml
   vtkMRMLNDLibraryNode
   vtkMRMLNDLibraryBuilder
-  qSlicerCIVM_NDDisplayModule
-#  qSlicerCIVM_NDDisplayModuleWidgets
 # decided to use two build libs instead of one. so no library, but yes libnode,and libbuild
 #  vtkMRMLNDLibrary
 ###
+  qSlicerCIVM_NDDisplayModule
+  qSlicerCIVM_NDDisplayModuleWidgets
   )
 
 set(MODULE_RESOURCES
   Resources/qSlicer${MODULE_NAME}Module.qrc
   )
+
+#add_library( libvtkMRMLNDLibrary SHARED IMPORTED )
+#set_target_properties( libvtkMRMLNDLibrary PROPERTIES IMPORTED_LOCATION ($CMAKE_BINARY_DIR ) )
 
 add_library( libvtkMRMLNDLibraryNode SHARED IMPORTED )
 set_target_properties( libvtkMRMLNDLibraryNode PROPERTIES IMPORTED_LOCATION ($CMAKE_BINARY_DIR ) )
@@ -73,21 +79,18 @@ set_target_properties( libvtkMRMLNDLibraryNode PROPERTIES IMPORTED_LOCATION ($CM
 add_library( libvtkMRMLNDLibraryBuilder SHARED IMPORTED )
 set_target_properties( libvtkMRMLNDLibraryBuilder PROPERTIES IMPORTED_LOCATION ($CMAKE_BINARY_DIR ) )
 
-#add_library( libqSlicerCIVM_NDDisplayModuleWidgets SHARED IMPORTED )
-#set_target_properties( libqSlicerCIVM_NDDisplayModuleWidgets PROPERTIES IMPORTED_LOCATION ($CMAKE_BINARY_DIR ) ) 
+#add_library( libCIVM_NDDisplay SHARED IMPORTED )
+#set_target_properties( libCIVM_NDDisplay PROPERTIES IMPORTED_LOCATION ($CMAKE_BINARY_DIR ) )
 
 add_library( libqSlicerCIVM_NDDisplayModule SHARED IMPORTED )
 set_target_properties( libqSlicerCIVM_NDDisplayModule PROPERTIES IMPORTED_LOCATION ($CMAKE_BINARY_DIR ) ) 
 
-#add_library( libvtkMRMLNDLibrary SHARED IMPORTED )
-#set_target_properties( libvtkMRMLNDLibrary PROPERTIES IMPORTED_LOCATION ($CMAKE_BINARY_DIR ) )
-
-add_library( libCIVM_NDDisplay SHARED IMPORTED )
-set_target_properties( libCIVM_NDDisplay PROPERTIES IMPORTED_LOCATION ($CMAKE_BINARY_DIR ) )
+add_library( libqSlicerCIVM_NDDisplayModuleWidgets SHARED IMPORTED )
+set_target_properties( libqSlicerCIVM_NDDisplayModuleWidgets PROPERTIES IMPORTED_LOCATION ($CMAKE_BINARY_DIR ) ) 
 
 #add_library( libvtkMRMLGalleryControlLibraryNode SHARED IMPORTED )
-add_library( libvtkSlicerCIVM_GalleryControlModuleMRML SHARED IMPORTED )
-set_target_properties( libvtkSlicerCIVM_GalleryControlModuleMRML PROPERTIES IMPORTED_LOCATION ($CMAKE_BINARY_DIR ) )
+#add_library( libvtkSlicerCIVM_GalleryControlModuleMRML SHARED IMPORTED )
+#set_target_properties( libvtkSlicerCIVM_GalleryControlModuleMRML PROPERTIES IMPORTED_LOCATION ($CMAKE_BINARY_DIR ) )
 
 #-----------------------------------------------------------------------------
 slicerMacroBuildQtModule(

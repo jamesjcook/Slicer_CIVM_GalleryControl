@@ -39,7 +39,7 @@
 //#include "vtkMRMLGalleryControlLibraryNode.h"
 //#include <vtkMRMLNDLibraryNode.h>
 //#include "vtkMRMLTagCategoryStorageNode.h"
-#include "vtkMRMLNDLibraryBuilder.h"
+//#include "vtkMRMLNDLibraryBuilder.h"
 
 // Panel includes
 #include "qSlicerCIVM_GalleryControlPanelPGRWidget.h"
@@ -52,7 +52,8 @@
 #include "ui_qSlicerCIVM_GalleryControlModuleWidget.h"
 
 //#include "qSlicerCIVM_NDDisplayModule.h"
-#include "qSlicerCIVM_NDDisplayModuleWidget.h"
+//#include "qSlicerCIVM_NDDisplayModuleWidget.h"
+//#include "qSlicerCIVM_NDDisplayModuleWidget.h"
 
 
 //-----------------------------------------------------------------------------
@@ -602,9 +603,11 @@ void qSlicerCIVM_GalleryControlModuleWidget::SetControls(void)
   else
     {
       this->PrintText("Unreconized Panel selection");
+#ifndef WIN32
       //qSlicerCIVM_NDDisplayModule * civmNDDisplay = new qSlicerCIVM_NDDisplayModule(this);
       qSlicerCIVM_NDDisplayModuleWidget * civmNDDisplay = new qSlicerCIVM_NDDisplayModuleWidget(this);
       d->ControlLayout->addWidget(civmNDDisplay);
+#endif
     }
   d->ControlArea->setCollapsed(false); 
   d->GalleryArea->setCollapsed(true);

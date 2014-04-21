@@ -29,7 +29,11 @@
 
 // civm includes
 #include <vtkMRMLNDLibraryNode.h>
-
+//both nddiplay includes fail to be found!.
+#ifndef WIN32
+#include <qSlicerCIVM_NDDisplayModuleWidget.h>
+#include <qSlicerCIVM_NDDisplayModule.h>
+#endif
 class qSlicerCIVM_GalleryControlModuleWidgetPrivate;
 class vtkMRMLNode;
 
@@ -113,6 +117,7 @@ protected slots:
   vtkMRMLNDLibraryNode * DataStore;
   vtkMRMLNDLibraryNode * FullDataLibrary;
   vtkMRMLNDLibraryNode * CurrentNode;    // the current node selected, to be passed to sub panels. (not in current use, but is set by our dataselected slot.
+  //qSlicerCIVM_NDDisplayModuleWidget * temp;
 };
 
 #endif
