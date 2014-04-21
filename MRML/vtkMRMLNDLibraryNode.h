@@ -33,7 +33,7 @@
 //// END EXAMPLE
 
 #include "vtkMRMLNDLibraryNodeExport.h"//works
-#include "vtkMRMLNDLibraryExport.h"//works
+//#include "vtkMRMLNDLibraryExport.h"//works
 
 //VTK_SLICER_MODULE_MRML_EXPORT
 //class VTK_MRML_LOGIC_EXPORT vtkMRMLNDLibraryNode : public vtkMRMLHierarchyStorageNode // fail
