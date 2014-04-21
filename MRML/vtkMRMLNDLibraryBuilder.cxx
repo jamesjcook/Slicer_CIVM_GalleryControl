@@ -189,7 +189,9 @@ bool vtkMRMLNDLibraryBuilder::Build(vtkMRMLNDLibraryNode * lib)
 //     pathList->erase(pathList->begin());
 //     }
   
-  
+  ////
+  // this cauess errors on some casees in winodws!
+  ////
   std::string pConfPath = lib->GetLibRoot();
   pConfPath=pConfPath+"/lib.conf";
   ifstream libConf ( pConfPath.c_str() );

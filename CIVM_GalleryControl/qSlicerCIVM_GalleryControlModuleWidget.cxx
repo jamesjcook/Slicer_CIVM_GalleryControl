@@ -128,10 +128,17 @@ void qSlicerCIVM_GalleryControlModuleWidget::setup()
   //d->DocumentationArea->setCollapsed(false);
   d->GalleryArea->setCollapsed(true);
   d->ControlArea->setCollapsed(true);
-
+  
+  if (!DataStore ) 
+  {
+	this->PrintText("ERROR with InputLibrary at "+DataRoot+" ."	);
+  }
+  else
+  {
   qSlicerCIVM_GalleryControlPanelDataSelectorWidget * panelDataSelector =
     new qSlicerCIVM_GalleryControlPanelDataSelectorWidget(this,DataStore);
   d->SelectionLayout->addWidget(panelDataSelector);
+  
   //d->SelectionLayout->
 //   connect(panelDataSelector,SIGNAL(DataSelected(vtkMRMLNDLibraryNode *)),SLOT(BuildGallery(vtkMRMLNDLibraryNode *)));
 //   connect(panelDataSelector,SIGNAL(DataSelected(vtkMRMLNDLibraryNode *)),SLOT(DataSelected(vtkMRMLNDLibraryNode *)));
@@ -139,7 +146,7 @@ void qSlicerCIVM_GalleryControlModuleWidget::setup()
   connect(panelDataSelector,SIGNAL(DataSelected()),SLOT(BuildGallery()));
   connect(panelDataSelector,SIGNAL(DataSelected(vtkMRMLNDLibraryNode *)),SLOT(BuildGallery(vtkMRMLNDLibraryNode *)));
   connect(this,SIGNAL(NoSupportedProtocols(std::string)),panelDataSelector,SLOT(SelectNext(std::string) ));
-  
+  }
 //   if ( 0 )
 //     {//code superseeded by the paneldataselctor
 //     //connect LibrarySelectDropList to filllibselector, and to build gallery
@@ -603,11 +610,9 @@ void qSlicerCIVM_GalleryControlModuleWidget::SetControls(void)
   else
     {
       this->PrintText("Unreconized Panel selection");
-#ifndef WIN32
-      //qSlicerCIVM_NDDisplayModule * civmNDDisplay = new qSlicerCIVM_NDDisplayModule(this);
-      qSlicerCIVM_NDDisplayModuleWidget * civmNDDisplay = new qSlicerCIVM_NDDisplayModuleWidget(this);
-      d->ControlLayout->addWidget(civmNDDisplay);
-#endif
+      //////qSlicerCIVM_NDDisplayModule * civmNDDisplay = new qSlicerCIVM_NDDisplayModule(this);
+      //qSlicerCIVM_NDDisplayModuleWidget * civmNDDisplay = new qSlicerCIVM_NDDisplayModuleWidget(this);
+      //d->ControlLayout->addWidget(civmNDDisplay);
     }
   d->ControlArea->setCollapsed(false); 
   d->GalleryArea->setCollapsed(true);
@@ -703,7 +708,7 @@ QStringList qSlicerCIVM_GalleryControlModuleWidget::GetDisplayProtocols(vtkMRMLN
     }  
   if( organList.indexOf(protoCompare)>=0 )
     {
-      protocols << "NoOrganProtocol";
+      //protocols << "NoOrganProtocol";
     }
   if ( protocols.size()==0 ) 
     {

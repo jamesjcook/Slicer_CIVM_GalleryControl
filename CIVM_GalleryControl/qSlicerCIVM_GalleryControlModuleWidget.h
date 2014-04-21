@@ -30,10 +30,10 @@
 // civm includes
 #include <vtkMRMLNDLibraryNode.h>
 //both nddiplay includes fail to be found!.
-#ifndef WIN32
-#include <qSlicerCIVM_NDDisplayModuleWidget.h>
-#include <qSlicerCIVM_NDDisplayModule.h>
-#endif
+
+//#include <qSlicerCIVM_NDDisplayModuleWidget.h>
+//#include <qSlicerCIVM_NDDisplayModule.h>
+
 class qSlicerCIVM_GalleryControlModuleWidgetPrivate;
 class vtkMRMLNode;
 
