@@ -196,10 +196,17 @@ bool vtkMRMLNDLibraryBuilder::Build(vtkMRMLNDLibraryNode * lib)
   pConfPath=pConfPath+"/lib.conf";
   ifstream libConf ( pConfPath.c_str() );
   std::string parentCategory("NoCategory");//<< b_file;//>> str;
-  //category << libConf ;//>> str;
-  libConf >> parentCategory;
   std::string childCategory("NoCategory");//<< b_file;//>> str;  
-  libConf >> childCategory;
+  if ( !libConf ) 
+    {
+      //hopefully an unopened libconf will fall through here.
+    }
+  else
+    {
+      //category << libConf ;//>> str;
+      libConf >> parentCategory;
+      libConf >> childCategory;
+    }
   libConf.close();
   
   
@@ -219,8 +226,15 @@ bool vtkMRMLNDLibraryBuilder::Build(vtkMRMLNDLibraryNode * lib)
     
     ifstream libConf ( confPath.c_str() );
     //category << libConf ;//>> str;
-    libConf >> category;
+    if ( ! libConf ) 
+      {
+      }
+    else 
+      {
+	libConf >> category;
+      }
     libConf.close();
+    
     ////
     if ( category == "NoCategory" )
       {
