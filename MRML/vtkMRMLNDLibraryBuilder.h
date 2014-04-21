@@ -114,7 +114,7 @@ class VTK_VTKMRMLNDLIBRARYBUILDER_MRML_EXPORT vtkMRMLNDLibraryBuilder : public v
   std::vector<std::string> &split(const std::string &, char, std::vector<std::string> &);
   std::vector<std::string> split(const std::string &, char);
 
-
+  bool fexists(const char *);
   
 };
 

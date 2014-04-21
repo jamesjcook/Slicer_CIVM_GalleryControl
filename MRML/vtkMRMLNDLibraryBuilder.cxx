@@ -24,7 +24,9 @@ typedef std::map<std::string,std::vector<std::string> * > * std_str_hash ;
 #include <dirent.h>
 #include <errno.h>
 #else
-
+#include <windows.h>
+//#include <iostream.h>
+#include "Shlwapi.h"
 #endif
 #include <string.h>
 
@@ -192,23 +194,29 @@ bool vtkMRMLNDLibraryBuilder::Build(vtkMRMLNDLibraryNode * lib)
   ////
   // this cauess errors on some casees in winodws!
   ////
+  //ifstream ifile(filename);
   std::string pConfPath = lib->GetLibRoot();
   pConfPath=pConfPath+"/lib.conf";
-  ifstream libConf ( pConfPath.c_str() );
   std::string parentCategory("NoCategory");//<< b_file;//>> str;
   std::string childCategory("NoCategory");//<< b_file;//>> str;  
-  if ( !libConf ) 
-    {
-      //hopefully an unopened libconf will fall through here.
-    }
-  else
+  int fileFound=false;
+  ifstream pLibConf ( pConfPath.c_str() );
+  #ifdef WIN32 
+//#include "Shlwapi.h"
+  fileFound = fexists(pConfPath.c_str());
+#else
+    if ( pLibConf ) 
+  {
+	  fileFound=true;
+  }
+#endif	
+  if (  fileFound ) 
     {
       //category << libConf ;//>> str;
-      libConf >> parentCategory;
-      libConf >> childCategory;
+      pLibConf >> parentCategory;
+      pLibConf >> childCategory;
+      pLibConf.close();
     }
-  libConf.close();
-  
   
 
   //   for ( std::vector<std::string>::iterator it=pathList->end(); it!=pathList->begin(); it-- ) 
@@ -223,17 +231,24 @@ bool vtkMRMLNDLibraryBuilder::Build(vtkMRMLNDLibraryNode * lib)
     confPath=confPath+"/lib.conf";
     std::string category("NoCategory");//<< b_file;//>> str;
     
-    
+    int fileFound=false;
     ifstream libConf ( confPath.c_str() );
+  #ifdef WIN32 
+//#include "Shlwapi.h"
+  fileFound = fexists(confPath.c_str());
+#else
+    if ( libConf ) 
+  {
+	  fileFound=true;
+  }
+#endif	
     //category << libConf ;//>> str;
-    if ( ! libConf ) 
-      {
+
+	if (  fileFound ) 
+    {
+	    libConf >> category;
+        libConf.close();
       }
-    else 
-      {
-	libConf >> category;
-      }
-    libConf.close();
     
     ////
     if ( category == "NoCategory" )
@@ -258,11 +273,25 @@ bool vtkMRMLNDLibraryBuilder::Build(vtkMRMLNDLibraryNode * lib)
       // Process lib.conf file
       std::string confPath = pathList->at(i);
       confPath=confPath+"/lib.conf";
-      ifstream libConf ( confPath.c_str() );
       std::string category("NoCategory");//<< b_file;//>> str;
+
+    int fileFound=false;
+    ifstream libConf ( confPath.c_str() );
+  #ifdef WIN32 
+//#include "Shlwapi.h"
+  fileFound = fexists(confPath.c_str());
+#else
+    if ( libConf ) 
+  {
+	  fileFound=true;
+  }
+#endif	
       //category << libConf ;//>> str;
-      libConf >> category;
-      libConf.close();
+	  if ( fileFound ) 
+	    {
+          libConf >> category;
+          libConf.close();
+	    }
       ////
       if ( category != "NoCategory" )
         {        }
@@ -665,4 +694,10 @@ std::vector<std::string> vtkMRMLNDLibraryBuilder::split(const std::string &s, ch
   std::vector<std::string> elems;
   split(s, delim, elems);
   return elems;
+}
+
+//#include <fstream>
+bool vtkMRMLNDLibraryBuilder::fexists(const char *filename) {
+  ifstream ifile(filename);
+  return ifile;
 }

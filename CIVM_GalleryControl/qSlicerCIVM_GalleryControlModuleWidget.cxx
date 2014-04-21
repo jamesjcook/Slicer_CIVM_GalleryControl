@@ -146,6 +146,7 @@ void qSlicerCIVM_GalleryControlModuleWidget::setup()
   connect(panelDataSelector,SIGNAL(DataSelected()),SLOT(BuildGallery()));
   connect(panelDataSelector,SIGNAL(DataSelected(vtkMRMLNDLibraryNode *)),SLOT(BuildGallery(vtkMRMLNDLibraryNode *)));
   connect(this,SIGNAL(NoSupportedProtocols(std::string)),panelDataSelector,SLOT(SelectNext(std::string) ));
+
   }
 //   if ( 0 )
 //     {//code superseeded by the paneldataselctor
@@ -546,8 +547,8 @@ void qSlicerCIVM_GalleryControlModuleWidget::BuildGallery(QString libraryName) {
       }
     else 
       {
-      //emit NoSupportedProtocols(CurrentNode);
-      emit NoSupportedProtocols(libraryName.toStdString());
+      //////emit NoSupportedProtocols(CurrentNode);
+      emit NoSupportedProtocols(libraryName.toStdString()); //commented to prevent crashbug
       }
 
     }
