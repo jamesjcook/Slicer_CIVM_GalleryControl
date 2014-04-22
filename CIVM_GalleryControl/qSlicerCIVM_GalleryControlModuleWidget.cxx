@@ -664,8 +664,10 @@ QStringList qSlicerCIVM_GalleryControlModuleWidget::GetDisplayProtocols(vtkMRMLN
   if ( !selectedLib) 
     {
     this->PrintText("Lib select fail");
-    QStringList e=this->GetDisplayProtocols();
-    return e;
+    //QStringList e=this->GetDisplayProtocols();
+	QStringList e;
+	e << "LibrarySelectionFailure!";
+	return e;
     }
   QStringList protocols;
   QString libName =QString::fromStdString(selectedLib->GetLibName());
@@ -679,10 +681,12 @@ QStringList qSlicerCIVM_GalleryControlModuleWidget::GetDisplayProtocols(vtkMRMLN
     << "Macaca_mulatta" 
     //<< "Macaca_fascicularis" 
     << "Mus_Musculus" 
-    << "Rattus_norvegicus";
+    << "Rattus_norvegicus"
+	<< "20140417__000Y_";
   QStringList pgrlist;
   pgrlist 
     << "130827-2-0"
+	<< "20140417__000Y_"
 #ifndef WIN32
     << "AdultCanisL"
 #endif
