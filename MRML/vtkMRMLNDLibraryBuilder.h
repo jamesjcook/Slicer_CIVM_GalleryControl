@@ -115,6 +115,8 @@ class VTK_VTKMRMLNDLIBRARYBUILDER_MRML_EXPORT vtkMRMLNDLibraryBuilder : public v
   std::vector<std::string> split(const std::string &, char);
   std::string AgeTimeConvert(std::string zeroPadSeconds);
   std::string AgeTimeConvert(std::string zeroPadSeconds,float tollerance);
+
+  std_str_hash libFileRead(vtkMRMLNDLibraryNode * lib);
   bool fexists(const char *);
   //enum STR2INT_ERROR { SUCCESS, OVERFLOW, UNDERFLOW, INCONVERTIBLE };
   //STR2INT_ERROR

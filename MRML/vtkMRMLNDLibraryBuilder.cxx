@@ -12,8 +12,9 @@
 #include <vtkSmartPointer.h>
 #include <vtkMRMLNDLibraryBuilder.h>
 
-typedef std::map<std::string,std::vector<std::string> * > * std_str_hash ;
-
+//typedef std::map<std::string,std::vector<std::string>  > std_str_hash ;
+//typedef std::map<std::string,std::vector<std::string>  > std_str_hash ;
+  typedef std::map<std::string,std::string> std_str_hash ;
 
 // standard includes, most were added for our dir listing command.
 #include <stdlib.h>
@@ -817,3 +818,80 @@ bool vtkMRMLNDLibraryBuilder::confCheck (std::string confPath)
 //   i = l;
 //  return 0;
 //}
+
+std_str_hash vtkMRMLNDLibraryBuilder::libFileRead(vtkMRMLNDLibraryNode * lib)
+{
+  std_str_hash tagCloud;
+  std::string libConfPath = lib->GetLibRoot();
+  libConfPath=libConfPath+"/lib.conf";
+  int fileFound=false;
+  ifstream libConf ( libConfPath.c_str() );
+  if ( libConf ) 
+    {
+    fileFound=true;
+    }
+
+  //  typedef std::map<std::string,std::string> std_str_hash ;
+//   std::map<std::string,std::string> testmap;
+//   testmap["taco"]="king";
+
+  std::string line;
+  //char delim="=";
+  int lc=0;//line counter to keep track of which line we're on for old style files. 
+  while (std::getline(libConf, line))
+    {
+      lc++;
+      // Process str
+      // ignore lines starting in #
+      // split line
+      std::vector<std::string> p=this->split(line,'=' );
+      //std_str_hash[*p.begin()]=p.back();
+      //tagcloud["test"]=p.back();
+      tagCloud[p.front()]=p.back();
+      
+    }
+  return tagCloud;
+
+#ifdef qt
+  QString libName =QString::fromStdString(selectedLib->GetLibName());
+  QStringList protocols;
+  QStringList panels;
+  panels << "PGR";
+  panels << "FA_Render_Static";
+  //for each panel
+  //// SUPPORTLIST HACK.
+  QString panelSupportDir = QString::fromStdString(DataStore->GetLibRoot());
+  for (int i = 0; i < panels.size(); ++i)
+    {
+      this->PrintText("support check for "+panels.at(i));
+      QFile panelConfFile(panelSupportDir+"/"+panels.at(i)+".conf");
+      QStringList panelSupportList;//supported libnames for this panel
+      if ( panelConfFile.open(QIODevice::ReadOnly) ) 
+        {
+        QTextStream in(&panelConfFile);
+        while(!in.atEnd() )
+          {
+          QString line= in.readLine();
+	      //if(!line.empty())
+          panelSupportList << line;
+	  
+          }
+        QRegExp protoCompare("^"+libName+"$");
+        if ( panelSupportList.indexOf(protoCompare)>=0 )
+          {
+          protocols << panels.at(i);
+          }  
+        panelConfFile.close();
+	}
+      else
+        {
+        //QMessageBox::information(0, "error", file.errorString());
+        this->PrintText("Panel conf file failed to open! "+panelConfFile.fileName());
+        this->PrintText(panelConfFile.errorString());
+        }
+    }
+#endif
+
+
+
+}
