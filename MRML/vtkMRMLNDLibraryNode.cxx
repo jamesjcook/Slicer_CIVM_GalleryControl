@@ -33,7 +33,7 @@ vtkMRMLNDLibraryNode::vtkMRMLNDLibraryNode(void)
   LibName = "NoName";
   CurrentSelection = 0 ;
   ParentNode = 0 ;
-  FilePaths = new std::vector<std::string>;
+  // FilePaths = new std::vector<std::string>;
   isLeaf = false;
 }
 
@@ -47,7 +47,7 @@ vtkMRMLNDLibraryNode::vtkMRMLNDLibraryNode(vtkMRMLNDLibraryNode & lib)
   //ParentNode = lib.GetParentNode() ;
   CurrentSelection = 0;
   ParentNode = 0;
-  FilePaths = new std::vector<std::string>;
+  // FilePaths = new std::vector<std::string>;
   isLeaf = false;
 }
 
@@ -59,7 +59,7 @@ vtkMRMLNDLibraryNode::vtkMRMLNDLibraryNode( std::string path, std::string name)
   Category= "NoCategory";
   CurrentSelection = 0 ;
   ParentNode = 0 ;
-  FilePaths = new std::vector<std::string>;
+  // FilePaths = new std::vector<std::string>;
   isLeaf = false;
 }
 
@@ -71,7 +71,7 @@ vtkMRMLNDLibraryNode::vtkMRMLNDLibraryNode( std::string path,std::string name,st
   Category= category;
   CurrentSelection = 0 ;
   ParentNode = 0 ;
-  FilePaths = new std::vector<std::string>;
+  // FilePaths = new std::vector<std::string>;
   isLeaf = false;
 }
 
@@ -108,7 +108,7 @@ vtkMRMLNDLibraryNode::vtkMRMLNDLibraryNode(std::string path)
   // set sublibs
   CurrentSelection = 0 ;
   ParentNode = 0 ;
-  FilePaths = new std::vector<std::string>;
+  // FilePaths = new std::vector<std::string>;
   isLeaf = false;
 }
 

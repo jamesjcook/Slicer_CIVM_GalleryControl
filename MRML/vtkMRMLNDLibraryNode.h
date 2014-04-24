@@ -165,7 +165,9 @@ class VTK_VTKMRMLNDLIBRARYNODE_MRML_EXPORT vtkMRMLNDLibraryNode : public vtkMRML
   vtkMRMLNDLibraryNode * CurrentSelection;  // can hold our selected dataset for use when we've got a hierarchy so the gui knows where we are. this is a bad way to handle the selection problem!, changed to emit a selected signal with a anode pointer in our guis
   bool isLeaf;
   std::map<std::string,vtkMRMLNDLibraryNode *> SubLibraries;
-  std::vector<std::string> * FilePaths;
+  //  std::vector<std::string> * FilePaths;
+
+
   //void GetAllPaths(std::vector<std::string> *); // called for each sub library of a current library(recursively!) each adding their entries to the vector
   //std::vector<std::string>* SubPaths(); // returns the list of sub libraries paths we need to continue building on.
   //std::vector<vtkMRMLNDLibraryNode *> * SubLibraries;

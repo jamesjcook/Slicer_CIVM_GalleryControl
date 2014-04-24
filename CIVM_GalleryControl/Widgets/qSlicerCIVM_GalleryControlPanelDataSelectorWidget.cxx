@@ -114,6 +114,57 @@ qSlicerCIVM_GalleryControlPanelDataSelectorWidget
 {
 }
 
+// a fucntion to take time in integer seconds and return a "better"(more human readable/comprehensiable) string representation 
+// returns qstringlist of new time number(floord) and time units(days,months,years)
+QString qSlicerCIVM_GalleryControlPanelDataSelectorWidget::AgeTimeConvert(QString zeroPadSeconds) {
+  QStringList returnValues;
+  int seconds=zeroPadSeconds.toInt();
+  float dayseconds=24*60*60;
+  float monthseconds=dayseconds*30.437; // this is the number of days with a 12month year lasting 365.24 days
+  float yearseconds=dayseconds*365.25;
+  // algorithm should be some kinda if remainder < percentage of unit seconds.
+  float tollerance=0.5; // 0-1 value to tollerate remainder
+  int multiplier=0;
+  int remainder=1;
+  QVector<float> divisors ;
+  divisors << yearseconds << monthseconds << dayseconds; 
+  QStringList divisornames;
+  divisornames << "years" << "months" << "days";
+//do {  
+  for (int dIt=0;dIt<divisors.size();dIt++) 
+    {
+    multiplier=floor(float(seconds)/divisors.at(dIt));  
+    remainder=seconds-multiplier*divisors.at(dIt);
+
+    if ( remainder>tollerance*divisors.at(dIt) )
+      {
+	multiplier=0;
+      }
+    else
+      {
+	seconds=remainder;    
+      }
+    if ( multiplier > 0 ) 
+      {
+      returnValues << QString::number(multiplier) << divisornames.at(dIt);
+      }
+    if ( seconds == 0 ) //for perfect division loop end condition
+      { 
+      dIt=dIt+divisors.size();
+      }
+  }
+  
+  
+  if ( returnValues.size()>0 ) 
+    {
+    return returnValues.join(":");
+    } else
+    {
+    return "_";
+    }
+
+}
+
 //-----------------------------------------------------------------------------
 void qSlicerCIVM_GalleryControlPanelDataSelectorWidget
 ::BackButton(void)
@@ -368,7 +419,7 @@ void qSlicerCIVM_GalleryControlPanelDataSelectorWidget
     } 
 
   printIndent=printIndent+"  ";  // update indent
-  
+  // this causes our lib names to be sorted!, we dont really want that enforced!
   std::map<std::string,vtkMRMLNDLibraryNode* > subs=lib->GetSubLibraries();
   if ( subs.size()> 0 ) 
     {

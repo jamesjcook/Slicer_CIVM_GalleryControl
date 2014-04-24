@@ -142,6 +142,68 @@ WriteXML (ostream &of, int indent)
 #endif
 
 //----------------------------------------------------------------------------
+std::string vtkMRMLNDLibraryBuilder::AgeTimeConvert(std::string zeroPadSeconds) {
+  float tollerance=0.5; // 0-1 value to tollerate remainder
+  return AgeTimeConvert(zeroPadSeconds,tollerance);
+}
+
+// a fucntion to take time in integer seconds and return a "better"(more human readable/comprehensiable) string representation 
+// returns qstringlist of new time number(floord) and time units(days,months,years)
+//----------------------------------------------------------------------------
+std::string vtkMRMLNDLibraryBuilder::AgeTimeConvert(std::string zeroPadSeconds,float tollerance) {
+  std::vector<std::string> returnValues;
+  int seconds=std::atoi(zeroPadSeconds.c_str());
+  float dayseconds=24*60*60;
+  float monthseconds=dayseconds*30.437; // this is the number of days with a 12month year lasting 365.24 days
+  float yearseconds=dayseconds*365.25;
+  // algorithm should be some kinda if remainder < percentage of unit seconds.
+
+  int multiplier=0;
+  int remainder=1;
+  std::vector<float> divisors ;
+  divisors.push_back(yearseconds);
+  divisors.push_back(monthseconds);
+  divisors.push_back(dayseconds); 
+  std::vector<std::string> divisornames;
+  divisornames.push_back("year");
+  divisornames.push_back("month");
+  divisornames.push_back("day");
+
+  for (int dIt=0;dIt<divisors.size();dIt++) 
+    {
+    multiplier=floor(float(seconds)/divisors.at(dIt));  
+    remainder=seconds-multiplier*divisors.at(dIt);
+    if ( remainder>tollerance*divisors.at(dIt) )
+      {
+	multiplier=0;
+      }
+    else
+      {
+	seconds=remainder;    
+      }
+    if ( multiplier > 0 ) 
+      {
+      returnValues.push_back(divisornames.at(dIt));
+      char buffer [50];
+      int l=sprintf(buffer,"%d",multiplier);
+      returnValues.push_back(std::string(buffer,0,l));
+      }
+    if ( seconds == 0 ) //for perfect division loop end condition
+      { 
+      dIt=dIt+divisors.size();
+      }
+  }
+  if ( returnValues.size()>0 ) 
+    {
+    return join(returnValues,"_");
+    } 
+  else
+    {
+    return "_";
+    }
+}
+
+//----------------------------------------------------------------------------
 bool vtkMRMLNDLibraryBuilder::Build(std_str_hash tagCloud)
 {
   this->Build(LibPointer,tagCloud);
@@ -181,22 +243,22 @@ bool vtkMRMLNDLibraryBuilder::Build(vtkMRMLNDLibraryNode * lib)
   std::string childCategory("NoCategory");
   int fileFound=false;
   ifstream pLibConf ( pConfPath.c_str() );
-  #ifdef WIN32 
+#ifdef WIN32 
   fileFound = fexists(pConfPath.c_str());
 #else
-    if ( pLibConf ) 
-  {
-	  fileFound=true;
-  }
+  if ( pLibConf ) 
+    {
+    fileFound=true;
+    }
 #endif	
   if (  fileFound ) 
     {
-      pLibConf >> parentCategory;
-      pLibConf >> childCategory;
-      pLibConf.close();
+    pLibConf >> parentCategory;
+    pLibConf >> childCategory;
+    pLibConf.close();
     }
   
-
+  
   std::vector<std::string>::iterator it=pathList->begin();
   while ( it !=pathList->end() )
     {
@@ -212,15 +274,15 @@ bool vtkMRMLNDLibraryBuilder::Build(vtkMRMLNDLibraryNode * lib)
 #else
     if ( libConf ) 
       {
-	  fileFound=true;
+      fileFound=true;
       }
 #endif	
-	if (  fileFound ) 
+    if (  fileFound ) 
       {
-	  libConf >> category;
+      libConf >> category;
       libConf.close();
       }
-	//return false;
+    //return false;
     ////
     if ( category == "NoCategory" )
       {
@@ -228,49 +290,46 @@ bool vtkMRMLNDLibraryBuilder::Build(vtkMRMLNDLibraryNode * lib)
       // this cauess errors in winodws!
       ////
       std::cout << "cout: Remove path from consideration" << *it << "\n";
-	    it=pathList->erase(it);
+      it=pathList->erase(it);
       }
-	else
-	{
-		it++;
-	}
-  } // end loop to clear elements from path which dont have a lib.conf
-
-
+    else
+      {
+      it++;
+      }
+    } // end loop to clear elements from path which dont have a lib.conf
+  
+  
   //check to see if there will be a change in size of our sublib list, and only re-create them if there is.
   if( pathList->size() != lib->SubLibraries.size() && pathList->size()>0 ) 
     {
     lib->clearSubs();
     char delim = '/';
+    // for every dir in path make new sublib.
     for ( int i=0; i< pathList->size(); i++ ) 
       {
-      
-      //std::string subName=this->split(pathList->at(i),delim).back();//cacl path parts
-      //vtkMRMLNDLibraryNode * subLib = new vtkMRMLNDLibraryNode(pathList->at(i),subName); // these two commands do not produce expected result
-
       ////
       // Process lib.conf file
       std::string confPath = pathList->at(i);
       confPath=confPath+"/lib.conf";
       std::string category("NoCategory");//<< b_file;//>> str;
-
-    int fileFound=false;
-    ifstream libConf ( confPath.c_str() );
-  #ifdef WIN32 
+      
+      int fileFound=false;
+      ifstream libConf ( confPath.c_str() );
+#ifdef WIN32 
 //#include "Shlwapi.h"
-  fileFound = fexists(confPath.c_str());
+      fileFound = fexists(confPath.c_str());
 #else
-    if ( libConf ) 
-  {
-	  fileFound=true;
-  }
+      if ( libConf ) 
+        {
+        fileFound=true;
+        }
 #endif	
       //category << libConf ;//>> str;
-	  if ( fileFound ) 
-	    {
-          libConf >> category;
-          libConf.close();
-	    }
+      if ( fileFound ) 
+        {
+        libConf >> category;
+        libConf.close();
+        }
       ////
       if ( category != "NoCategory" )
         {        }
@@ -278,10 +337,22 @@ bool vtkMRMLNDLibraryBuilder::Build(vtkMRMLNDLibraryNode * lib)
       std::cout << "Cout: Build libpointer(constructor call with path), " << pathList->at(i)  << pathList->at(i)+"," << libPathParts.back()+"," << category << "\n";
       // build sublib from path, should create sublib with name and path set.
       // limited sub gathering for now
-      vtkMRMLNDLibraryNode * subLib = new vtkMRMLNDLibraryNode(pathList->at(i),libPathParts.back(),category);
+      std::string subName;
+      if( category == "Time(s)") // this should be regex'd to be if category is a measurement of time
+        {
+        //libPathParts.back()=lib->GetLibName()+"_"+AgeTimeConvert(libPathParts.back());
+        subName=AgeTimeConvert(libPathParts.back(),0.01);
+        }
+      else 
+        {
+        subName=libPathParts.back();
+        }
+      
+      vtkMRMLNDLibraryNode * subLib = new vtkMRMLNDLibraryNode(pathList->at(i),subName,category);
       subLib->SetParentNode(lib);
-      lib->SubLibraries[subLib->GetLibName()]=subLib; 
+      lib->SubLibraries[libPathParts.back()]=subLib; 
       }
+    
     if ( pathList->size()>0 )
       {
       status=true;
@@ -300,16 +371,17 @@ bool vtkMRMLNDLibraryBuilder::Build(vtkMRMLNDLibraryNode * lib)
   //// temporary always return after directory listings.
   return status;
   this->GetSubFiles(pathList,lib->GetLibRoot());  
-  if( pathList->size() != lib->FilePaths->size() ) 
+  //if( pathList->size() != lib->FilePaths->size() ) 
+    if (pathList->size() != lib->SubLibraries.size()-pathList->size())
     {
-    lib->FilePaths->clear();
+//    lib->FilePaths->clear();
     char delim = '/';
     for ( int i=0; i< pathList->size(); i++ ) 
       {
       if ( 0 ) 
         {
         std::cout << "Cout: FilePaths add, " << pathList->at(i)<< "\n";    
-        lib->FilePaths->push_back(pathList->at(i));
+//        lib->FilePaths->push_back(pathList->at(i));
         }
       else 
         {// our sub build code for example, lef thtis here for now in case we decide that files are also libs
@@ -347,8 +419,8 @@ bool vtkMRMLNDLibraryBuilder::Build(vtkMRMLNDLibraryNode * lib)
       std::cout << "Cout: pathList empty.\n";
       }
     } 
-
-
+  
+  
   return status; 
 }
 
@@ -656,6 +728,37 @@ bool vtkMRMLNDLibraryBuilder::ReBuild()    // rebuild the lib(first resets)
   this->ResetLib();
   return this->Build(LibPointer);
 }
+
+
+std::string vtkMRMLNDLibraryBuilder::join(std::vector<std::string> &stringList , const std::string &s )
+{
+
+
+//  return std::copy(stringList, stringList+stringList.size(), std::ostream_iterator<int>(std::cout,s));
+//  return std::copy(stringList.begin(), stringList.end(), std::ostream_iterator<std::string>(std::cout,s));
+
+//  return std::copy(stringList, stringList+stringList.size(), std::ostream_iterator<int>(std::cout,s));
+
+  std::string out;
+   int strSize=0;
+   for (std::vector<std::string>::iterator sIt=stringList.begin();sIt<stringList.end();sIt++)
+     {
+     out.append(*sIt);
+     if ( sIt !=stringList.end()-1 )
+       out.append(s);
+     }  
+   return out;
+//   std::string out=std::string(strSize, ' ');
+  
+//   int o_i=0;
+//   for (std::vector<std::string>::iterator sIt=exclusionList->begin();sIt<exclusionList->end();sIt++)
+//     {
+//     out[o_i
+//     o_i=sIt.length();
+//     }  
+}
+
+
 //----------------------------------------------------------------------------
 // split function code >90% copy pasta from website(in comments). user was Evan Teran
 // http://stackoverflow.com/questions/236129/how-to-split-a-string-in-c
@@ -689,3 +792,28 @@ bool vtkMRMLNDLibraryBuilder::confCheck (std::string confPath)
 	std::string cp=confPath+"/lib.conf";
 	return !fexists(cp.c_str());
 }
+
+
+//----------------------------------------------------------------------------
+//str2int code >90% copy pasta from website(in comments). user was dan moulding
+// http://stackoverflow.com/questions/194465/how-to-parse-a-string-to-an-int-in-c
+//enum STR2INT_ERROR { SUCCESS, OVERFLOW, UNDERFLOW, INCONVERTIBLE };
+//STR2INT_ERROR
+//int vtkMRMLNDLibraryBuilder::str2int (int &i, char const *s, int base = 0)
+//{
+//   char *end;
+//   long  l;
+//   errno = 0;
+//   l = strtol(s, &end, base);
+//   if ((errno == ERANGE && l == LONG_MAX) || l > INT_MAX) {
+//     return 1;
+//   }
+//   if ((errno == ERANGE && l == LONG_MIN) || l < INT_MIN) {
+//     return 2;
+//   }
+//   if (*s == '\0' || *end != '\0') {
+//     return 3;
+//   }
+//   i = l;
+//  return 0;
+//}

@@ -2591,13 +2591,22 @@ QString qSlicerCIVM_GalleryControlPanelPGRWidget::AgeTimeConvert(QString zeroPad
     {
     multiplier=floor(float(seconds)/divisors.at(dIt));  
     remainder=seconds-multiplier*divisors.at(dIt);
-    seconds=remainder;
+
+    if ( remainder>tollerance*divisors.at(dIt) )
+      {
+	multiplier=0;
+      }
+    else
+      {
+	seconds=remainder;    
+      }
     if ( multiplier > 0 ) 
       {
       returnValues << QString::number(multiplier) << divisornames.at(dIt);
       }
-    
-    if ( seconds == 0 ) 
+
+
+    if ( seconds == 0 ) //for perfect division loop end condition
       { 
       dIt=dIt+divisors.size();
       }
@@ -2633,7 +2642,7 @@ QString qSlicerCIVM_GalleryControlPanelPGRWidget::AgeTimeConvert(QString zeroPad
 //     return temp
     
     //return "_"+returnValues.join(":")+"_";// the underscores are unncecessary
-    return returnValues.join(":");
+    return returnValues.join("_");
     } else
     {
     return "_";

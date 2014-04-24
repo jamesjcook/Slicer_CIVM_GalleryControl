@@ -113,8 +113,14 @@ class VTK_VTKMRMLNDLIBRARYBUILDER_MRML_EXPORT vtkMRMLNDLibraryBuilder : public v
   void GetSubCategoryies(std::vector<std::string> * , std::string ) ; // temporary placeholder for planning purposes.
   std::vector<std::string> &split(const std::string &, char, std::vector<std::string> &);
   std::vector<std::string> split(const std::string &, char);
-
+  std::string AgeTimeConvert(std::string zeroPadSeconds);
+  std::string AgeTimeConvert(std::string zeroPadSeconds,float tollerance);
   bool fexists(const char *);
+  //enum STR2INT_ERROR { SUCCESS, OVERFLOW, UNDERFLOW, INCONVERTIBLE };
+  //STR2INT_ERROR
+  // int str2int (int &i, char const *s, int base = 0);
+  std::string join(std::vector<std::string> &stringList , const std::string &s );
+
   bool confCheck (std::string );
   
 };

@@ -85,7 +85,7 @@ class Q_SLICER_MODULE_CIVM_GALLERYCONTROL_WIDGETS_EXPORT qSlicerCIVM_GalleryCont
   //Simple debug Functions 
   void PrintMethod(const QString);
   void PrintText(const QString);
-
+  QString AgeTimeConvert(QString zeroPadSeconds);
 
   Q_DECLARE_PRIVATE(qSlicerCIVM_GalleryControlPanelDataSelectorWidget);
   Q_DISABLE_COPY(qSlicerCIVM_GalleryControlPanelDataSelectorWidget);

@@ -104,6 +104,7 @@ void qSlicerCIVM_GalleryControlModuleWidget::setup()
   QString DataStoreName="Brain";
   QString DataStoreCategory="Organ";
   //DataRoot=DataRoot+ps+"DataLibraries"+ps+DataStoreName; //
+  DataStoreName="AtlasData";
   DataRoot=DataRoot+ps+"DataLibraries"; //
   DataStore = new vtkMRMLNDLibraryNode(DataRoot.toStdString(),DataStoreName.toStdString(),DataStoreCategory.toStdString());
   // perhaps it would be best to use default constructor here and just let panelDataSelector do the setting/building and other. Investigate later, but here is the code in an if ( 0 ) set
@@ -595,20 +596,14 @@ void qSlicerCIVM_GalleryControlModuleWidget::SetControls(void)
       //QSlicerModuleWidget
       d->ControlLayout->addWidget(panelPGR);
     } 
-  else if ( panelName == "FA_Render_BySpeciesStatic" ) 
+  else if ( panelName == "FA_Render_Static" ) 
     {
-    QString out_path = "FARenderScenes"+ps+QString::fromStdString(CurrentNode->GetLibName())+".mrml";
+    QString out_path = "Static_Render"+ps+QString::fromStdString(CurrentNode->GetLibName())+"_fa.mrml";
     out_path.replace(':','_');
-    out_path=this->DataRoot+ps+out_path;
+    out_path=QString::fromStdString(CurrentNode->GetLibRoot())+ps+out_path;
     this->PrintText("FA_Render load of "+out_path);
-    //out_path.replace("C_","C:");
-    //out_path.replace("DataLibraries"+ps,"");
     qSlicerApplication::application()->ioManager()->loadScene(out_path,true);
     }
-//   else if ( panelName == "NOSUPPORT" ) 
-//     {
-    
-//     }
   else
     {
       this->PrintText("Unreconized Panel selection");
@@ -670,9 +665,48 @@ QStringList qSlicerCIVM_GalleryControlModuleWidget::GetDisplayProtocols(vtkMRMLN
 	e << "LibrarySelectionFailure!";
 	return e;
     }
-  QStringList protocols;
   QString libName =QString::fromStdString(selectedLib->GetLibName());
+  QStringList protocols;
+  QStringList panels;
+  panels << "PGR";
+  panels << "FA_Render_Static";
+  //for each panel
+  //// SUPPORTLIST HACK.
+  QString panelSupportDir = QString::fromStdString(DataStore->GetLibRoot());
+  for (int i = 0; i < panels.size(); ++i)
+    {
+      this->PrintText("support check for "+panels.at(i));
+      QFile panelConfFile(panelSupportDir+"/"+panels.at(i)+".conf");
+      QStringList panelSupportList;//supported libnames for this panel
+      if ( panelConfFile.open(QIODevice::ReadOnly) ) 
+        {
+        QTextStream in(&panelConfFile);
+        while(!in.atEnd() )
+          {
+          QString line= in.readLine();
+	      //if(!line.empty())
+          panelSupportList << line;
+	  
+          }
+        QRegExp protoCompare("^"+libName+"$");
+        if ( panelSupportList.indexOf(protoCompare)>=0 )
+          {
+          protocols << panels.at(i);
+          }  
+        panelConfFile.close();
+	}
+      else
+        {
+        //QMessageBox::information(0, "error", file.errorString());
+        this->PrintText("Panel conf file failed to open! "+panelConfFile.fileName());
+        this->PrintText(panelConfFile.errorString());
 
+
+        }
+    }
+  
+  if ( 0 )
+    {
   // temporary listing of possible species for our FARender support.
   QStringList species ;
   species 
@@ -683,7 +717,7 @@ QStringList qSlicerCIVM_GalleryControlModuleWidget::GetDisplayProtocols(vtkMRMLN
     //<< "Macaca_fascicularis" 
     << "Mus_Musculus" 
     << "Rattus_norvegicus"
-	<< "20140417__000Y_";
+    << "20140417__000Y_";
   QStringList pgrlist;
   pgrlist 
     << "130827-2-0"
@@ -695,18 +729,19 @@ QStringList qSlicerCIVM_GalleryControlModuleWidget::GetDisplayProtocols(vtkMRMLN
 #ifndef WIN32
     << "AdultMacacaF"
 //    << "average"
-    << "00000172800"
+    << "day_02"
 #endif
-    << "00006912000"
+    << "day_80"
     << "dti101";
   QStringList organList ; 
   organList
-    << "Brain";
+    << "Brain"
+    << "Heart";
   
   QRegExp protoCompare("^"+libName+"$");
   if ( species.indexOf(protoCompare)>=0 )
     {
-    protocols << "FA_Render_BySpeciesStatic";
+    protocols << "FA_Render_Static";
     }
   if ( pgrlist.indexOf(protoCompare)>=0 )
     {
@@ -716,9 +751,10 @@ QStringList qSlicerCIVM_GalleryControlModuleWidget::GetDisplayProtocols(vtkMRMLN
     {
       //protocols << "NoOrganProtocol";
     }
+  }
   if ( protocols.size()==0 ) 
     {
-    protocols << "NOSUPPORT";
+      protocols << "NOSUPPORT";
     }
   return protocols; 
 }
@@ -780,4 +816,3 @@ void qSlicerCIVM_GalleryControlModuleWidget::PrintText(const QString text)
   out << text<<"\n";
   return;
 }
-
