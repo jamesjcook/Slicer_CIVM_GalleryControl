@@ -175,34 +175,13 @@ bool vtkMRMLNDLibraryBuilder::Build(vtkMRMLNDLibraryNode * lib)
   this->GetSubDirs(pathList,lib->GetLibRoot());
   bool status=false;
  
-//   if(lib->SubLibraries.size()>0 )
-//     {
-//     lib->clearSubs();
-//     }
-
-  
-
-//this cant work with our category getting code.
-//   bool singleEntryOptimization=false;
-//   // this optimization removed for now, it will be harder to follow this through in the future.
-//   if( pathList->size() == 1 && singleEntryOptimization) // if singular path remove it and descend one more.
-//     {
-//     this->GetSubDirs(pathList,pathList->at(0));
-//     pathList->erase(pathList->begin());
-//     }
-  
-  ////
-  // this cauess errors on some casees in winodws!
-  ////
-  //ifstream ifile(filename);
   std::string pConfPath = lib->GetLibRoot();
   pConfPath=pConfPath+"/lib.conf";
-  std::string parentCategory("NoCategory");//<< b_file;//>> str;
-  std::string childCategory("NoCategory");//<< b_file;//>> str;  
+  std::string parentCategory("NoCategory");
+  std::string childCategory("NoCategory");
   int fileFound=false;
   ifstream pLibConf ( pConfPath.c_str() );
   #ifdef WIN32 
-//#include "Shlwapi.h"
   fileFound = fexists(pConfPath.c_str());
 #else
     if ( pLibConf ) 
@@ -212,53 +191,53 @@ bool vtkMRMLNDLibraryBuilder::Build(vtkMRMLNDLibraryNode * lib)
 #endif	
   if (  fileFound ) 
     {
-      //category << libConf ;//>> str;
       pLibConf >> parentCategory;
       pLibConf >> childCategory;
       pLibConf.close();
     }
   
 
-  //   for ( std::vector<std::string>::iterator it=pathList->end(); it!=pathList->begin(); it-- ) 
-  for ( std::vector<std::string>::iterator it=pathList->begin(); it!=pathList->end(); it++ ) 
-  //       {
-  //  std::vector<std::string>::iterator it=pathList->begin();
-    //while(c!="NoCategory")
+  std::vector<std::string>::iterator it=pathList->begin();
+  while ( it !=pathList->end() )
     {
     ////
     // Check for lib.conf file
-    std::string confPath = *it;//pathList->at(i);
-    confPath=confPath+"/lib.conf";
-    std::string category("NoCategory");//<< b_file;//>> str;
-    
-    int fileFound=false;
+    std::string confPath = *it;
+    confPath = confPath+"/lib.conf";
+    std::string category("NoCategory");
+    int fileFound = false;
     ifstream libConf ( confPath.c_str() );
-  #ifdef WIN32 
-//#include "Shlwapi.h"
-  fileFound = fexists(confPath.c_str());
+#ifdef WIN32 
+    fileFound = fexists(confPath.c_str());
 #else
     if ( libConf ) 
-  {
+      {
 	  fileFound=true;
-  }
-#endif	
-    //category << libConf ;//>> str;
-
-	if (  fileFound ) 
-    {
-	    libConf >> category;
-        libConf.close();
       }
-    
+#endif	
+	if (  fileFound ) 
+      {
+	  libConf >> category;
+      libConf.close();
+      }
+	//return false;
     ////
     if ( category == "NoCategory" )
       {
+      ////
+      // this cauess errors in winodws!
+      ////
       std::cout << "cout: Remove path from consideration" << *it << "\n";
-      pathList->erase(it);
-      it--;
+	    it=pathList->erase(it);
       }
-    }
+	else
+	{
+		it++;
+	}
+  } // end loop to clear elements from path which dont have a lib.conf
 
+
+  //check to see if there will be a change in size of our sublib list, and only re-create them if there is.
   if( pathList->size() != lib->SubLibraries.size() && pathList->size()>0 ) 
     {
     lib->clearSubs();
@@ -318,6 +297,8 @@ bool vtkMRMLNDLibraryBuilder::Build(vtkMRMLNDLibraryNode * lib)
     std::cout << "Clearing pathlist\n";
     pathList->clear();      
     }
+  //// temporary always return after directory listings.
+  return status;
   this->GetSubFiles(pathList,lib->GetLibRoot());  
   if( pathList->size() != lib->FilePaths->size() ) 
     {
@@ -700,4 +681,11 @@ std::vector<std::string> vtkMRMLNDLibraryBuilder::split(const std::string &s, ch
 bool vtkMRMLNDLibraryBuilder::fexists(const char *filename) {
   ifstream ifile(filename);
   return ifile;
+}
+
+
+bool vtkMRMLNDLibraryBuilder::confCheck (std::string confPath)
+{ 
+	std::string cp=confPath+"/lib.conf";
+	return !fexists(cp.c_str());
 }

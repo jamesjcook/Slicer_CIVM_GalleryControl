@@ -103,7 +103,8 @@ void qSlicerCIVM_GalleryControlModuleWidget::setup()
 #endif
   QString DataStoreName="Brain";
   QString DataStoreCategory="Organ";
-  DataRoot=DataRoot+ps+"DataLibraries"+ps+DataStoreName; //
+  //DataRoot=DataRoot+ps+"DataLibraries"+ps+DataStoreName; //
+  DataRoot=DataRoot+ps+"DataLibraries"; //
   DataStore = new vtkMRMLNDLibraryNode(DataRoot.toStdString(),DataStoreName.toStdString(),DataStoreCategory.toStdString());
   // perhaps it would be best to use default constructor here and just let panelDataSelector do the setting/building and other. Investigate later, but here is the code in an if ( 0 ) set
   if ( 0 ) {
