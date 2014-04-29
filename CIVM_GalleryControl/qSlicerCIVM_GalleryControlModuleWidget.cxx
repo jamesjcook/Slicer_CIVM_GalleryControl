@@ -39,7 +39,7 @@
 //#include "vtkMRMLGalleryControlLibraryNode.h"
 //#include <vtkMRMLNDLibraryNode.h>
 //#include "vtkMRMLTagCategoryStorageNode.h"
-//#include "vtkMRMLNDLibraryBuilder.h"
+#include "vtkMRMLNDLibraryBuilder.h"
 
 // Panel includes
 #include "qSlicerCIVM_GalleryControlPanelPGRWidget.h"
@@ -93,6 +93,12 @@ void qSlicerCIVM_GalleryControlModuleWidget::setup()
   Q_D(qSlicerCIVM_GalleryControlModuleWidget);
   d->setupUi(this); // handle the .ui file.
   this->Superclass::setup();
+
+
+
+  //// 
+  // Init lib at some path, with some name and category.
+
   this->ps=('/');
 #ifdef WIN32 
   //this->ps=('\\');
@@ -109,8 +115,13 @@ void qSlicerCIVM_GalleryControlModuleWidget::setup()
   DataStore = new vtkMRMLNDLibraryNode(DataRoot.toStdString(),DataStoreName.toStdString(),DataStoreCategory.toStdString());
   // perhaps it would be best to use default constructor here and just let panelDataSelector do the setting/building and other. Investigate later, but here is the code in an if ( 0 ) set
   if ( 0 ) {
-  DataStore = new vtkMRMLNDLibraryNode();
-  DataStore->SetLibRoot(DataRoot.toStdString());
+  DataStore = new vtkMRMLNDLibraryNode(DataRoot.toStdString());
+  //DataStore->SetLibRoot(DataRoot.toStdString());
+  vtkMRMLNDLibraryBuilder * dataStoreBuilder=new vtkMRMLNDLibraryBuilder();
+
+  //dataStoreBuilder->SetLibPointer(DataStore);
+  //dataStoreBuilder->Build(DataStore); 
+  //std_str_hash tagCloud=dataStoreBuilder->libFileRead("path");
   }
 
 

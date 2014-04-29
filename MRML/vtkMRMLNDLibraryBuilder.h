@@ -90,6 +90,7 @@ class VTK_VTKMRMLNDLIBRARYBUILDER_MRML_EXPORT vtkMRMLNDLibraryBuilder : public v
 
   bool Build(std_str_hash); // build an nd lib which must be set before hand in our ndlib pointer using a tag cloud at string.
   bool Build(vtkMRMLNDLibraryNode *, std_str_hash);   // build an nd lib using a tag cloud at string.
+  bool ParseCloud(vtkMRMLNDLibraryNode *, std_str_hash);   // build an nd lib using a tag cloud at string.
   
   bool Build(vtkMRMLNDLibraryNode *);                                      // build the nd lib, which presumeable has alredy had its path name and category set.
   bool Build(vtkMRMLNDLibraryNode *,std::string);                          // build lib at path,
@@ -109,6 +110,7 @@ class VTK_VTKMRMLNDLIBRARYBUILDER_MRML_EXPORT vtkMRMLNDLibraryBuilder : public v
   void GetSubCont(std::vector<std::string> * , std::string ,std::vector<std::string> *, int) ;  
   // core of get subdirs and get sub files, pass output pointer, path, exclusion list and, flag for get sub files, or get sub dirs
   void GetSubDirs(std::vector<std::string> * , std::string ) ; 
+  void RemoveNonLibDirs(std::vector<std::string> *);
   void GetSubFiles(std::vector<std::string> * , std::string ) ; 
   void GetSubCategoryies(std::vector<std::string> * , std::string ) ; // temporary placeholder for planning purposes.
   std::vector<std::string> &split(const std::string &, char, std::vector<std::string> &);
@@ -116,6 +118,7 @@ class VTK_VTKMRMLNDLIBRARYBUILDER_MRML_EXPORT vtkMRMLNDLibraryBuilder : public v
   std::string AgeTimeConvert(std::string zeroPadSeconds);
   std::string AgeTimeConvert(std::string zeroPadSeconds,float tollerance);
 
+  std_str_hash libFileRead(std::string libConfPath );
   std_str_hash libFileRead(vtkMRMLNDLibraryNode * lib);
   bool fexists(const char *);
   //enum STR2INT_ERROR { SUCCESS, OVERFLOW, UNDERFLOW, INCONVERTIBLE };
