@@ -88,9 +88,9 @@ class VTK_VTKMRMLNDLIBRARYBUILDER_MRML_EXPORT vtkMRMLNDLibraryBuilder : public v
   bool Build(void);         // build our currently set lib
   bool Build(std::string);  // build an nd lib which must be set before hand in our ndlib pointer.
 
-  bool Build(std_str_hash); // build an nd lib which must be set before hand in our ndlib pointer using a tag cloud at string.
-  bool Build(vtkMRMLNDLibraryNode *, std_str_hash);   // build an nd lib using a tag cloud at string.
-  bool ParseCloud(vtkMRMLNDLibraryNode *, std_str_hash);   // build an nd lib using a tag cloud at string.
+  bool Build(std_str_hash *); // build an nd lib which must be set before hand in our ndlib pointer using a tag cloud at string.
+  bool Build(vtkMRMLNDLibraryNode *, std_str_hash *);   // build an nd lib using a tag cloud at string.
+  bool ParseCloud(vtkMRMLNDLibraryNode *, std_str_hash *);   // build an nd lib using a tag cloud at string.
   
   bool Build(vtkMRMLNDLibraryNode *);                                      // build the nd lib, which presumeable has alredy had its path name and category set.
   bool Build(vtkMRMLNDLibraryNode *,std::string);                          // build lib at path,

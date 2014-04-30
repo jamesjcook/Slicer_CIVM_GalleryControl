@@ -13,7 +13,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 
-==============================================================================*/
+  ==============================================================================*/
 
 // Qt includes
 #include <QDebug>
@@ -78,7 +78,7 @@ qSlicerCIVM_GalleryControlModuleWidgetPrivate::qSlicerCIVM_GalleryControlModuleW
 //-----------------------------------------------------------------------------
 qSlicerCIVM_GalleryControlModuleWidget::qSlicerCIVM_GalleryControlModuleWidget(QWidget* _parent)
   : Superclass( _parent )
-  , d_ptr( new qSlicerCIVM_GalleryControlModuleWidgetPrivate )
+    , d_ptr( new qSlicerCIVM_GalleryControlModuleWidgetPrivate )
 {
 }
 
@@ -143,24 +143,24 @@ void qSlicerCIVM_GalleryControlModuleWidget::setup()
   d->ControlArea->setCollapsed(true);
   
   if (!DataStore ) 
-  {
-	this->PrintText("ERROR with InputLibrary at "+DataRoot+" ."	);
-  }
+    {
+    this->PrintText("ERROR with InputLibrary at "+DataRoot+" ."	);
+    }
   else
-  {
-  qSlicerCIVM_GalleryControlPanelDataSelectorWidget * panelDataSelector =
-    new qSlicerCIVM_GalleryControlPanelDataSelectorWidget(this,DataStore);
-  d->SelectionLayout->addWidget(panelDataSelector);
+    {
+    qSlicerCIVM_GalleryControlPanelDataSelectorWidget * panelDataSelector =
+      new qSlicerCIVM_GalleryControlPanelDataSelectorWidget(this,DataStore);
+    d->SelectionLayout->addWidget(panelDataSelector);
   
-  //d->SelectionLayout->
+    //d->SelectionLayout->
 //   connect(panelDataSelector,SIGNAL(DataSelected(vtkMRMLNDLibraryNode *)),SLOT(BuildGallery(vtkMRMLNDLibraryNode *)));
 //   connect(panelDataSelector,SIGNAL(DataSelected(vtkMRMLNDLibraryNode *)),SLOT(DataSelected(vtkMRMLNDLibraryNode *)));
 
-  connect(panelDataSelector,SIGNAL(DataSelected()),SLOT(BuildGallery()));
-  connect(panelDataSelector,SIGNAL(DataSelected(vtkMRMLNDLibraryNode *)),SLOT(BuildGallery(vtkMRMLNDLibraryNode *)));
-  connect(this,SIGNAL(NoSupportedProtocols(std::string)),panelDataSelector,SLOT(SelectNext(std::string) ));
+    connect(panelDataSelector,SIGNAL(DataSelected()),SLOT(BuildGallery()));
+    connect(panelDataSelector,SIGNAL(DataSelected(vtkMRMLNDLibraryNode *)),SLOT(BuildGallery(vtkMRMLNDLibraryNode *)));
+    connect(this,SIGNAL(NoSupportedProtocols(std::string)),panelDataSelector,SLOT(SelectNext(std::string) ));
 
-  }
+    }
 //   if ( 0 )
 //     {//code superseeded by the paneldataselctor
 //     //connect LibrarySelectDropList to filllibselector, and to build gallery
@@ -413,20 +413,20 @@ QString qSlicerCIVM_GalleryControlModuleWidget::ReadLibraryPath(QString libraryN
       return libraryPath;
       }
     
-  this->PrintText("ReadLibraryName "+libraryName);
-  if (libraryName=="<No Data Selected>"|| libraryName=="NoName") 
-    {
-    this->PrintText("Lib path blank");
-    } 
-  else if ( libraryName == QString::fromStdString(DataStore->GetLibName()) ) 
-    {
-    libraryPath=QString::fromStdString(DataStore->GetLibRoot() );//GetCurrentSelection()
-    }
-  else
-    {
-    libraryPath=QString::fromStdString(DataStore->GetCurrentSelection()->GetLibRoot());
-    this->PrintText("ReadLibraryPath "+libraryName+":"+libraryPath);
-    }
+    this->PrintText("ReadLibraryName "+libraryName);
+    if (libraryName=="<No Data Selected>"|| libraryName=="NoName") 
+      {
+      this->PrintText("Lib path blank");
+      } 
+    else if ( libraryName == QString::fromStdString(DataStore->GetLibName()) ) 
+      {
+      libraryPath=QString::fromStdString(DataStore->GetLibRoot() );//GetCurrentSelection()
+      }
+    else
+      {
+      libraryPath=QString::fromStdString(DataStore->GetCurrentSelection()->GetLibRoot());
+      this->PrintText("ReadLibraryPath "+libraryName+":"+libraryPath);
+      }
     }
   return libraryPath;
 }
@@ -438,18 +438,18 @@ QString qSlicerCIVM_GalleryControlModuleWidget::ReadLibraryName(void) {
   QString libraryName="<No Data Selected>"; 
   if ( 0 ) 
     {// this is old and BAD BAD BAD.
-  if ( !DataStore->GetCurrentSelection() )//if no selection
-    {
-    this->PrintText("No current selection!");
-    return libraryName;
-    }
-  libraryName=QString::fromStdString(DataStore->GetCurrentSelection()->GetLibName());
-  this->PrintText("ReadLibraryName "+libraryName);
-  if (libraryName=="<No Data Selected>") 
-    {
-    this->PrintText("Lib name blank");
-    libraryName="NoName";
-    }
+    if ( !DataStore->GetCurrentSelection() )//if no selection
+      {
+      this->PrintText("No current selection!");
+      return libraryName;
+      }
+    libraryName=QString::fromStdString(DataStore->GetCurrentSelection()->GetLibName());
+    this->PrintText("ReadLibraryName "+libraryName);
+    if (libraryName=="<No Data Selected>") 
+      {
+      this->PrintText("Lib name blank");
+      libraryName="NoName";
+      }
     }
   return libraryName;
 }
@@ -507,11 +507,11 @@ void qSlicerCIVM_GalleryControlModuleWidget::BuildGallery(QString libraryName) {
   // this should occur in our getdisplayprotocols function, 
   for (int i = 0; i < protocols.size(); ++i)
     {
-      //qSlicerCIVM_GalleryControlDisplayProtocol * check = new qSlicerCIVM_GalleryControlDisplayProtocol(protocol[i]);
-      //if(  !check.IsSupported(DataLibrary->GetLibDims) ) 
-      //{
-      //protocols.remove(i);// using this should probably switch to iterator access.
-      //}
+    //qSlicerCIVM_GalleryControlDisplayProtocol * check = new qSlicerCIVM_GalleryControlDisplayProtocol(protocol[i]);
+    //if(  !check.IsSupported(DataLibrary->GetLibDims) ) 
+    //{
+    //protocols.remove(i);// using this should probably switch to iterator access.
+    //}
       
     }
   // add buttons for each protcol with their icon (and/or) button.
@@ -519,33 +519,33 @@ void qSlicerCIVM_GalleryControlModuleWidget::BuildGallery(QString libraryName) {
     {
     //cout << fonts.at(i).toLocal8Bit().constData() << endl;
 
-  // foreach protocol add to the protcol location in our gui controls
-  // QVBoxLayout * l = new QVBoxLayout;
-  // layouts[i]->addWidget(clockViews[i])
-  //   d->ControlFrame->setLayout(l);
-      this->PrintText(protocols[i]);  
+    // foreach protocol add to the protcol location in our gui controls
+    // QVBoxLayout * l = new QVBoxLayout;
+    // layouts[i]->addWidget(clockViews[i])
+    //   d->ControlFrame->setLayout(l);
+    this->PrintText(protocols[i]);  
 
-  //// FOR EACH PROTOCOL
-      if ( protocols[i] != "NOSUPPORT" )
-        {
-        QPushButton * widge=  new QPushButton;
-        widge->setText(protocols[i]);
-        widge->setObjectName(protocols[i]);
+    //// FOR EACH PROTOCOL
+    if ( protocols[i] != "NOSUPPORT" )
+      {
+      QPushButton * widge=  new QPushButton;
+      widge->setText(protocols[i]);
+      widge->setObjectName(protocols[i]);
         
-        QString iconPath=QString::fromStdString(CurrentNode->GetLibRoot())+"/GalleryIcons"+ps+libraryName+'_'+protocols[i]+".png"; 
-        this->PrintText(iconPath);
-        widge->setIcon(QIcon(iconPath));
-        galleryButtons.push_back(widge);
-        d->GalleryLayout->addWidget(galleryButtons.at(i));
+      QString iconPath=QString::fromStdString(CurrentNode->GetLibRoot())+"/GalleryIcons"+ps+libraryName+'_'+protocols[i]+".png"; 
+      this->PrintText(iconPath);
+      widge->setIcon(QIcon(iconPath));
+      galleryButtons.push_back(widge);
+      d->GalleryLayout->addWidget(galleryButtons.at(i));
         
-        //set button connections
-        connect(widge,SIGNAL(clicked()),SLOT(SetControls()));
-        } 
-      else 
-        {
-        QLabel * lab= new QLabel(protocols[i]);
-        d->GalleryLayout->addWidget(lab);
-        }
+      //set button connections
+      connect(widge,SIGNAL(clicked()),SLOT(SetControls()));
+      } 
+    else 
+      {
+      QLabel * lab= new QLabel(protocols[i]);
+      d->GalleryLayout->addWidget(lab);
+      }
     }
   
   // Check if there were no supported protocols, 
@@ -600,12 +600,12 @@ void qSlicerCIVM_GalleryControlModuleWidget::SetControls(void)
   //protocols[0]
   if ( panelName == "PGR" ) 
     {
-      //qSlicerCIVM_GalleryControlPanelPGRWidget * panel = new qSlicerCIVM_GalleryControlPanelPGRWidget(this); //Ui_
+    //qSlicerCIVM_GalleryControlPanelPGRWidget * panel = new qSlicerCIVM_GalleryControlPanelPGRWidget(this); //Ui_
     //qSlicerCIVM_GalleryControlPanelPGRWidget * panelPGR = new qSlicerCIVM_GalleryControlPanelPGRWidget(this,this->ReadLibraryPath(this->ReadLibraryName())); 
     qSlicerCIVM_GalleryControlPanelPGRWidget * panelPGR = new qSlicerCIVM_GalleryControlPanelPGRWidget(this,QString::fromStdString(CurrentNode->GetLibRoot()));
     this->PrintText( "adding controls using "+QString::fromStdString(CurrentNode->GetLibName()));
-      //QSlicerModuleWidget
-      d->ControlLayout->addWidget(panelPGR);
+    //QSlicerModuleWidget
+    d->ControlLayout->addWidget(panelPGR);
     } 
   else if ( panelName == "FA_Render_Static" ) 
     {
@@ -613,14 +613,15 @@ void qSlicerCIVM_GalleryControlModuleWidget::SetControls(void)
     out_path.replace(':','_');
     out_path=QString::fromStdString(CurrentNode->GetLibRoot())+ps+out_path;
     this->PrintText("FA_Render load of "+out_path);
-    qSlicerApplication::application()->ioManager()->loadScene(out_path,true);
+    //qSlicerApplication::application()->ioManager()->loadScene(out_path,true);
+    qSlicerApplication::application()->ioManager()->loadScene(out_path,false);
     }
   else
     {
-      this->PrintText("Unreconized Panel selection");
-      //////qSlicerCIVM_NDDisplayModule * civmNDDisplay = new qSlicerCIVM_NDDisplayModule(this);
-      //qSlicerCIVM_NDDisplayModuleWidget * civmNDDisplay = new qSlicerCIVM_NDDisplayModuleWidget(this);
-      //d->ControlLayout->addWidget(civmNDDisplay);
+    this->PrintText("Unreconized Panel selection");
+    //////qSlicerCIVM_NDDisplayModule * civmNDDisplay = new qSlicerCIVM_NDDisplayModule(this);
+    //qSlicerCIVM_NDDisplayModuleWidget * civmNDDisplay = new qSlicerCIVM_NDDisplayModuleWidget(this);
+    //d->ControlLayout->addWidget(civmNDDisplay);
     }
   d->ControlArea->setCollapsed(false); 
   d->GalleryArea->setCollapsed(true);
@@ -633,14 +634,14 @@ void qSlicerCIVM_GalleryControlModuleWidget::clearLayout(QLayout* layout, bool d
 // function to clear the control areas(protcol selection and control selection).
   while (QLayoutItem* item = layout->takeAt(0))
     {
-      if (deleteWidgets)
-        {
-	  if (QWidget* widget = item->widget())
-	    delete widget;
-        }
-      if (QLayout* childLayout = item->layout())
-	clearLayout(childLayout, deleteWidgets);
-      delete item;
+    if (deleteWidgets)
+      {
+      if (QWidget* widget = item->widget())
+        delete widget;
+      }
+    if (QLayout* childLayout = item->layout())
+      clearLayout(childLayout, deleteWidgets);
+    delete item;
     }
   return;
 }
@@ -672,9 +673,9 @@ QStringList qSlicerCIVM_GalleryControlModuleWidget::GetDisplayProtocols(vtkMRMLN
     {
     this->PrintText("Lib select fail");
     //QStringList e=this->GetDisplayProtocols();
-	QStringList e;
-	e << "LibrarySelectionFailure!";
-	return e;
+    QStringList e;
+    e << "LibrarySelectionFailure!";
+    return e;
     }
   QString libName =QString::fromStdString(selectedLib->GetLibName());
   QStringList protocols;
@@ -686,86 +687,86 @@ QStringList qSlicerCIVM_GalleryControlModuleWidget::GetDisplayProtocols(vtkMRMLN
   QString panelSupportDir = QString::fromStdString(DataStore->GetLibRoot());
   for (int i = 0; i < panels.size(); ++i)
     {
-      this->PrintText("support check for "+panels.at(i));
-      QFile panelConfFile(panelSupportDir+"/"+panels.at(i)+".conf");
-      QStringList panelSupportList;//supported libnames for this panel
-      if ( panelConfFile.open(QIODevice::ReadOnly) ) 
+    this->PrintText("support check for "+panels.at(i));
+    QFile panelConfFile(panelSupportDir+"/"+panels.at(i)+".conf");
+    QStringList panelSupportList;//supported libnames for this panel
+    if ( panelConfFile.open(QIODevice::ReadOnly) ) 
+      {
+      QTextStream in(&panelConfFile);
+      while(!in.atEnd() )
         {
-        QTextStream in(&panelConfFile);
-        while(!in.atEnd() )
-          {
-          QString line= in.readLine();
-	      //if(!line.empty())
-          panelSupportList << line;
+        QString line= in.readLine();
+        //if(!line.empty())
+        panelSupportList << line;
 	  
-          }
-        QRegExp protoCompare("^"+libName+"$");
-        if ( panelSupportList.indexOf(protoCompare)>=0 )
-          {
-          protocols << panels.at(i);
-          }  
-        panelConfFile.close();
-	}
-      else
-        {
-        //QMessageBox::information(0, "error", file.errorString());
-        this->PrintText("Panel conf file failed to open! "+panelConfFile.fileName());
-        this->PrintText(panelConfFile.errorString());
-
-
         }
+      QRegExp protoCompare("^"+libName+"$");
+      if ( panelSupportList.indexOf(protoCompare)>=0 )
+        {
+        protocols << panels.at(i);
+        }  
+      panelConfFile.close();
+      }
+    else
+      {
+      //QMessageBox::information(0, "error", file.errorString());
+      this->PrintText("Panel conf file failed to open! "+panelConfFile.fileName());
+      this->PrintText(panelConfFile.errorString());
+
+
+      }
     }
   
   if ( 0 )
     {
-  // temporary listing of possible species for our FARender support.
-  QStringList species ;
-  species 
-    //<< "0_species" 
-    //<< "Canis_lupus" 
-    << "Human" 
-    << "Macaca_mulatta" 
-    //<< "Macaca_fascicularis" 
-    << "Mus_Musculus" 
-    << "Rattus_norvegicus"
-    << "20140417__000Y_";
-  QStringList pgrlist;
-  pgrlist 
-    << "130827-2-0"
-	<< "20140417__000Y_"
+    // temporary listing of possible species for our FARender support.
+    QStringList species ;
+    species 
+      //<< "0_species" 
+      //<< "Canis_lupus" 
+      << "Human" 
+      << "Macaca_mulatta" 
+      //<< "Macaca_fascicularis" 
+      << "Mus_Musculus" 
+      << "Rattus_norvegicus"
+      << "20140417__000Y_";
+    QStringList pgrlist;
+    pgrlist 
+      << "130827-2-0"
+      << "20140417__000Y_"
 #ifndef WIN32
-    << "AdultCanisL"
+      << "AdultCanisL"
 #endif
-    << "AdultMacacaM"
+      << "AdultMacacaM"
 #ifndef WIN32
-    << "AdultMacacaF"
+      << "AdultMacacaF"
 //    << "average"
-    << "day_02"
+      << "day_02"
 #endif
-    << "day_80"
-    << "dti101";
-  QStringList organList ; 
-  organList
-    << "Brain"
-    << "Heart";
+      << "day_80"
+      << "dti101";
+    QStringList organList ; 
+    organList
+      << "Brain"
+      << "Heart";
   
-  QRegExp protoCompare("^"+libName+"$");
-  if ( species.indexOf(protoCompare)>=0 )
-    {
-    protocols << "FA_Render_Static";
-    }
-  if ( pgrlist.indexOf(protoCompare)>=0 )
-    {
-    protocols << "PGR";
-    }  
-  if( organList.indexOf(protoCompare)>=0 )
-    {
+    QRegExp protoCompare("^"+libName+"$");
+    if ( species.indexOf(protoCompare)>=0 )
+      {
+      protocols << "FA_Render_Static";
+      }
+    if ( pgrlist.indexOf(protoCompare)>=0 )
+      {
+      protocols << "PGR";
+      }  
+    if( organList.indexOf(protoCompare)>=0 )
+      {
       //protocols << "NoOrganProtocol";
+      }
     }
-  }
   if ( protocols.size()==0 ) 
     {
-      protocols << "NOSUPPORT";
+    protocols << "NOSUPPORT";
     }
   return protocols; 
 }
