@@ -85,6 +85,8 @@ protected slots:
 /*   void FillLibrarySelector(void); //fill out our select data gui from datalibraries */
 /*   void ClearLibrarySelector(void); // clear out our library list.s */
   void SetControls(void); 
+  void LoadListPanel(QString );//dynaically creates our loadable list panel which just loads scene files.
+  // this is a demonstration function and shouldnt be extened once it works. 
 
  protected:
   QScopedPointer<qSlicerCIVM_GalleryControlModuleWidgetPrivate> d_ptr;
@@ -94,7 +96,7 @@ protected slots:
   private slots: 
 /*   void HomeButton(void ); // slot to listen to the HomeDataPushButtonObject; */
 /*   void BackButton(void ); // slot to listen to the BackDataPushButtonObject; */
-  
+  void LoadStaticRender(void); //temporary slot for static render loading.
  private:
   Q_DECLARE_PRIVATE(qSlicerCIVM_GalleryControlModuleWidget);
   Q_DISABLE_COPY(qSlicerCIVM_GalleryControlModuleWidget);
@@ -109,12 +111,14 @@ protected slots:
   //QHash<QString, QFileInfo> DataLibraries;
   //std::map<std::string,vtkMRMLNDLibraryNode *>  DataLibraries;
   //std::map<std::string,displayprotcolclass *> DisplayProtocols; // to be filled in later.
+  QStringList GetMatchingFilesInDir(QString,QRegExp );
+
 
   void PrintText(const QString);
   void PrintMethod(const QString);
   void clearLayout(QLayout* , bool );
   
-  vtkMRMLNDLibraryNode * DataStore;
+  vtkMRMLNDLibraryNode * DataStore;      // pointer to start position of our data library.
   vtkMRMLNDLibraryNode * FullDataLibrary;
   vtkMRMLNDLibraryNode * CurrentNode;    // the current node selected, to be passed to sub panels. (not in current use, but is set by our dataselected slot.
   //qSlicerCIVM_NDDisplayModuleWidget * temp;

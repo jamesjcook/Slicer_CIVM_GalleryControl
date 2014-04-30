@@ -616,6 +616,11 @@ void qSlicerCIVM_GalleryControlModuleWidget::SetControls(void)
     //qSlicerApplication::application()->ioManager()->loadScene(out_path,true);
     qSlicerApplication::application()->ioManager()->loadScene(out_path,false);
     }
+  else if ( panelName == "Label_Render_Static" ) 
+    {
+    //this->LoadListPanel(QString::fromStdString(CurrentNode->GetLibName()));
+    this->LoadListPanel(panelName);
+    }
   else
     {
     this->PrintText("Unreconized Panel selection");
@@ -628,6 +633,126 @@ void qSlicerCIVM_GalleryControlModuleWidget::SetControls(void)
   return;
 }
 
+void qSlicerCIVM_GalleryControlModuleWidget::LoadStaticRender(void)
+{
+  QObject * panelButton=this->sender();
+  QString panelName=panelButton->objectName();
+  //QString::fromStdString(CurrentNode->GetLibName())+"_fa.mrml"
+  QString out_path = "Static_Render"+ps+panelName;
+  
+  out_path.replace(':','_');
+  out_path=QString::fromStdString(CurrentNode->GetLibRoot())+ps+out_path;
+  this->PrintText("Static_Render load of "+out_path);
+  //qSlicerApplication::application()->ioManager()->loadScene(out_path,true);
+  qSlicerApplication::application()->ioManager()->loadScene(out_path,false);
+  return;
+}
+//
+void qSlicerCIVM_GalleryControlModuleWidget::LoadListPanel(QString panelName)
+{
+   // polls our data storage for the display protocols for a given library
+  // this should be fired by any change to the library, eg connected to the drop down list of libraries.
+  // insert a button into our gallery zone for each return value from GetDisplayProtocols
+  this->PrintMethod("BuildControl");  
+//   if (libraryName=="<No Data Selected>" || libraryName=="NoName" || libraryName == "" ) 
+//     {
+//     this->PrintText("Lib name blank");
+//     return;
+//     }
+//   else 
+//     {
+//     this->PrintText("Lib name present, continuing");
+// //    return;
+//     }
+  Q_D(qSlicerCIVM_GalleryControlModuleWidget);
+  QStringList panelInfo;
+//   QString line = in.readLine();
+//   QRegExp sep("\\s*/*/");
+  //while (!line.isNull()) {
+//  }
+  QRegExp sep("_");    
+  panelInfo = panelName.split(sep);
+  QString pID="";
+  //if ( panelInfo[0]== "Label"|| panelInfo[0]== "FA" ) 
+  if ( panelInfo[1]== "Render" && panelInfo[2]== "Static" ) 
+    {
+    //"labels"
+    pID=panelInfo[0];
+    }
+
+  ////
+  // clear layout
+  // d->ControlLayout->delete
+//  this->clearLayout(d->GalleryLayout,true);
+  this->clearLayout(d->ControlLayout,true); // not convinced i want to clear this all the time.
+  QRegExp protoCompare("^"+pID+".*[.]mrml$");
+  QStringList sceneFiles = this->GetMatchingFilesInDir(QString::fromStdString(CurrentNode->GetLibRoot())+"/Static_Render",protoCompare); // decide what sceneFiles are appropriate.
+  QList<QPushButton*> controlButtons;
+  // prune sceneFile list
+  // this should occur in our getdisplaysceneFiles function, 
+  for (int i = 0; i < sceneFiles.size(); ++i)
+    {
+    //qSlicerCIVM_GalleryControlDisplayProtocol * check = new qSlicerCIVM_GalleryControlDisplayProtocol(protocol[i]);
+    //if(  !check.IsSupported(DataLibrary->GetLibDims) ) 
+    //{
+    //sceneFiles.remove(i);// using this should probably switch to iterator access.
+    //}
+      
+    }
+  // add buttons for each protcol with their icon (and/or) button.
+  for (int i = 0; i < sceneFiles.size(); ++i)
+    {
+    //cout << fonts.at(i).toLocal8Bit().constData() << endl;
+
+    // foreach protocol add to the protcol location in our gui controls
+    // QVBoxLayout * l = new QVBoxLayout;
+    // layouts[i]->addWidget(clockViews[i])
+    //   d->ControlFrame->setLayout(l);
+    this->PrintText(sceneFiles[i]);  
+
+    //// FOR EACH PROTOCOL
+    if ( sceneFiles[i] != "NOSUPPORT" )
+      {
+      QPushButton * widge=  new QPushButton;
+      widge->setText(sceneFiles[i]);
+      widge->setObjectName(sceneFiles[i]);
+        
+      QString iconPath=QString::fromStdString(CurrentNode->GetLibRoot())+"/ControlIcons"+ps+QString::fromStdString(CurrentNode->GetLibName())+'_'+sceneFiles[i]+".png"; 
+      this->PrintText(iconPath);
+      widge->setIcon(QIcon(iconPath));
+      controlButtons.push_back(widge);
+      d->ControlLayout->addWidget(controlButtons.at(i));
+        
+      //set button connections
+      connect(widge,SIGNAL(clicked()),SLOT(LoadStaticRender()));
+      } 
+    else 
+      {
+      QLabel * lab= new QLabel(sceneFiles[i]);
+      d->ControlLayout->addWidget(lab);
+      }
+    }
+  
+  // Check if there were no supported sceneFiles, 
+  // if we have sceneFiles in our list and they were not unsupported expand the control area
+  // if we have found the unsupported protocol, emit a no supported sceneFiles signal.
+  // (connection to data selector for now in setup function)
+  if ( sceneFiles.size()>0 )
+    { 
+    if ( sceneFiles[0] != "NOSUPPORT" )
+      {
+      d->ControlArea->setCollapsed(false);
+      }
+    else 
+      {
+      //////emit NoSupportedSceneFiles(CurrentNode);
+      //emit NoSupportedSceneFiles(libraryName.toStdString()); //commented to prevent crashbug
+      }
+
+    }
+
+  return; 
+}
 //-----------------------------------------------------------------------------
 void qSlicerCIVM_GalleryControlModuleWidget::clearLayout(QLayout* layout, bool deleteWidgets = true)
 {
@@ -682,6 +807,7 @@ QStringList qSlicerCIVM_GalleryControlModuleWidget::GetDisplayProtocols(vtkMRMLN
   QStringList panels;
   panels << "PGR";
   panels << "FA_Render_Static";
+  panels << "Label_Render_Static";
   //for each panel
   //// SUPPORTLIST HACK.
   QString panelSupportDir = QString::fromStdString(DataStore->GetLibRoot());
@@ -777,6 +903,22 @@ QStringList qSlicerCIVM_GalleryControlModuleWidget::GetDisplayProtocols(vtkMRMLN
 //   dimensions << "contrast"; //<< "time" ;
 //   return dimensions;
 // }
+
+
+QStringList qSlicerCIVM_GalleryControlModuleWidget::GetMatchingFilesInDir(QString dir,QRegExp protoCompare)
+{
+//QDir recoredDir("YOUR DIRECTORY");
+  QDir recoredDir(dir);
+  QStringList allFiles = recoredDir.entryList(QDir::NoDotAndDotDot | QDir::System | QDir::Hidden  | QDir::AllDirs | QDir::Files, QDir::DirsFirst );//(QDir::Filter::Files,QDir::SortFlag::NoSort)
+//   if ( species.indexOf(protoCompare)>=0 )
+//       {
+//       protocols << "FA_Render_Static";
+//       } 
+
+ 
+
+  return allFiles.filter(protoCompare);
+}
 
 // //-----------------------------------------------------------------------------
 // QStringList qSlicerCIVM_GalleryControlModuleWidget::GetDimEntries(QString library,QString dimension) {
