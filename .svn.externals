@@ -1,4 +1,4 @@
-lib svn+ssh://civmxsrv2.duhs.duke.edu/Users/civmsvn/svn/repos/civmlibrary/trunk
+lib svn+ssh://civmxsrv2.duhs.duke.edu/Users/civmsvn/svn/repos/civm_bash_utils/trunk
 CIVM_RatDevAtlas svn+ssh://civmxsrv2.duhs.duke.edu/Users/civmsvn/svn/repos/Slicer_CIVM_RatDevAtlas/trunk
 CIVM_AdultRatPGR svn+ssh://civmxsrv2.duhs.duke.edu/Users/civmsvn/svn/repos/Slicer_CIVM_AdultRatPGR/trunk
 CIVM_NDDisplay svn+ssh://civmxsrv2.duhs.duke.edu/Users/civmsvn/svn/repos/Slicer_CIVM_NDDisplay/trunk
