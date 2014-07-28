@@ -27,7 +27,7 @@ sub OptionOrder {
     if (! $openfail) 
     {
 	while (<$FH>) {
-	    push (@lines, $_);
+	    push (@lines, $_) unless $_ =~ /^\s*#.*/ ;
 	}
 	close $FH or die "Cannot close $file: $!";
     }
