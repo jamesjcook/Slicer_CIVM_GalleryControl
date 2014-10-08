@@ -1,6 +1,7 @@
 use warnings;
-#use strict;
+use strict;
 use Scalar::Util qw(looks_like_number);
+use vars qw($MAIN_DIR);
 our %ML=(
     'rmsvn'    =>  3,
     'nosvn'    =>  2,
@@ -11,16 +12,39 @@ our %ML=(
 );
 
 
-our $GITHUB_BASE='https://github.com/jamesjcook/'; 
-
+our $GITHUB_BASE='https://git:git@github.com/jamesjcook/'; 
 if (getpwuid( $< ) eq "james" ){
     $GITHUB_BASE='git@github.com:jamesjcook/'; 
 }
+use ENV;
+if ( defined $ENV{"GITHUB_BASE"} ) {
+    print( "Alternate github base found!\n");
+    print("switching $GITHUB_BASE to $ENV{GITHUB_BASE}\n");
+    $GITHUB_BASE=$ENV{"GITHUB_BASE"};
+
+}
+#$ENV{"GIT_SSH"}="`pwd`/ssh_with_opts.bash";
+
+#git 
+
 
 our $GITHUB_SUFFIX='.git';
 #https://github.com/jamesjcook/workstation_code.git
 sub svn_externals () {
     my $mode = shift;
+    
+#set no psssword auth to ssh_config, remove at end
+    #my $ssh_config_passwordrx="PasswordAuthentication=no";
+    my $ssh_config_passwordrx="BatchMode=yes";
+    my $ssh_config_passwordrm=!CheckFileForPattern("$ENV{HOME}/.ssh/config","^".$ssh_config_passwordrx."\$");
+    #my $previous_umask=umask();
+    #umask($previous_umask);
+    if ($ssh_config_passwordrm){ 
+	#print("file check did not find passwd in config, adding, setting remove true $ssh_config_passwordrm, previous_umask is $previous_umask\n"); 
+	#$previous_umask=umask('0077');
+	FileAddText("$ENV{HOME}/.ssh/config",$ssh_config_passwordrx."\n");
+	#print("changemask was ".umask($previous_umask)."\n");
+    }
 ###
 # check if we're an svn or git project.
 ###
@@ -38,6 +62,7 @@ sub svn_externals () {
     my $work_done=0;
 
     if (! defined $mode ) {$mode=0;}
+    print("mode starts with $mode\n");
     if ( ! looks_like_number($mode) ) {
 	if ( $mode =~ /:/x ){
 	    print ("\tERROR: tried to have multiple values for mode in svn_externals processing\n");
@@ -55,6 +80,7 @@ sub svn_externals () {
 	print ("$mode\t");
 	    $mode=$ML{'rmsvn'};
 	}
+
     }
     if( looks_like_number($mode) ){
 	if ($mode == $ML{'force'} ) {
@@ -80,13 +106,15 @@ sub svn_externals () {
 ###
 # if we're a git project find all .svn.externals 
 ###
-    my @svn_externals=`find . -name ".svn.externals"`; # -maxdepth 2`; while testing this was used.
+    my @svn_externals=`find $MAIN_DIR -name ".svn.externals"`; # -maxdepth 2`; while testing this was used.
     
     chomp @svn_externals;
 ###
 # for each .svn.externals go to that folder and try to find project on jamesjcook github.
 ###
-
+    chdir "$MAIN_DIR/..";
+    process_external_deff('software http://git@github.com/jamesjcook/workstation_code',$mode);
+    chdir "$MAIN_DIR";
     print("svn_externals\n");
     #if ( $OS =~ /^darwin$/ ){
     for my $ext (@svn_externals) {
@@ -94,6 +122,12 @@ sub svn_externals () {
     }
     `chmod u+x $MAIN_DIR/*.bash`;
 #    die "End of svn_externals hard stop";
+    if ($ssh_config_passwordrm){
+	my $rnum=FileRmText("$ENV{HOME}/.ssh/config",$ssh_config_passwordrx);
+	print("Removed $rnum copies of line $ssh_config_passwordrx\n"); 
+	`chmod go-rwx "$ENV{HOME}/.ssh/config"`;
+    }
+    #umask($previous_umask);
     return 0;
 }
 sub process_external_file() {
@@ -185,7 +219,7 @@ sub process_external_deff(){
 		} elsif ($d_name =~ m/branches/x ) {
 		    $p_idx=$sp_idx-1;
 		    $branch=$svnpath[$sp_idx+1] unless $sp_idx+1>$#svnpath;
-		} elsif ($#sp_idx==$#svnpath) {# this is failover for non-standard repo layouts .
+		} elsif ($sp_idx==$#svnpath) {# this is failover for non-standard repo layouts .
 		    $p_idx=$sp_idx;
 		    $branch='master';
 		    print("\tNon-standard repo contidion, $d_name\n");
@@ -236,6 +270,7 @@ sub process_external_deff(){
     #my $svn_uninstfile=dirname(__FILE__)."/uninstall_svn_externals.bash";
     my $svn_uninstfile=$MAIN_DIR."/uninstall_svn_externals.bash";
     my $git_uninstfile=$MAIN_DIR."/uninstall_git_projects.bash";
+    my $code_statusfile=$MAIN_DIR."/find_modified_code.bash";
     if (! CheckFileForPattern($MAIN_DIR."/.gitignore","^".basename($git_uninstfile)) ) {
 	FileAddText($MAIN_DIR."/.gitignore",basename($git_uninstfile)."\n"); }
     if (! CheckFileForPattern($MAIN_DIR."/.gitignore","^".basename($svn_uninstfile)) ) {
@@ -246,7 +281,6 @@ sub process_external_deff(){
     my $code_updatefile=$MAIN_DIR."/update_code.bash";;
     if (! CheckFileForPattern($MAIN_DIR."/.gitignore","^".basename($code_updatefile)) ) {
 	FileAddText($MAIN_DIR."/.gitignore",basename($code_updatefile)."\n"); }
-    my $code_statusfile=$MAIN_DIR."/find_modified_code.bash";
     if (! CheckFileForPattern($MAIN_DIR."/.gitignore","^".basename($code_statusfile)) ) {
 	FileAddText($MAIN_DIR."/.gitignore",basename($code_statusfile)."\n"); }
     if ( $git_project !~ /UNKNOWN/x && $local_name !~ /UNKNOWN/x && $branch !~ /UNKNOWN/x ) {
@@ -277,7 +311,7 @@ sub process_external_deff(){
 	    } elsif ( ! -d $local_name ) {
 		push (@errors, "Error cloning $git_url to $local_name\nwith git cmd \n\t$clone_cmd\n message:".join("\t\t",@output)) unless $mode <= -1;
 		push (@errors, "\t ATTEMPTING Subversion! for $local_name from $svn_url\n");
-		my $svn_checkout_cmd="svn checkout ".$svn_url." ".$local_name ;
+		my $svn_checkout_cmd="svn --non-interactive checkout ".$svn_url." ".$local_name ;
 		print ("  \t$svn_checkout_cmd\n") unless $mode <= 0 ;
 		my @output = `$svn_checkout_cmd 2>&1` unless $mode ==$ML{nosvn};
 		if ( ! -d $local_name ) {

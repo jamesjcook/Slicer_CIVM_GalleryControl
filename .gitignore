@@ -1,4 +1,10 @@
 
-# /
-/CIVM_AdultRatPGR
-/CIVM_RatDevAtlas
+CIVM_AdultRatPGR
+CIVM_RatDevAtlas
+uninstall_git_projects.bash
+uninstall_svn_externals.bash
+update_code.bash
+find_modified_code.bash
+lib
+uninstall_git_projects.bash
+CIVM_NDDisplay

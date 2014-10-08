@@ -1,8 +1,16 @@
 #!/usr/bin/perl
-# independent multi part install. 
-# copied from workstaion_code pattern.
+# unfortunately involved installer to set up workstaion code including shell settings currently only works for bash shell.
 #
-#
+# uses a subtroutines file to build a list of work to do. The subroutines are stored in a folder named install. 
+# later this could be changed to be named after the script.
+# 
+# requirements! and assumptions!
+#    a working directory, it assumes the current directory is where you started from and 
+# that you've checked out/cloned the current version of code from there.
+#  
+# HAS NOT BEEN TESTED WELL, tests show not much cleanup has been requred for additional test cases. 
+# the user running the script has administrative access, IF NOT, will still update shell settings.
+# 
 use strict;
 use warnings;
 use POSIX;
@@ -13,18 +21,19 @@ use File::Find;
 use Getopt::Std;
 use Getopt::Long;
 use Scalar::Util qw(looks_like_number);
-
+use List::MoreUtils qw(uniq);
 use lib $ENV{PWD}.'/install';
 #use lib split(':',$RADISH_PERL_LIB);
+use vars qw($IS_MAC $IS_LINUX $MAIN_DIR $HOSTNAME);
 require install::subroutines;
 require install::order;
 our $DEBUG=30;
-our $MAIN_DIR=$ENV{PWD};
+$MAIN_DIR=$ENV{PWD};
 
 Getopt::Long::Configure ("bundling", "ignorecase_always");
 
 
-my %dispatch_table=(); # look up of option function names to function refer3ences
+my %dispatch_table=(); # look up of option function names to function references
 my %dispatch_status=();# look up to hold if we've run a function or not.
 my %option_list=();    # list of options recognized, built from the dispatch table.
 my %options=();        # the options specified on the command line.
@@ -57,12 +66,14 @@ my $opt_eval_string=CraftOptionList( \%dispatch_table, \%option_list);
 ###
 # get system information.
 ###
-our $HOSTNAME=hostname;
+$HOSTNAME=hostname;
 our $ARCH=`uname -m`; chomp($ARCH);
 my @alist = split(/\./, $HOSTNAME) ;
 $HOSTNAME=$alist[0];
-our $IS_MAC=0;#true always for now, should fix this to find linux
-our $IS_LINUX=0;
+#our $IS_MAC=0;#false always for now, should fix this to find linux
+#our $IS_LINUX=0;
+$IS_MAC=0;#false always for now, should fix this to find linux
+$IS_LINUX=0;
 our $OS="$^O\n";
 if ( $OS =~ /^darwin$/x ) {
     $IS_MAC=1;
@@ -84,7 +95,7 @@ our $HOME=$ENV{HOME};
 if ( !$IS_MAC ) {
    $DATA_HOME="$WKS_HOME/../data"
 } else {
-    print("Mac system, perhaps the old install.mac.pl would be more appropriate\n");
+#    print("Mac system, perhaps the old install.mac.pl would be more appropriate\n");
    $DATA_HOME="/Volumes/workstation_data/data";
 }
 # admin_group is allowed to modifiy any files and permissions, 
@@ -105,23 +116,80 @@ our $IS_USER=0;
 # gather options
 ###
 my $first_stage='';
-my $last_stage='';
-my $only_stage='';
-# opt_eval_string is gatherd from CraftOptionList function, 
-if ( !GetOptions( eval $opt_eval_string,
+my $last_stage ='';
+my $only_stage ='';
+
+my %optlist=(
 		  "admin_group=s" => \$ADMIN_GROUP,
 		  "WKS_HOME=s" => \$WKS_HOME,
 		  "start_at=s" => \$first_stage,
+		  "first_stage" => \$first_stage,
 		  "stop_at=s" => \$last_stage,
+                  "debug:i" => \$options{"debug"},
+		  "last_stage=s" => \$last_stage,
+		  "help" => \$options{"help"},
+		  "h" => \$options{"help"},
 		  "only=s" => \$only_stage,
 		  "only_stage=s" => \$only_stage,
 		  "only_step=s" => \$only_stage,
 		  "print_order" => \$options{"print_order"},
-     )
-    ) { 
-    print("Option error:\n$!");
-    exit;
+    );
+### display option_list and optlist
+
+if ( $DEBUG > 90 ) { 
+    for my $key ( keys %option_list ) { 
+	eval $option_list{$key}.'=1;';
+	$option_list{$key}=eval $option_list{$key};
+	print ("k:$key <= $option_list{$key}\n");
+    }
+    for my $key ( keys %optlist ) { 
+	print ("k:$key <= $optlist{$key}\n");
+    }
 }
+
+# opt_eval_string is gatherd from CraftOptionList function, 
+if ( 1 ) { #help only options
+    # insert option_list into optlist
+    #sr=&$scalar ? 
+    #s_ref=\$scalar
+    for my $key ( keys %option_list ) { 
+	# ignore skip_ keys, and cut off any =.*, or :.* from the key
+	# setting optlist{key}=\options{key_noextra};
+	if ( 1 ) {
+	    my ($k_ne,$e) = $key =~ /^(.+)(?:([=:].+))?$/x;
+	    $optlist{$key}=\$options{$k_ne};
+	    if( defined $e ) {
+		print ("rm ex $e\n") if($DEBUG > 50);
+	    }
+	}else{
+	    $optlist{$key}=eval $option_list{$key};
+	}
+	print ("k:$key <= $option_list{$key} <=") if($DEBUG > 50);
+	print ("\t $optlist{$key}\n") if($DEBUG > 50);
+    }
+    if ( !GetOptions( %optlist,
+	 )
+	) { 
+	print("Option error:\n$!");
+	if ( $DEBUG>50 ) {
+	    for my $key ( keys %optlist ) { 
+		print ("k:$key <= $optlist{$key}\n");
+	    }
+	}
+    	exit;
+    }
+} else {
+    print("OPT EVAL STRING VERSION\n");
+    print("opt_eval_string:$opt_eval_string\n");
+    if ( !GetOptions( eval $opt_eval_string,
+		      %optlist,
+	 )
+	) { 
+	print("Option error:\n$!");
+	exit;
+    }
+}
+
 if ( length($only_stage)>0) { 
     $last_stage=$only_stage;
     $first_stage=$only_stage;
@@ -130,12 +198,37 @@ if ( length($only_stage)>0) {
 ###
 # get the options from the user
 ###
-# wholly unnecessary due to useing the order array
-#my @force_on=();  # force on is a reprocess option, implying to reprocess that seciton. This is actually handled by the given section where skip just doesnt run a section.
+# wholly unnecessary due to using the order array
+#my @force_on=();  # force on is a reprocess option, implying to reprocess that scetion. This is actually handled by the given section where skip just doesnt run a section.
+
+my @input_order=();
+for my $opt ( keys %options)  {
+    if ( $opt =~ m/^skip_(.*)$/x  ){ # if option is true, and called skip_ , do nothing else
+	print("-ignore-$opt\n") unless (  $DEBUG<95 ) ;
+    } else {
+	# ( $options{$opt} ) && 
+	print ("force_processing for $opt") unless ( ( $DEBUG<25 ) && ( $opt !~ m/^skip_(.*)$/x ) );
+	if( ($options{$opt} ) ){
+	    push(@input_order,$opt);
+	    print (":on.") unless ( $DEBUG<25 );
+	    #print("\t$opt FORCE ON\n");
+	    if ( defined $dispatch_table{$opt} ) {
+		print("\n\tFUNCT_CALL:$dispatch_table{$opt}");
+	    } else {
+		print("\tNOT IN DISPATCH(is not funct?)!");
+	    }
+	} else {
+	    print(":off.") unless (  $DEBUG<25 ) ;
+	}
+	print("\n") unless (  $DEBUG<25 ) ; 
+    }
+}
+print("input_order=\n\t".join(",\n\t",@input_order)."\n") if ( $DEBUG > 25 ) ;
+
 if ( 0 ) {
     for my $opt ( keys %options)  {
 	print ("force_processing for $opt") unless ( ( $DEBUG<25 ) && ( $opt !~ m/^skip_(.*)$/x ) );
-	if ( ( $options{$opt} ) && ( $opt =~ m/^skip_(.*)$/x ) ){
+	if ( ( $options{$opt} ) && ( $opt =~ m/^skip_(.*)$/x ) ){ # if option is true, and called skip_ , do nothing else
 	}elsif( ($options{$opt} ) ){
 #	push @force_on,$opt;
 	    print (" on: $1\n")unless ( $DEBUG<25 );;
@@ -169,7 +262,25 @@ if ( 0 ) {
 #my @order_new = OptionOrder("inst");# alternateive way to get order
 my @order = OptionOrder("install/inst-order.txt");# could make this text file an option later....
 # set all known elements of order to 1 in dispatch_status for found.
-my @o_temp=();
+my @o_temp=@order;
+
+### 
+# add our input order to our order (gotta make sure unique)
+###
+# save loaded order to o_temp,
+# set order to the input order.
+# for each element of o_temp, add to order if not exist
+@order=@input_order;
+foreach (@o_temp ){
+    my $reg=join('|',@order);
+    if  ( $_ !~ m/^($reg)$/x ){
+	push(@order,"$_");
+    }
+
+}
+
+
+@o_temp=();
 for my $opt ( @order) {
     if ( defined(  $dispatch_table{$opt} &&! $options{"skip_".$opt} ) ) {
         $dispatch_status{$opt}=1;#serving as an is found count.
@@ -177,7 +288,7 @@ for my $opt ( @order) {
     } elsif ( $options{"skip_".$opt} ){
 	print("force off $opt\n");
     } else {
-	print("stage $opt not available, perhaps old entries still in inst-order.txt\n");
+	print("stage $opt not available, perhaps old entries still in inst-order.txt or this is an option from main\n");
     }
 }
 
@@ -228,7 +339,19 @@ if ( ! -f "$MAIN_DIR/.gitignore" ) {
     FileAddText("$MAIN_DIR/.gitignore",".gitignore\n");
 }
 
-
+if ( defined $options{"help"} ) {
+    print ("help settings for $0\n");
+    foreach (keys %optlist,sort(uniq(keys %options))) {
+    #foreach ((keys %options)) {
+	if (! defined $options{$_} ) {
+	    $options{$_}='';
+	}
+	    
+	print("\t$_ $options{$_}\n");
+    }
+	   
+    exit 0 ;
+}
 if ( defined $options{"print_order"} ){
     
     print("working order is :\n\t".join("\n\t",@order )."\n");

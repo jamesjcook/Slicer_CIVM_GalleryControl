@@ -1,3 +1,4 @@
+#-----------------------------------------------------------------------------
 set(KIT "vtkMRMLNDLibraryNode")
 project(${KIT})
 string(TOUPPER ${KIT} KIT_NAME_UPPER)
@@ -16,8 +17,7 @@ set(${KIT}_TARGET_LIBRARIES
   ${SLICER_LIBRARIES}
   ${VTK_LIBRARIES}
   )
-
-#-----------------------------------------------------------------------------
+#VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
 SlicerMacroBuildModuleMRML(
   NAME ${KIT}
   EXPORT_DIRECTIVE ${${KIT}_EXPORT_DIRECTIVE}
@@ -26,6 +26,7 @@ SlicerMacroBuildModuleMRML(
   TARGET_LIBRARIES ${${KIT}_TARGET_LIBRARIES}
   )
 
+#-----------------------------------------------------------------------------
 set(KIT "vtkMRMLNDLibraryBuilder")
 project(${KIT})
 string(TOUPPER ${KIT} KIT_NAME_UPPER)
@@ -49,7 +50,7 @@ set(${KIT}_TARGET_LIBRARIES
   vtkMRMLNDLibraryNode
   )
 
-#-----------------------------------------------------------------------------
+#VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
 SlicerMacroBuildModuleMRML(
   NAME ${KIT}
   EXPORT_DIRECTIVE ${${KIT}_EXPORT_DIRECTIVE}
@@ -58,8 +59,7 @@ SlicerMacroBuildModuleMRML(
   TARGET_LIBRARIES ${${KIT}_TARGET_LIBRARIES}
   )
 
-
-
+#-----------------------------------------------------------------------------
 if(BUILD_TESTING)
 set(KIT "vtkMRMLTagCategoryStorage")
 project(${KIT})
@@ -86,8 +86,8 @@ set(${KIT}_TARGET_LIBRARIES
 #  vtkRendering
 #  vtkSlicerAnnotationsModuleMRML
   )
+#VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
 
-#-----------------------------------------------------------------------------
 SlicerMacroBuildModuleMRML(
   NAME ${KIT}
   EXPORT_DIRECTIVE ${${KIT}_EXPORT_DIRECTIVE}
@@ -96,3 +96,4 @@ SlicerMacroBuildModuleMRML(
   TARGET_LIBRARIES ${${KIT}_TARGET_LIBRARIES}
   )
 endif()
+#-----------------------------------------------------------------------------
