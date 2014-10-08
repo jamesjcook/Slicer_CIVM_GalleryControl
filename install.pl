@@ -21,7 +21,7 @@ use File::Find;
 use Getopt::Std;
 use Getopt::Long;
 use Scalar::Util qw(looks_like_number);
-use List::MoreUtils qw(uniq);
+#use List::MoreUtils qw(uniq);
 use lib $ENV{PWD}.'/install';
 #use lib split(':',$RADISH_PERL_LIB);
 use vars qw($IS_MAC $IS_LINUX $MAIN_DIR $HOSTNAME);
@@ -29,10 +29,10 @@ require install::subroutines;
 require install::order;
 our $DEBUG=30;
 $MAIN_DIR=$ENV{PWD};
+use ENV;
+#Getopt::Long::Configure ("bundling", "ignorecase_always");
 
-Getopt::Long::Configure ("bundling", "ignorecase_always");
-
-
+Getopt::Long::Configure ("bundling");
 my %dispatch_table=(); # look up of option function names to function references
 my %dispatch_status=();# look up to hold if we've run a function or not.
 my %option_list=();    # list of options recognized, built from the dispatch table.
@@ -87,7 +87,7 @@ if ( $OS =~ /^darwin$/x ) {
 # get user information
 ###
 our $DATA_HOME;
-our $SHELL    = basename($ENV{SHELL});
+#our $SHELL    = basename($ENV{SHELL});
 our $WKS_HOME = dirname(abs_path($0));
 our $HOME=$ENV{HOME};
 #wks_home= /volumes/workstation_home/software
@@ -341,8 +341,8 @@ if ( ! -f "$MAIN_DIR/.gitignore" ) {
 
 if ( defined $options{"help"} ) {
     print ("help settings for $0\n");
-    foreach (keys %optlist,sort(uniq(keys %options))) {
-    #foreach ((keys %options)) {
+    #foreach (keys %optlist,sort(uniq(keys %options))) {
+    foreach ((keys %options)) {
 	if (! defined $options{$_} ) {
 	    $options{$_}='';
 	}
