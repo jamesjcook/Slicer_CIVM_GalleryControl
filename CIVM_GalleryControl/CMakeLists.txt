@@ -22,12 +22,14 @@ set(MODULE_INCLUDE_DIRECTORIES
 #  ${CMAKE_CURRENT_BINARY_DIR}/MRML
 
 ### next two lines to depend on custom mrml
-   ${vtkMRMLNDLibraryNode_SOURCE_DIR}
-   ${vtkMRMLNDLibraryNode_BINARY_DIR}
+   ${vtkMRMLNDLibrary_SOURCE_DIR}
+   ${vtkMRMLNDLibrary_BINARY_DIR}
+# dont need following? because all our mrml is in same lib?
+#   ${vtkMRMLNDLibraryNode_SOURCE_DIR}
+#   ${vtkMRMLNDLibraryNode_BINARY_DIR}
 ### next two lines to depend on custom mrml
-# dont need these? because all our mrml is in same lib?
-   ${vtkMRMLNDLibraryBuilder_SOURCE_DIR}
-   ${vtkMRMLNDLibraryBuilder_BINARY_DIR}
+#   ${vtkMRMLNDLibraryBuilder_SOURCE_DIR}
+#   ${vtkMRMLNDLibraryBuilder_BINARY_DIR}
 ### 
    #${CIVM_NDDisplayModuleWidget_SOURCE_DIR}
    ##X${CIVM_NDDisplay_INCLUDE_DIR}
@@ -57,10 +59,10 @@ set(MODULE_TARGET_LIBRARIES
   vtkSlicer${MODULE_NAME}ModuleLogic
   qSlicer${MODULE_NAME}ModuleWidgets
 ### next line to depend on custom mrml
-  vtkMRMLNDLibraryNode
-  vtkMRMLNDLibraryBuilder
-# decided to use two build libs instead of one. so no library, but yes libnode,and libbuild
-#  vtkMRMLNDLibrary
+#  vtkMRMLNDLibraryNode
+#  vtkMRMLNDLibraryBuilder
+# flopped decision to use two build libs instead of one. so no library, but yes libnode,and libbuild
+  vtkMRMLNDLibrary
 ###
   #qSlicerCIVM_NDDisplayModule
   #qSlicerCIVM_NDDisplayModuleWidgets
@@ -70,14 +72,14 @@ set(MODULE_RESOURCES
   Resources/qSlicer${MODULE_NAME}Module.qrc
   )
 
+#with node and builder in same lib.
 #add_library( libvtkMRMLNDLibrary SHARED IMPORTED )
 #set_target_properties( libvtkMRMLNDLibrary PROPERTIES IMPORTED_LOCATION ($CMAKE_BINARY_DIR ) )
-
-add_library( libvtkMRMLNDLibraryNode SHARED IMPORTED )
-set_target_properties( libvtkMRMLNDLibraryNode PROPERTIES IMPORTED_LOCATION ($CMAKE_BINARY_DIR ) )
-
-add_library( libvtkMRMLNDLibraryBuilder SHARED IMPORTED )
-set_target_properties( libvtkMRMLNDLibraryBuilder PROPERTIES IMPORTED_LOCATION ($CMAKE_BINARY_DIR ) )
+#when node and builder were separate
+#add_library( libvtkMRMLNDLibraryNode SHARED IMPORTED )
+#set_target_properties( libvtkMRMLNDLibraryNode PROPERTIES IMPORTED_LOCATION ($CMAKE_BINARY_DIR ) )
+#add_library( libvtkMRMLNDLibraryBuilder SHARED IMPORTED )
+#set_target_properties( libvtkMRMLNDLibraryBuilder PROPERTIES IMPORTED_LOCATION ($CMAKE_BINARY_DIR ) )
 
 #add_library( libCIVM_NDDisplay SHARED IMPORTED )
 #set_target_properties( libCIVM_NDDisplay PROPERTIES IMPORTED_LOCATION ($CMAKE_BINARY_DIR ) )

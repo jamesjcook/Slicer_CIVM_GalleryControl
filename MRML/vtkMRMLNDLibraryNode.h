@@ -32,10 +32,11 @@
 /* { */
 //// END EXAMPLE
 
-#include "vtkMRMLNDLibraryNodeExport.h"//works
-//#include "vtkMRMLNDLibraryExport.h"//works
 
 //VTK_SLICER_MODULE_MRML_EXPORT
+/*
+#include "vtkMRMLNDLibraryNodeExport.h"//works
+//#include "vtkMRMLNDLibraryExport.h"//works
 //class VTK_MRML_LOGIC_EXPORT vtkMRMLNDLibraryNode : public vtkMRMLHierarchyStorageNode // fail
 //class VTK_MRML_EXPORT vtkMRMLNDLibraryNode : public vtkMRMLHierarchyStorageNode // works
 //class VTK_EXPORT vtkMRMLNDLibraryNode : public vtkMRMLHierarchyStorageNode //works
@@ -43,6 +44,17 @@
 //class VTK_SLICER_VTKMRMLNDLIBRARYNODE_MODULE_LOGIC_EXPORT vtkMRMLNDLibraryNode : public vtkMRMLHierarchyStorageNode
 //class VTK_SLICER_CIVM_GALLERYCONTROL_MODULE_LOGIC_EXPORT vtkMRMLNDLibraryNode : public vtkMRMLHierarchyStorageNode//fails
 class VTK_VTKMRMLNDLIBRARYNODE_MRML_EXPORT vtkMRMLNDLibraryNode : public vtkMRMLHierarchyStorageNode//works(the capslock section is referenced in the cmake lists.
+*/
+
+//VTK_SLICER_MODULE_MRML_EXPORT
+#include "vtkMRMLNDLibraryExport.h"//works
+//class VTK_MRML_LOGIC_EXPORT vtkMRMLNDLibraryNode : public vtkMRMLHierarchyStorageNode // fail
+//class VTK_MRML_EXPORT vtkMRMLNDLibraryNode : public vtkMRMLHierarchyStorageNode // works
+//class VTK_EXPORT vtkMRMLNDLibraryNode : public vtkMRMLHierarchyStorageNode //works
+//class VTK_SLICER_VTKMRMLNDLIBRARYNODE_MRML_EXPORT vtkMRMLNDLibraryNode : public vtkMRMLHierarchyStorageNode
+//class VTK_SLICER_VTKMRMLNDLIBRARYNODE_MODULE_LOGIC_EXPORT vtkMRMLNDLibraryNode : public vtkMRMLHierarchyStorageNode
+//class VTK_SLICER_CIVM_GALLERYCONTROL_MODULE_LOGIC_EXPORT vtkMRMLNDLibraryNode : public vtkMRMLHierarchyStorageNode//fails
+class VTK_VTKMRMLNDLIBRARY_MRML_EXPORT vtkMRMLNDLibraryNode : public vtkMRMLHierarchyStorageNode//works(the capslock section is referenced in the cmake lists.
 {
   // declare friends
   // friend class qslicer_CIVM_GalleryControlModule;// maybe?
