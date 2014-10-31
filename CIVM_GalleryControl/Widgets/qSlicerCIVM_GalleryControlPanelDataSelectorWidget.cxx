@@ -153,8 +153,7 @@ QString qSlicerCIVM_GalleryControlPanelDataSelectorWidget::AgeTimeConvert(QStrin
       dIt=dIt+divisors.size();
       }
   }
-  
-  
+    
   if ( returnValues.size()>0 ) 
     {
     return returnValues.join(":");

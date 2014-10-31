@@ -126,6 +126,7 @@ class VTK_VTKMRMLNDLIBRARY_MRML_EXPORT vtkMRMLNDLibraryBuilder : public vtkMRMLN
   std::string AgeTimeConvert(std::string zeroPadSeconds);
   std::string AgeTimeConvert(std::string zeroPadSeconds,float tollerance);
 
+  bool getTestStatus(vtkMRMLNDLibraryNode * lib); // boondoggle of a function which will look backwards through libs until it finds any lib which turns tetsing on, or reaches the first lib(null pointer)
   std_str_hash libFileRead(std::string libConfPath );
   std_str_hash libFileRead(vtkMRMLNDLibraryNode * lib);
   bool fexists(const char *);
@@ -135,7 +136,7 @@ class VTK_VTKMRMLNDLIBRARY_MRML_EXPORT vtkMRMLNDLibraryBuilder : public vtkMRMLN
   std::string join(std::vector<std::string> &stringList , const std::string &s );
 
   bool confCheck (std::string );
-  
+  bool testDataOk;
 };
 
 #endif

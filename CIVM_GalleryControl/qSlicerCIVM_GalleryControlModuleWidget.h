@@ -119,7 +119,7 @@ protected slots:
   void clearLayout(QLayout* , bool );
   
   vtkMRMLNDLibraryNode * DataStore;      // pointer to start position of our data library.
-  vtkMRMLNDLibraryNode * FullDataLibrary;
+  vtkMRMLNDLibraryNode * FullDataLibrary; //unused.
   vtkMRMLNDLibraryNode * CurrentNode;    // the current node selected, to be passed to sub panels. (not in current use, but is set by our dataselected slot.
   //qSlicerCIVM_NDDisplayModuleWidget * temp;
 };

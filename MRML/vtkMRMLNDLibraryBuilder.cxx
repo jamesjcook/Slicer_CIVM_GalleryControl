@@ -2,7 +2,7 @@
 // Center for InVivo Microscopy,  Duke Universtiy North Carolina
 // ~2014 
 //vtkMRMLNDLibraryBuilder
-// node to hold onto information related to alibrary of data.
+// node to insert information into a datastructure related to alibrary of data.
 // we will start basically with hardcoded libraries at first then expand the class to use a database
 
 #include <vtkMRMLNode.h>
@@ -237,10 +237,15 @@ bool vtkMRMLNDLibraryBuilder::Build(vtkMRMLNDLibraryNode * lib)
   std_str_hash tagCloud = libFileRead(lib); // read lib file, if only standard 1 or 2 entry lib conf file only returns category and child category in our hash.
   //bool validlib=ParseCloud(lib,tagCloud);
   //  handle wether test libs are inserted.
-  bool testsys=false;
-#ifndef WIN32
-  testsys=true;
-#endif
+  //bool testDataOk=false;
+  //#ifndef WIN32
+  //#ifdef ENABLE_DATALIBRARIES_TESTDATA 
+  //testDataOk=true;
+  //#endif
+  //When should testDataOk be true, 
+  testDataOk=getTestStatus(lib);
+  //onour test system, when our settings allow for it.
+  // if our category is test data?
   std::vector<std::string> * pathList = new std::vector<std::string>;
   this->GetSubDirs(pathList,lib->GetLibRoot());
   this->RemoveNonLibDirs(pathList);//remove invalid entries
@@ -274,7 +279,7 @@ bool vtkMRMLNDLibraryBuilder::Build(vtkMRMLNDLibraryNode * lib)
         std::cout << subLib->GetLibName() << ", " << std::endl ;
         std::cout << subLib->GetCategory()<< std::endl ;
 #endif
-        if ( cTagCloud.find("TestingLib") == cTagCloud.end() || testsys )
+        if ( cTagCloud.find("TestingLib") == cTagCloud.end() || testDataOk )
           {
           subLib->SetParentNode(lib);
           lib->SubLibraries[libPathParts.back()]=subLib; //store by disk name in our lib, but let our sublibs report their name as what ever they wish.
@@ -583,6 +588,37 @@ void  vtkMRMLNDLibraryBuilder::GetSubFiles(std::vector<std::string > * path_vec,
   GetSubCont(path_vec,dir_name,inclusionList,typeFlag);
   return;
 }
+bool vtkMRMLNDLibraryBuilder::getTestStatus(vtkMRMLNDLibraryNode * lib) // boondoggle of a function which will look backwards through libs until it finds any lib which turns tetsing on, or reaches the first lib(null pointer)
+{
+  std::string testvar="DATALIBRARIES_TEST";
+  if ( 1 ) {
+#ifndef WIN32
+    char * testInfo=getenv(testvar.c_str());
+#else 
+    //char * testInfo=System::Environment::Collections::GetEnvironmentVariable(testvar.c_str());
+    //wchar_t environmentBuffer[10000];
+    //GetEnvironmentVariable(L"<<DATALIBRARIES_TEST>>", _countof(environmentBuffer));
+#endif
+    char * testInfo=getenv(testvar.c_str());
+    if ( testInfo ) {
+      return true;
+    }
+  } else {
+  // while lib defined, get and build the tag cloud, if its a devlib
+  //vtkMRMLNDLibraryNode * temp=lib->getParentNode;
+  while (lib)
+  {
+    std_str_hash tagCloud=libFileRead(lib->GetLibRoot()+"/lib.conf");
+    //std_str_hash cTagCloud=libFileRead(pathList->at(i) + "/lib.conf");  
+    if ( tagCloud.find("devLib") == tagCloud.end() ) 
+    {
+      return true;
+    }
+    lib=lib->GetParentNode();
+  }
+  }
+  return false;
+}
 
 //----------------------------------------------------------------------------
 // GetFilesInDirectory function code >90% copy pasta from website(in comments). user was Andreas Bonini
@@ -817,10 +853,11 @@ bool vtkMRMLNDLibraryBuilder::ReBuild()    // rebuild the lib(first resets)
 }
 void vtkMRMLNDLibraryBuilder::RemoveNonLibDirs(std::vector<std::string> * pathList) 
 {
-  bool testsys=false;
-#ifndef WIN32
-  testsys=true;
-#endif  
+  //bool testDataOk=false;
+  //#ifndef WIN32
+  //#ifdef ENABLE_DATALIBRARIES_TESTDATA
+  //testDataOk=true;
+  //#endif  
 
 
   std::vector<std::string>::iterator it=pathList->begin();
@@ -831,7 +868,8 @@ void vtkMRMLNDLibraryBuilder::RemoveNonLibDirs(std::vector<std::string> * pathLi
     std::string confPath = *it;
     confPath = confPath+"/lib.conf";
     std_str_hash tagCloud=libFileRead(confPath);
-
+    //devlib?
+    //testDataOk=getTestStatus(lib)
 
     bool libBad=false;
     if ( tagCloud.find("Category") == tagCloud.end() ||  tagCloud.empty() )
@@ -839,12 +877,12 @@ void vtkMRMLNDLibraryBuilder::RemoveNonLibDirs(std::vector<std::string> * pathLi
       std::cout << "cout: missing category or no tagfile, ";
       libBad=true;
       }
-    else if ( tagCloud["Category"] == "NoCategory" || ( tagCloud.find("TestingLib") != tagCloud.end() && !testsys ) )
+    else if ( tagCloud["Category"] == "NoCategory" || ( tagCloud.find("TestingLib") != tagCloud.end() && !testDataOk ) )
       {
       //// debug prints
       if ( tagCloud.find("TestingLib") != tagCloud.end() )
         std::cout << "cout: testinglib" ;
-      if ( !testsys ) 
+      if ( !testDataOk ) 
         std::cout << "cout: not testsystem" ; //<< std::endl;
       if ( tagCloud["Category"] == "NoCategory" )
         std::cout << "cout: bad category or testinglib";
@@ -856,7 +894,7 @@ void vtkMRMLNDLibraryBuilder::RemoveNonLibDirs(std::vector<std::string> * pathLi
     //tagCloud["Category"] = "NoCategory" ;
     //}
     
-    //|| ( tagCloud.find("TestingLib") != tagCloud.end() && !testsys ) )
+    //|| ( tagCloud.find("TestingLib") != tagCloud.end() && !testDataOk ) )
     //if ( tagCloud["Category"] == "NoCategory" && tagCloud.find("TestingLib") != tagCloud.end() ) 
     if ( libBad)
       {
@@ -1049,7 +1087,7 @@ std_str_hash vtkMRMLNDLibraryBuilder::libFileRead(std::string libConfPath  )
   panels << "FA_Render_Static";
   //for each panel
   //// SUPPORTLIST HACK.
-  QString panelSupportDir = QString::fromStdString(DataStore->GetLibRoot());
+  QString panelSupportDri = QString::fromStdString(DataStore->GetLibRoot());
   for (int i = 0; i < panels.size(); ++i)
     {
     this->PrintText("support check for "+panels.at(i));
