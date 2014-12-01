@@ -603,19 +603,19 @@ bool vtkMRMLNDLibraryBuilder::getTestStatus(vtkMRMLNDLibraryNode * lib) // boond
     if ( testInfo ) {
       return true;
     }
-  } else {
-  // while lib defined, get and build the tag cloud, if its a devlib
-  //vtkMRMLNDLibraryNode * temp=lib->getParentNode;
-  while (lib)
-  {
-    std_str_hash tagCloud=libFileRead(lib->GetLibRoot()+"/lib.conf");
-    //std_str_hash cTagCloud=libFileRead(pathList->at(i) + "/lib.conf");  
-    if ( tagCloud.find("devLib") == tagCloud.end() ) 
-    {
-      return true;
-    }
-    lib=lib->GetParentNode();
-  }
+  } else {// never runs because we have the better getenv way now.
+    // while lib defined, get and build the tag cloud, if its a devlib
+    //vtkMRMLNDLibraryNode * temp=lib->getParentNode;
+    while (lib)
+      {
+	std_str_hash tagCloud=libFileRead(lib->GetLibRoot()+"/lib.conf");
+	//std_str_hash cTagCloud=libFileRead(pathList->at(i) + "/lib.conf");  
+	if ( tagCloud.find("devLib") == tagCloud.end() ) 
+	  {
+	    return true;
+	  }
+	lib=lib->GetParentNode();
+      }
   }
   return false;
 }

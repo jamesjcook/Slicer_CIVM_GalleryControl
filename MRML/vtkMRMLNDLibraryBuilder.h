@@ -3,7 +3,8 @@
 // ~2014 
 //vtkMRMLNDLibrarayBuilder
 // node to build a conter of information related to alibrary of data.
-// this will abstract building from the container so we can change the libtary information storage system painlessly in the future
+// this will abstract building from the container so we can change the 
+// library information storage system painlessly in the future
 
 
 
