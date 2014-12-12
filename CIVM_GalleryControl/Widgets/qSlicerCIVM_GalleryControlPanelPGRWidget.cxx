@@ -220,10 +220,10 @@ qSlicerCIVM_GalleryControlPanelPGRWidget
 
 
   //s1.substr(0, s1.lastIndexOf("\\/")) 
-  this->DataRoot=DataRoot.left(DataRoot.lastIndexOf("Brain")) +"Brain"+ps;// cut data root to be just up to and including brain.
+  this->DataRoot=DataRoot.left(DataRoot.lastIndexOf("Brain")) +"Brain"+ps;// cut data root to be just up to and including brain. eg c:/DataLibraries/Brain
   //not doing it rightthis->TimePoint=libRoot.right(libRoot.lastIndexOf(ps));
-  this->TimePoint=libRoot.right(libRoot.size()-libRoot.lastIndexOf(ps)-ps.size());
-  QString speccode = libRoot.left(libRoot.lastIndexOf(ps));
+  this->TimePoint=libRoot.right(libRoot.size()-libRoot.lastIndexOf(ps)-ps.size()); // assumes the last entry of the path is the timepoint, only true on select data sets : ) 
+  QString speccode = libRoot.left(libRoot.lastIndexOf(ps)); 
   speccode = speccode.right(speccode.size()-speccode.lastIndexOf(ps)-ps.size());
   //this->DataPattern  =QString("ptimepoint_average_contrast.nii");
   //this->LabelPattern =QString("pndtimepoint_average_labels.nii");
