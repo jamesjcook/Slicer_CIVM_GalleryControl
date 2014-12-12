@@ -49,7 +49,7 @@ class VTK_VTKMRMLNDLIBRARY_MRML_EXPORT vtkMRMLNDLibraryBuilder : public vtkMRMLN
   // declare friends
   // friend class qslicer_CIVM_GalleryControlModule;// maybe?
   //// friend class qslicer_CIVM_GalleryControlModule;// maybe?
-  typedef std::map<std::string,std::string> std_str_hash ;
+  //typedef std::map<std::string,std::string> std_str_hash ;
  public:
 /// Create a new vtkMRMLNDLibraryBuilder
   //static vtkMRMLNDLibraryBuilder *New();
@@ -97,9 +97,9 @@ class VTK_VTKMRMLNDLIBRARY_MRML_EXPORT vtkMRMLNDLibraryBuilder : public vtkMRMLN
   bool Build(void);         // build our currently set lib
   bool Build(std::string);  // build an nd lib which must be set before hand in our ndlib pointer.
 
-  bool Build(std_str_hash *); // build an nd lib which must be set before hand in our ndlib pointer using a tag cloud at string.
-  bool Build(vtkMRMLNDLibraryNode *, std_str_hash *);   // build an nd lib using a tag cloud at string.
-  bool ParseCloud(vtkMRMLNDLibraryNode *, std_str_hash *);   // build an nd lib using a tag cloud at string.
+  bool Build(std_str_hash ); // build an nd lib which must be set before hand in our ndlib pointer using a tag cloud at string.
+  bool Build(vtkMRMLNDLibraryNode *, std_str_hash );   // build an nd lib using a tag cloud at string.
+  bool ParseCloud(vtkMRMLNDLibraryNode *, std_str_hash );   // build an nd lib using a tag cloud at string.
   
   bool Build(vtkMRMLNDLibraryNode *);                                      // build the nd lib, which presumeable has alredy had its path name and category set.
   bool Build(vtkMRMLNDLibraryNode *,std::string);                          // build lib at path,
@@ -121,7 +121,7 @@ class VTK_VTKMRMLNDLIBRARY_MRML_EXPORT vtkMRMLNDLibraryBuilder : public vtkMRMLN
   void GetSubDirs(std::vector<std::string> * , std::string ) ; 
   void RemoveNonLibDirs(std::vector<std::string> *);
   void GetSubFiles(std::vector<std::string> * , std::string ) ; 
-  void GetSubCategoryies(std::vector<std::string> * , std::string ) ; // temporary placeholder for planning purposes.
+  void GetSubCategories(std::vector<std::string> * , std::string ) ; // temporary placeholder for planning purposes.
   std::vector<std::string> &split(const std::string &, char, std::vector<std::string> &);
   std::vector<std::string> split(const std::string &, char);
   std::string AgeTimeConvert(std::string zeroPadSeconds);

@@ -14,8 +14,9 @@
 
 //typedef std::map<std::string,std::vector<std::string>  > std_str_hash ;
 //typedef std::map<std::string,std::vector<std::string>  > std_str_hash ;
-typedef std::map<std::string,std::string> std_str_hash ;
-typedef std_str_hash::iterator s_hash_iter;
+// typedefs moved to the ndlibrary
+//typedef std::map<std::string,std::string> std_str_hash ;
+//typedef std_str_hash::iterator s_hash_iter;
 
 // standard includes, most were added for our dir listing command.
 #include <stdlib.h>
@@ -206,15 +207,16 @@ std::string vtkMRMLNDLibraryBuilder::AgeTimeConvert(std::string zeroPadSeconds,f
 }
 
 //----------------------------------------------------------------------------
-bool vtkMRMLNDLibraryBuilder::Build(std_str_hash * tagCloud)
+bool vtkMRMLNDLibraryBuilder::Build(std_str_hash tagCloud)
 {
   return this->Build(LibPointer,tagCloud); 
 }
 
 //----------------------------------------------------------------------------
-bool vtkMRMLNDLibraryBuilder::Build(vtkMRMLNDLibraryNode * lib, std_str_hash * tagCloud)
+bool vtkMRMLNDLibraryBuilder::Build(vtkMRMLNDLibraryNode * lib, std_str_hash tagCloud)
 {
-  return false;
+  lib->SetTagCloud(tagCloud);
+  return this->Build(lib);
 }
 
 //----------------------------------------------------------------------------
@@ -234,44 +236,70 @@ bool vtkMRMLNDLibraryBuilder::Build(std::string path)
 bool vtkMRMLNDLibraryBuilder::Build(vtkMRMLNDLibraryNode * lib)
 {
   bool status=false;
-  std_str_hash tagCloud = libFileRead(lib); // read lib file, if only standard 1 or 2 entry lib conf file only returns category and child category in our hash.
+  // read lib file, if only standard 1 or 2 entry lib conf file only returns category and child category in our hash.
+  std_str_hash tC=lib->GetTagCloud();
+  std_str_hash tagCloud;
+  if (tC.size()>0) { // this check appeears to be failing.
+    tagCloud=tC;
+    std::cout  << "lib:"<< lib->GetLibName()<< ", "<<tC.size() << " element tagCloud found, not loading! "  << std::endl;    
+  } else {
+    std::cout  << "lib:"<< lib->GetLibName()<< ", tagCloud not found, loading! "  << std::endl;    
+    tagCloud = libFileRead(lib); 
+    tC=tagCloud;
+    //lib->SetTagCloud(tC);
+    lib->SetTagCloud(tagCloud);
+    // if ( ! tC) { 
+    //   std::cout  << "tagCloud lib failure! "  << std::endl;    
+    //   return false;
+    // }
+  }
+
+  /*(  //should insert checks here for the proper settings in us.
+  if ( tagCloud["childCategory"] )
+       != "NoCategory" )
+       find("Category") == subLibCloud.end() */
+  if ( lib->GetCategory() == "NoCategory" && tagCloud.find("Category") != tagCloud.end() ) {
+    lib->SetCategory(tagCloud["Category"]);
+    std::cout  << "Parent didnt give me a category, added on build." << std::endl;
+  }
+  if ( lib->GetLibName() == "NoName" && tagCloud.find("LibName") != tagCloud.end() ) { 
+    lib->SetLibName(tagCloud["LibName"]);
+    std::cout  << "Parent didnt give me a LibName, added on build." << std::endl;
+  }
+  //if ( lib->GetLibCategory() == "NoCategory" ) {}
+
+  
   //bool validlib=ParseCloud(lib,tagCloud);
   //  handle wether test libs are inserted.
-  //bool testDataOk=false;
-  //#ifndef WIN32
-  //#ifdef ENABLE_DATALIBRARIES_TESTDATA 
-  //testDataOk=true;
-  //#endif
   //When should testDataOk be true, 
   testDataOk=getTestStatus(lib);
-  //onour test system, when our settings allow for it.
-  // if our category is test data?
-  std::vector<std::string> * pathList = new std::vector<std::string>;
-  this->GetSubDirs(pathList,lib->GetLibRoot());
-  this->RemoveNonLibDirs(pathList);//remove invalid entries
+  std::vector<std::string> * subLibPathList = new std::vector<std::string>;
+  this->GetSubDirs(subLibPathList,lib->GetLibRoot());
+  this->RemoveNonLibDirs(subLibPathList);//remove invalid entries
   //check to see if there will be a change in size of our sublib list, and only re-create them if there is.
-  if( pathList->size() != lib->SubLibraries.size() && pathList->size()>0 ) 
+  // this requires improvement, it should doa check per element that they're all present.
+  if( subLibPathList->size() != lib->SubLibraries.size() && subLibPathList->size()>0 ) 
     {
     lib->clearSubs();
     char delim = '/';
     // for every dir in path make new sublib.
-    for ( int i=0; i< pathList->size(); i++ ) 
+    for ( int i=0; i< subLibPathList->size(); i++ ) 
       {
       ////
       // Process lib.conf file
-      std::cout  << "Add Lib at path " << pathList->at(i) << std::endl;
-      std_str_hash cTagCloud=libFileRead(pathList->at(i) + "/lib.conf");
-      if (cTagCloud.find("Category") == cTagCloud.end() )
-        cTagCloud.clear();
-      if (!cTagCloud.empty() )
+      std::cout  << "Add Lib at path " << subLibPathList->at(i) << std::endl;
+      std_str_hash subLibCloud=libFileRead(subLibPathList->at(i) + "/lib.conf");
+      if (subLibCloud.find("Category") == subLibCloud.end() )
+        subLibCloud.clear();
+      if (!subLibCloud.empty() )
         {
-        std::vector<std::string> libPathParts=this->split(pathList->at(i),delim);
+        std::vector<std::string> libPathParts=this->split(subLibPathList->at(i),delim);
         // at the minimum there should always be a category field in our tag cloud
-        vtkMRMLNDLibraryNode * subLib = new vtkMRMLNDLibraryNode(pathList->at(i),libPathParts.back(),cTagCloud["Category"]);
-        //       if ( cTagCloud.find("Path") == cTagCloud.end() )
-        //         cTagCloud["Path"]=pathList->at(i);
+        vtkMRMLNDLibraryNode * subLib = new vtkMRMLNDLibraryNode(subLibPathList->at(i),libPathParts.back(),subLibCloud["Category"]);
+        //       if ( subLibCloud.find("Path") == subLibCloud.end() )
+        //         subLibCloud["Path"]=subLibPathList->at(i);
 
-        bool libchange=this->ParseCloud(subLib,&cTagCloud);
+        bool libchange=this->ParseCloud(subLib,subLibCloud);
 
 #ifndef WIN32
         std::cout << "Cout: Build libpointer(constructor call with path), " << std::endl ;
@@ -279,77 +307,90 @@ bool vtkMRMLNDLibraryBuilder::Build(vtkMRMLNDLibraryNode * lib)
         std::cout << subLib->GetLibName() << ", " << std::endl ;
         std::cout << subLib->GetCategory()<< std::endl ;
 #endif
-        if ( cTagCloud.find("TestingLib") == cTagCloud.end() || testDataOk )
+        if ( subLibCloud.find("TestingLib") == subLibCloud.end() || testDataOk )
           {
           subLib->SetParentNode(lib);
+	  /*
+	  std_str_hash * sTC;
+	  sTC=&subLibCloud;
+	  if ( ! sTC) { 
+	    std::cout  << "tagCloud lib failure! "  << std::endl;
+	    continue;
+	    // there should always be a lib becuase we vet our lib paths before this loop starts.
+	  }
+      	  //subLib->SetTagCloud(sTC); //last second put the tag cloud into the data lib on load. might need to copy it toa pointer object to avoid falling out of scope.*/
+	  subLib->SetTagCloud(subLibCloud);
+	  std::cout << "Add tagcloud" << std::endl ;
           lib->SubLibraries[libPathParts.back()]=subLib; //store by disk name in our lib, but let our sublibs report their name as what ever they wish.
           }
         }
       }
-    if ( pathList->size()>0 )
+    if ( subLibPathList->size()>0 )
       {
       status=true;
-      //delete pathList;//no need to delete a 0 length path list so we dont always delete?
+      //delete subLibPathList;//no need to delete a 0 length path list so we dont always delete?
       }
     else 
       { 
-      std::cout << "Cout: pathList empty.\n";
+      std::cout << "Cout: subLibPathList empty.\n";
       }
     } 
-  if( pathList->size()>0 )
+  if( subLibPathList->size()>0 )
     {
     std::cout << "Clearing pathlist\n";
-    pathList->clear();      
+    subLibPathList->clear();      
     }
   //// temporary always return after directory listings.
-  return status;
-  this->GetSubFiles(pathList,lib->GetLibRoot());  
-  //if( pathList->size() != lib->FilePaths->size() ) 
-  if (pathList->size() != lib->SubLibraries.size()-pathList->size())
+  //return status;
+  this->GetSubFiles(subLibPathList,lib->GetLibRoot());  
+  //if( subLibPathList->size() != lib->FilePaths->size() ) 
+  if (subLibPathList->size() != lib->SubLibraries.size()-subLibPathList->size())
     {
     //    lib->FilePaths->clear();
     char delim = '/';
-    for ( int i=0; i< pathList->size(); i++ ) 
+    for ( int i=0; i< subLibPathList->size(); i++ ) 
       {
       if ( 0 ) 
         {
-        std::cout << "Cout: FilePaths add, " << pathList->at(i)<< "\n";    
-        //        lib->FilePaths->push_back(pathList->at(i));
+        std::cout << "Cout: FilePaths add, " << subLibPathList->at(i)<< "\n";    
+        //        lib->FilePaths->push_back(subLibPathList->at(i));
         }
       else 
         {// our sub build code for example, lef thtis here for now in case we decide that files are also libs
         vtkMRMLNDLibraryNode * subLib;
-        if ( tagCloud["childCategory"] != "NoCategory" )
+	if ( tagCloud["childCategory"] != "NoCategory" )
           {
-          std::string category=tagCloud["childCategory"];
-          std::vector<std::string> libPathParts=this->split(pathList->at(i),delim);
-          std::cout << "Cout: Build libpointer(constructor call with path), " << pathList->at(i)+"," << libPathParts.back()+"," << category << "\n";
+          std::string subCategory=tagCloud["childCategory"];
+          std::vector<std::string> libPathParts=this->split(subLibPathList->at(i),delim);
+          std::cout << "Cout: Build libpointer(constructor call with path), " << subLibPathList->at(i)+"," << libPathParts.back()+"," << subCategory << "\n";
           // build sublib from path, should create sublib with name and path set.
           // limited sub gathering for now
-          subLib = new vtkMRMLNDLibraryNode(pathList->at(i),libPathParts.back(),category);
+          subLib = new vtkMRMLNDLibraryNode(subLibPathList->at(i),libPathParts.back(),subCategory);
           subLib->isLeaf=true;
           //std::cout << "Cout: Setting leaf staus\n";
           }
         else 
           {
-          std::vector<std::string> libPathParts=this->split(pathList->at(i),delim);
-          subLib = new vtkMRMLNDLibraryNode(pathList->at(i),libPathParts.back());
+          std::vector<std::string> libPathParts=this->split(subLibPathList->at(i),delim);
+          subLib = new vtkMRMLNDLibraryNode(subLibPathList->at(i),libPathParts.back());
           subLib->isLeaf=true;
           }
         // build sublib from path, should create sublib with name and path set.
         // limited sub gathering for now
+	//subLib->SetTagCloud(&tagCloud); //last second put the tag cloud into the data lib on load. might need to copy it toa pointer object to avoid falling out of scope.
+	std::cout << "Add tagcloud" << std::endl ;
         subLib->SetParentNode(lib);
         lib->SubLibraries[subLib->GetLibName()]=subLib; 
         }
       }
-    if ( pathList->size()>=1 )
+    if ( subLibPathList->size()>=1 )
       {
       status=true;
-      delete pathList;//no need to delete a 0 length path list so we dont always delete?
+      delete subLibPathList;//no need to delete a 0 length path list so we dont always delete?
       }
     else 
       { 
-      std::cout << "Cout: pathList empty.\n";
+      std::cout << "Cout: subLibPathList empty.\n";
       }
     } 
   
@@ -382,7 +423,7 @@ bool vtkMRMLNDLibraryBuilder::Build(vtkMRMLNDLibraryNode * lib,std::string path,
 }
 
 //----------------------------------------------------------------------------
-void  vtkMRMLNDLibraryBuilder::GetSubCategoryies(std::vector<std::string > * path_vec, std::string dir_name) 
+void  vtkMRMLNDLibraryBuilder::GetSubCategories(std::vector<std::string > * path_vec, std::string dir_name) 
 { // get sub fields for a given nd library. This is hard problem since our cloud of data can have a very variable associateion. 
 
 
@@ -390,7 +431,7 @@ void  vtkMRMLNDLibraryBuilder::GetSubCategoryies(std::vector<std::string > * pat
 }
 
 // core of get subdirs and get sub files, pass output pointer, path, exclusion list and, flag for get sub files, or get sub dirs
-void vtkMRMLNDLibraryBuilder::GetSubCont(std::vector<std::string> * path_vec, std::string dir_name,std::vector<std::string> *exclusionList, int fileTypeFlag)
+void vtkMRMLNDLibraryBuilder::GetSubCont(std::vector<std::string> * path_vec, std::string dir_name,std::vector<std::string> *patternList, int fileTypeFlag)
 {
   //fileTypeFlag, 
   //  1 for directories, with exclusionfilter, 
@@ -398,7 +439,10 @@ void vtkMRMLNDLibraryBuilder::GetSubCont(std::vector<std::string> * path_vec, st
   //  3 for files, with exclusionfilter
   //  4 for files, with inclusionfilter
   //  anythingelse, no get.
-
+  //odd patterns are exclusion 
+  //even patterns are inclusion
+  // div 2 will have remainder 0 for even
+  bool excludePat=fileTypeFlag%2;
   //unix way.
 #ifndef WIN32
   DIR * d_h;
@@ -445,76 +489,113 @@ void vtkMRMLNDLibraryBuilder::GetSubCont(std::vector<std::string> * path_vec, st
     const std::string file_name = entry.cFileName;
 #endif
 
-    bool returnResults=false;
+    bool considerEntry=false;
     if ( is_directory && ( fileTypeFlag == 1 || fileTypeFlag == 2 ) ) 
       {
-      returnResults=true;
+      considerEntry=true;
+      std::cout << "cout: is dir\t" << file_name << std::endl;
       } 
     else if (!is_directory && ( fileTypeFlag == 3 || fileTypeFlag == 4 ) ) 
       {
-      returnResults=true;
+      considerEntry=true;
+      std::cout << "cout: is file\t" << file_name << std::endl;
       }
     else 
       {
       //nothing
       }
-    bool fileTypeContinue=returnResults;
-    if(fileTypeContinue)
+    bool includeFile=considerEntry;
+    //includeFile=includeFile&fileTypeFlag%2;//include default false for include, default true for exclude
+    if(considerEntry)
       {
-      //for entry in ignore list, if ! match ignore list, add, else skip
-      for (std::vector<std::string>::iterator sIt=exclusionList->begin();sIt<exclusionList->end();sIt++)
-        {
-        //std::cout
-        int fname_index;
-        if ( sIt->at(0) == '^' ) //check for front load exclusion
+      //for entry in patternlist, if match , set include for odd, set exclude for even
+      for (std::vector<std::string>::iterator sIt=patternList->begin();sIt<patternList->end();sIt++)
+        { 
+	  if ( sIt->size()<2 )
+	    if(getTestStatus(0))
+	      std::cout << "cout: Bad pattern given, must be at least 2 characters" << std::endl;
+	  if(getTestStatus(0))
+	    std::cout <<  "cout: P:" << *sIt;// << std::endl;//<< " " << sIt->at(0) ;
+	int fname_index;
+        if ( sIt->at(0) == '^' ) //check for front load pattern
           {//startswith
-          //fname_index=0;
-          for(int stridx=1;stridx<sIt->size();stridx++)
-            {
+	  bool patMatched=false;
+	  int stridx=1;
+	  do //match checking
+	    {
+	    std::cout << "cout: \t" << file_name[stridx-1] << sIt->at(stridx) << std::endl;
             if( file_name[stridx-1]==sIt->at(stridx) )
-              {
-              if ( fileTypeFlag%2 != 0 ) 
-                returnResults = false;
-              } 
-            else
-              {
-              if ( fileTypeFlag%2 == 0  ) 
-                returnResults = false;
-              }
-            }
-
-          }
-        else if ( sIt->at(sIt->size()-1)== '$' ) //check for end load exclusion.
+	      patMatched=true;
+	    else
+	      patMatched=false;
+	    stridx++;
+            } while(patMatched && stridx<sIt->size() && stridx<file_name.size() );
+	  if(patMatched&&excludePat) 
+	    includeFile=false;
+	  }//close prefix pattern
+        else if ( sIt->at(sIt->size()-1)== '$' ) //check for end load pattern
           {//ends with
-          int n_idx=file_name.size();
-          for(int stridx=0;stridx<sIt->size()-1;stridx++)
-            {//iterates over our file ending, n h d r($) with the $ skipped.
+	  bool patMatched=false;
+	  int stridx=0;
+	  int n_idx=file_name.size();
+	  do //match checking
+	    {
             n_idx=file_name.size()-((sIt->size()-1)-stridx);
+	    std::cout << "cout: \t" << file_name[n_idx] << sIt->at(stridx) << std::endl;
+            if( file_name[n_idx]==sIt->at(stridx) )
+	      patMatched=true;
+	    else
+	      patMatched=false;
+	    stridx++;
+            } while(patMatched && stridx<sIt->size()-1 && stridx<file_name.size() );
+	  if(patMatched&&excludePat) 
+	    includeFile=false;
+
+	    /*int n_idx=file_name.size();
+          for(int stridx=0;stridx<sIt->size()-1&&stridx<file_name.size();stridx++)
+            {//this loop will crash for patterns longer than filenames, should be udpated later to loop over filename until its longer than our pattern
+	    //iterates over our file ending, n h d r($) with the $ skipped.
+            n_idx=file_name.size()-((sIt->size()-1)-stridx);
+	    //odd patterns are exclusion 
+	    //even patterns are inclusion
+	    // div 2 will have remainder 0 for even
+	    std::cout << "cout: \t" << file_name[n_idx] << sIt->at(stridx) << std::endl;
             if( file_name[n_idx]==sIt->at(stridx))
               {
-              if ( fileTypeFlag%2 != 0  ) 
-                returnResults = false;
+              if ( fileTypeFlag%2 != 0  )
+                includeFile = false;
+	      else 
+		includeFile = true;
               } 
-            else
+	                  else
               {
-              if ( fileTypeFlag%2 == 0  ) 
-                returnResults = false;
-              }
-            }
-          }
-        }//end exclusionlist processing
+              if ( fileTypeFlag%2 == 0  )
+                includeFile = false;
+		}
+            }*/
+          }//close postfix pattern
+	
+	//if(!excludePat) { break;//end loop }
+	/*	if ( fileTypeFlag%2 == 0 && includeFile == true )//evenpat
+	  {
+	    sIt=patternList->end();
+	    }*/
+        }//end patternlist processing
       }//end filetypecontinue
     
-    if ( returnResults ) 
+    if ( includeFile ) 
       {
       //std::cout << "cout: include, "<< dir_name.c_str() << "/" << file_name<< "\n";
       path_vec->push_back(dir_name+"/"+file_name);
       }
     else 
       {
-      //std::cout << "cout: exclude, "<< dir_name.c_str() << "/" << file_name<< "\n";
+	if(getTestStatus(0)&&considerEntry)
+	  {
+	  std::cout << "cout: exclude, "<< dir_name.c_str() << "/" << file_name<< "\n";
+	  }
       }
-    }
+    }//end loop for each dir entry
 
 #ifndef WIN32
   // Close the directory. 
@@ -558,9 +639,6 @@ void vtkMRMLNDLibraryBuilder::GetSubCont(std::vector<std::string> * path_vec, st
   FindClose(d_h);
   }
 #endif
-
-
-  
   return ;
 }
   
@@ -570,10 +648,10 @@ void vtkMRMLNDLibraryBuilder::GetSubCont(std::vector<std::string> * path_vec, st
 void  vtkMRMLNDLibraryBuilder::GetSubDirs(std::vector<std::string > * path_vec, std::string dir_name) 
 //void vtkMRMLNDLibraryBuilder::GetFilesInDirectory(std::vector<std::string> &out, const std::string &directory)
 {
-  std::vector<std::string> * exclusionList = new std::vector<std::string>;
-  exclusionList->push_back("^.");
-  int typeFlag = 1;
-  GetSubCont(path_vec,dir_name,exclusionList,typeFlag);
+  std::vector<std::string> * patternList = new std::vector<std::string>;
+  patternList->push_back("^.");
+  int typeFlag = 1; //get dirs, exclude from list
+  GetSubCont(path_vec,dir_name,patternList,typeFlag);
   return;
 }
 
@@ -582,10 +660,27 @@ void  vtkMRMLNDLibraryBuilder::GetSubDirs(std::vector<std::string > * path_vec, 
 void  vtkMRMLNDLibraryBuilder::GetSubFiles(std::vector<std::string > * path_vec, std::string dir_name) 
 //void vtkMRMLNDLibraryBuilder::GetFilesInDirectory(std::vector<std::string> &out, const std::string &directory)
 {
-  std::vector<std::string> * inclusionList = new std::vector<std::string>;
-  inclusionList->push_back("nhdr$");
-  int typeFlag = 4;
-  GetSubCont(path_vec,dir_name,inclusionList,typeFlag);
+  std::vector<std::string> * patternList = new std::vector<std::string>;
+  if ( 1 ) 
+    {
+      int typeFlag = 3;// get files, exclude from list.
+      patternList->push_back("^.");    //excluding start with .
+      patternList->push_back("~$");    //excluding end with ~
+      patternList->push_back("^#");    //excluding start with #
+      patternList->push_back("#$");    //excluding end with #
+      patternList->push_back(".conf$");//excluding end with .conf
+      GetSubCont(path_vec,dir_name,patternList,typeFlag);
+    } else 
+    {
+      patternList->push_back("nhdr$");
+      //commented section was the original behavior, switched so that this acts more predictably.
+      /* patternList->push_back("nrrd$");
+      patternList->push_back("nii.gz$");
+      patternList->push_back("nii$");
+      patternList->push_back("txt$");*/
+      int typeFlag = 4;// get files, include from list.
+      GetSubCont(path_vec,dir_name,patternList,typeFlag);
+    }
   return;
 }
 bool vtkMRMLNDLibraryBuilder::getTestStatus(vtkMRMLNDLibraryNode * lib) // boondoggle of a function which will look backwards through libs until it finds any lib which turns tetsing on, or reaches the first lib(null pointer)
@@ -593,7 +688,7 @@ bool vtkMRMLNDLibraryBuilder::getTestStatus(vtkMRMLNDLibraryNode * lib) // boond
   std::string testvar="DATALIBRARIES_TEST";
   if ( 1 ) {
 #ifndef WIN32
-    char * testInfo=getenv(testvar.c_str());
+    //    char * testInfo=getenv(testvar.c_str());
 #else 
     //char * testInfo=System::Environment::Collections::GetEnvironmentVariable(testvar.c_str());
     //wchar_t environmentBuffer[10000];
@@ -609,7 +704,7 @@ bool vtkMRMLNDLibraryBuilder::getTestStatus(vtkMRMLNDLibraryNode * lib) // boond
     while (lib)
       {
 	std_str_hash tagCloud=libFileRead(lib->GetLibRoot()+"/lib.conf");
-	//std_str_hash cTagCloud=libFileRead(pathList->at(i) + "/lib.conf");  
+	//std_str_hash subLibCloud=libFileRead(subLibPathList->at(i) + "/lib.conf");  
 	if ( tagCloud.find("devLib") == tagCloud.end() ) 
 	  {
 	    return true;
@@ -680,17 +775,17 @@ void vtkMRMLNDLibraryBuilder::GetFilesInDirectory(std::vector<std::string> &out,
 } // GetFilesInDirectory
 
 //----------------------------------------------------------------------------
-bool vtkMRMLNDLibraryBuilder::ParseCloud(vtkMRMLNDLibraryNode * lib, std_str_hash * tagCloud)
+bool vtkMRMLNDLibraryBuilder::ParseCloud(vtkMRMLNDLibraryNode * lib, std_str_hash  tagCloud)
 {
   bool status=false;// hold wether we've made changes or not.
   bool setNewPath=false;
   //// 
   // debug print of the tag cloud
-  if ( !tagCloud->empty() ) 
+  if ( !tagCloud.empty() ) 
     {
-    for ( s_hash_iter tCI=tagCloud->begin(); tCI!=tagCloud->end() ;tCI++ )
+    for ( s_hash_iter tCI=tagCloud.begin(); tCI!=tagCloud.end() ;tCI++ )
       {//subIter->second
-      std::cout << tCI->first << "=" << tCI->second << std::endl ;
+	std::cout << "tCI" <<tCI->first << "=" << tCI->second << std::endl ;
       }
     }
   else 
@@ -699,49 +794,49 @@ bool vtkMRMLNDLibraryBuilder::ParseCloud(vtkMRMLNDLibraryNode * lib, std_str_has
     return status;
     }
   //
-  if ( tagCloud->find("LibConfPath") == tagCloud->end()) 
+  if ( tagCloud.find("LibConfPath") == tagCloud.end()) 
     {
     std::cout << "cout: libconfpath not set in cloud, cloud load failure" << std::endl;
     return false;
     }
   if ( 0 ) 
-    {
+    {/*
     std::vector<std::string> lPP = this->split((*tagCloud)["LibConfPath"],'/');
     //std::string lFile = lPP.pop_back();//
     lPP.erase(lPP.end());
     std::string libConfDir=this->join(lPP,"/");
-    std::cout << "parse lib with confdir of " << libConfDir << std::endl;
+    std::cout << "parse lib with confdir of " << libConfDir << std::endl;*/
     }
   //// 
   //compare TagCloud Path with LibRoot path, if different change lib root to use tagcloud path
   char delim = '/';
   // split (*tagCloud)["Path"];
-  if ( tagCloud->find("Path") != tagCloud->end() ) 
+  if ( tagCloud.find("Path") != tagCloud.end() ) 
     {
     //// code here has seg fault.
     std:: cout << "cout: Path found, trying to fix things up" << std::endl;
     //std::string tp=(*tagCloud)["Path"];
-    std::vector<std::string> tCPath=this->split((*tagCloud)["Path"],delim);
+    std::vector<std::string> tCPath=this->split((tagCloud)["Path"],delim);
     // split lib->GetLibRoot();
     //std::string lp=lib->GetLibRoot();
     std::vector<std::string> lRPath=this->split(lib->GetLibRoot(),delim);
 
-    std::cout << (*tagCloud)["Path"] << std::endl;
+    std::cout << (tagCloud)["Path"] << std::endl;
     int trimCount=0;
     for (std::vector<std::string>::const_iterator tIt=tCPath.begin();tIt!=tCPath.end();++tIt)
       {
-      std::cout << *tIt << ";" << std::endl;
+	//std::cout << *tIt << ";" << std::endl;
       if ( *tIt == ".." ) 
         {
-        std::cout << "  Bingo!" << std::endl; 
+	  //std::cout << "  Bingo!" << std::endl; 
         trimCount++;
         }
       }
+    /* print out contents of lRPath
     std::cout << lib->GetLibRoot() << std::endl;
     for (std::vector<std::string>::const_iterator tIt=lRPath.begin();tIt!=lRPath.end();++tIt)
       std::cout << *tIt << ";" << std::endl;
-
-    
+    */
     
     std::cout << "found " << trimCount << " path parts to trim" << std::endl;
     if ( 1 ) 
@@ -756,7 +851,7 @@ bool vtkMRMLNDLibraryBuilder::ParseCloud(vtkMRMLNDLibraryNode * lib, std_str_has
     std::string nLPath=join(lRPath,"/");
     nLPath.append("/");
     nLPath.append(join(tCPath,"/"));
-    (*tagCloud)["Path"]=nLPath;
+    (tagCloud)["Path"]=nLPath;
     setNewPath=true;
     std::cout << "found new path "<<nLPath <<std::endl;
 #ifdef PATHTRIM
@@ -797,42 +892,42 @@ bool vtkMRMLNDLibraryBuilder::ParseCloud(vtkMRMLNDLibraryNode * lib, std_str_has
     }
   else
     {
-    (*tagCloud)["Path"]=lib->GetLibRoot();
+    (tagCloud)["Path"]=lib->GetLibRoot();
     }
   ////
   // update our library with information from lib.conf.
   // if path vectors are different.
   if( setNewPath )
     {
-    //lib->SetLibRoot(libConfDir+"/"+(*tagCloud)["Path"]); 
-    lib->SetLibRoot((*tagCloud)["Path"]); 
+    //lib->SetLibRoot(libConfDir+"/"+(tagCloud)["Path"]); 
+    lib->SetLibRoot((tagCloud)["Path"]); 
     status=true;
     std::cout << "cout: Lib specifies change path.<-" << lib->GetLibRoot() << std::endl;
     }
   ////
   // set the name by tag cloud
   std::vector<std::string> libPathParts=this->split(lib->GetLibRoot(),delim);
-  if( libPathParts.size()>0  && (*tagCloud)["Category"] == "Time(s)") // this should be regex'd to be if category is a measurement of time
+  if( libPathParts.size()>0  && (tagCloud)["Category"] == "Time(s)") // this should be regex'd to be if category is a measurement of time
     {
-    if ( tagCloud->find("LibName") == tagCloud->end() )
-      (*tagCloud)["LibName"]=AgeTimeConvert(libPathParts.back(),0.01);
+    if ( tagCloud.find("LibName") == tagCloud.end() )
+      (tagCloud)["LibName"]=AgeTimeConvert(libPathParts.back(),0.01);
     }
   else 
     {
-    if ( tagCloud->find("LibName") == tagCloud->end() )
-      (*tagCloud)["LibName"]=libPathParts.back();
+    if ( tagCloud.find("LibName") == tagCloud.end() )
+      (tagCloud)["LibName"]=libPathParts.back();
     }
   
 
   //std::string parentCategory("NoCategory");
     
-  if ( tagCloud->find("LibName") !=tagCloud->end()) 
-    lib->SetLibName((*tagCloud)["LibName"]);
+  if ( tagCloud.find("LibName") !=tagCloud.end()) 
+    lib->SetLibName((tagCloud)["LibName"]);
   
-  if ( tagCloud->find("Category") !=tagCloud->end()) 
+  if ( tagCloud.find("Category") !=tagCloud.end()) 
     {
-    //parentCategory=(*tagCloud)["Category"];
-    lib->SetCategory((*tagCloud)["Category"]);
+    //parentCategory=(tagCloud)["Category"];
+    lib->SetCategory((tagCloud)["Category"]);
     status=true;
     }
     
@@ -851,7 +946,7 @@ bool vtkMRMLNDLibraryBuilder::ReBuild()    // rebuild the lib(first resets)
   this->ResetLib();
   return this->Build(LibPointer);
 }
-void vtkMRMLNDLibraryBuilder::RemoveNonLibDirs(std::vector<std::string> * pathList) 
+void vtkMRMLNDLibraryBuilder::RemoveNonLibDirs(std::vector<std::string> * subLibPathList) 
 {
   //bool testDataOk=false;
   //#ifndef WIN32
@@ -860,8 +955,8 @@ void vtkMRMLNDLibraryBuilder::RemoveNonLibDirs(std::vector<std::string> * pathLi
   //#endif  
 
 
-  std::vector<std::string>::iterator it=pathList->begin();
-  while ( it !=pathList->end() )
+  std::vector<std::string>::iterator it=subLibPathList->begin();
+  while ( it !=subLibPathList->end() )
     {
     ////
     // Check for lib.conf file
@@ -899,7 +994,7 @@ void vtkMRMLNDLibraryBuilder::RemoveNonLibDirs(std::vector<std::string> * pathLi
     if ( libBad)
       {
       std::cout << "cout: Remove path from consideration" << *it << std::endl;
-      it=pathList->erase(it);
+      it=subLibPathList->erase(it);
       }
     else
       {
@@ -932,7 +1027,7 @@ std::string vtkMRMLNDLibraryBuilder::join(std::vector<std::string> &stringList ,
   //   std::string out=std::string(strSize, ' ');
   
   //   int o_i=0;
-  //   for (std::vector<std::string>::iterator sIt=exclusionList->begin();sIt<exclusionList->end();sIt++)
+  //   for (std::vector<std::string>::iterator sIt=patternList->begin();sIt<patternList->end();sIt++)
   //     {
   //     out[o_i
   //     o_i=sIt.length();
@@ -1058,16 +1153,16 @@ std_str_hash vtkMRMLNDLibraryBuilder::libFileRead(std::string libConfPath  )
     std::vector<std::string> p=this->split(line,'=' );
     //std_str_hash[*p.begin()]=p.back();
     //tagcloud["test"]=p.back();
-    if (p.size()==1 && ( lc==1 || lc==2) )
+    if (p.size()==1 && ( lc==1 || lc==2) )// when we do not find an = on a line. 
       {
-      if (lc==1)
+	if (lc==1) // when there is only one line.
         p.push_back("Category");
-      if (lc==2)
+	if (lc==2) // when there is exactly two lines. 
         p.push_back("ChildCategory");
       
       p.push_back(p.front());
       p.erase(p.begin());
-      //      it=pathList->erase(it);
+      //      it=subLibPathList->erase(it);
       }
     while ( p.size()<2 ) 
       {
@@ -1080,6 +1175,7 @@ std_str_hash vtkMRMLNDLibraryBuilder::libFileRead(std::string libConfPath  )
   return tagCloud;
 
 #ifdef qt
+  /* I DON'T THINK THIS CODE WILL EVER RUN< IT SHOULD BE REMOVED*/
   QString libName =QString::fromStdString(selectedLib->GetLibName());
   QStringList protocols;
   QStringList panels;
@@ -1118,7 +1214,5 @@ std_str_hash vtkMRMLNDLibraryBuilder::libFileRead(std::string libConfPath  )
       }
     }
 #endif
-
-
 
 }

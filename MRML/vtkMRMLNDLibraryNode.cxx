@@ -34,6 +34,7 @@ vtkMRMLNDLibraryNode::vtkMRMLNDLibraryNode(void)
   CurrentSelection = 0 ;
   ParentNode = 0 ;
   // FilePaths = new std::vector<std::string>;
+  //TagCloud = 0 ;
   isLeaf = false;
 }
 
@@ -48,6 +49,7 @@ vtkMRMLNDLibraryNode::vtkMRMLNDLibraryNode(vtkMRMLNDLibraryNode & lib)
   CurrentSelection = 0;
   ParentNode = 0;
   // FilePaths = new std::vector<std::string>;
+  //TagCloud = 0 ;
   isLeaf = false;
 }
 
@@ -60,6 +62,7 @@ vtkMRMLNDLibraryNode::vtkMRMLNDLibraryNode( std::string path, std::string name)
   CurrentSelection = 0 ;
   ParentNode = 0 ;
   // FilePaths = new std::vector<std::string>;
+  //TagCloud = 0 ;
   isLeaf = false;
 }
 
@@ -72,6 +75,7 @@ vtkMRMLNDLibraryNode::vtkMRMLNDLibraryNode( std::string path,std::string name,st
   CurrentSelection = 0 ;
   ParentNode = 0 ;
   // FilePaths = new std::vector<std::string>;
+  //TagCloud = 0 ;
   isLeaf = false;
 }
 
@@ -109,6 +113,7 @@ vtkMRMLNDLibraryNode::vtkMRMLNDLibraryNode(std::string path)
   CurrentSelection = 0 ;
   ParentNode = 0 ;
   // FilePaths = new std::vector<std::string>;
+  //TagCloud = 0 ;
   isLeaf = false;
 }
 
@@ -194,6 +199,34 @@ std::map<std::string,vtkMRMLNDLibraryNode *> vtkMRMLNDLibraryNode::GetSubLibrari
   return SubLibraries;
 }
 
+
+//----------------------------------------------------------------------------
+std_str_hash vtkMRMLNDLibraryNode::GetTagCloud()
+{
+  /*  if( ! this->TagCloud) 
+    {
+      std::cout << "tagcloud initalized on retrieve, it will be empty!" << std::endl;
+      this->TagCloud=new std_str_hash;
+      }*/
+  return this->TagCloud;
+}
+//----------------------------------------------------------------------------
+void vtkMRMLNDLibraryNode::SetTagCloud(  std_str_hash tagCloud)
+{
+  //  if ( tagCloud ) { 
+        std::cout << "tagcloud set.. or at least it should have we've comented it right now. Size was " << tagCloud.size() <<"."<< std::endl;
+	this->TagCloud=tagCloud;/*
+    for ( s_hash_iter tCI=tagCloud->begin(); tCI!=tagCloud->end() ;tCI++ )
+      {//subIter->second
+	//std::cout << "tCI" <<tCI->first << "=" << tCI->second << std::endl ;
+	this->TagCloud->insert(tagCloud->end(),tCI);
+	//tagCloud->end()
+	}*/
+	//  }
+
+  
+  return;  
+}
 // //----------------------------------------------------------------------------
 // void vtkMRMLNDLibraryNode::GatherSubLibs()
 // {

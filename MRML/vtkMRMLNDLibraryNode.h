@@ -21,6 +21,8 @@
 #include <vector>
 #include <map>
 
+typedef std::map<std::string,std::string> std_str_hash ; // maybe i should declare as a pointer?
+typedef std_str_hash::iterator s_hash_iter;
 
 
 //// EXAMPLE from vtkSlicerCIVM_GalleryControlModuelLogic.h
@@ -68,7 +70,7 @@ class VTK_VTKMRMLNDLIBRARY_MRML_EXPORT vtkMRMLNDLibraryNode : public vtkMRMLHier
   vtkTypeMacro(vtkMRMLNDLibraryNode,vtkMRMLHierarchyStorageNode);
   vtkMRMLNDLibraryNode(void);
   vtkMRMLNDLibraryNode(std::string);
-  vtkMRMLNDLibraryNode(std::string,std::string );
+  vtkMRMLNDLibraryNode(std::string,std::string ); 
   vtkMRMLNDLibraryNode(std::string,std::string,std::string );
   ~vtkMRMLNDLibraryNode(void);
   //void GatherSubLibs();  // Uses libroot and builds our library, recursively building a lib
@@ -100,6 +102,15 @@ class VTK_VTKMRMLNDLIBRARY_MRML_EXPORT vtkMRMLNDLibraryNode : public vtkMRMLHier
 
   vtkGetMacro(isLeaf,bool);
 
+
+  //problems with get tag cloud no matter how i use once we get to qt. 
+  // creating custom accessors to address issue.
+  //vtkSetMacro(TagCloud,std_str_hash *);
+  // proabbly should make this do some kinda deep copy operation... maybe the macro can handle that? dont need it right away so we'll skip for now.
+  //vtkGetMacro(TagCloud,std_str_hash *);
+  std_str_hash GetTagCloud();
+  void SetTagCloud(  std_str_hash tagCloud);
+
   std::map<std::string,vtkMRMLNDLibraryNode *>  GetSubLibraries(void); 
   std::vector<vtkMRMLNDLibraryNode * >          GetAncestorList(void);
   std::vector<std::string>                      GetCategoryPath(void);
@@ -112,7 +123,7 @@ class VTK_VTKMRMLNDLIBRARY_MRML_EXPORT vtkMRMLNDLibraryNode : public vtkMRMLHier
   
   // moving away from the self populating lib in the future
 /*   std::vector<std::string> * GetAllPaths(); */
-  std::vector<std::map<std::string,std::string> > * GetLibTree(void); // 
+  std::vector<std::map<std::string,std::string> > * GetLibTree(void); 
 
 
   /// required virtuals
@@ -146,14 +157,13 @@ class VTK_VTKMRMLNDLIBRARY_MRML_EXPORT vtkMRMLNDLibraryNode : public vtkMRMLHier
                         // name is Brain, category is organ, 
                         // name is AdultRat, category is specimen. 
                         // name is Macaca_mulatta, category is species
-
+  std_str_hash TagCloud; // pointer to a tag cloud. Lets dump the contents of our lib.conf there for now.
   // Still unsre how to use/set these fields, they will reamain blank for now. 
   // dimensions and dimension tags should be filled out during the buildlibrary stage, reported back from the children. 
   std::map<std::string,int> Dimensions; // dimension(category)/ size map, 
   // valuemap...?
   //   for each dimesnsion(by name) a list of entries. 
-  std::map<std::string,std::string> Dimension_tags;///maybe make vtkTagtable here:?
-
+  std_str_hash Dimension_tags;///maybe make vtkTagtable here:? //should substitue std_str_hash in for the std::map<std::string,std::string>
   void operator=(vtkMRMLNDLibraryNode const & ) ; 
 
 
