@@ -939,6 +939,7 @@ void vtkMRMLNDLibraryBuilder::ResetLib()   // clear out the lib
   // i think we should loop over each element of sublibraries calling delete on the value part of the map, and then clear.
   //For now we'll leave this behavior
   LibPointer->clearSubs();
+  LibPointer->CurrentSelection=0;
   return;
 }
 bool vtkMRMLNDLibraryBuilder::ReBuild()    // rebuild the lib(first resets)
@@ -1056,28 +1057,25 @@ std::vector<std::string> vtkMRMLNDLibraryBuilder::split(const std::string &s, ch
   return elems;
 }
 
-//#include <fstream>
+//----------------------------------------------------------------------------
 bool vtkMRMLNDLibraryBuilder::fexists(const char *filename) {
 #ifdef WIN32
-
   DWORD dwAttrib = GetFileAttributes(filename);
-
   return (dwAttrib != INVALID_FILE_ATTRIBUTES && 
 	  !(dwAttrib & FILE_ATTRIBUTE_DIRECTORY));
-
 #else
+//#include <fstream>
   ifstream ifile(filename);
   return ifile.good();
 #endif
 }
 
-
+//----------------------------------------------------------------------------
 bool vtkMRMLNDLibraryBuilder::confCheck (std::string confPath)
 { 
   std::string cp=confPath+"/lib.conf";
   return !fexists(cp.c_str());
 }
-
 
 //----------------------------------------------------------------------------
 //str2int code >90% copy pasta from website(in comments). user was dan moulding
@@ -1114,13 +1112,15 @@ std_str_hash vtkMRMLNDLibraryBuilder::libFileRead(vtkMRMLNDLibraryNode * lib)
 std_str_hash vtkMRMLNDLibraryBuilder::libFileRead(std::string libConfPath  )
 {
   std_str_hash tagCloud;
-  int fileFound=false;
+  //int fileFound=false;
+  bool fileFound=fexists( libConfPath.c_str() );
   if (libConfPath.length()>255 )
     {
     std::cout << "cout: ERROR path too long!";
     return tagCloud;
     }
-  ifstream libConf ( libConfPath.c_str() );
+
+  /*
 #ifndef WIN32
   if ( libConf.good() )
     {
@@ -1129,13 +1129,15 @@ std_str_hash vtkMRMLNDLibraryBuilder::libFileRead(std::string libConfPath  )
 #else 
   fileFound = fexists( libConfPath.c_str() );
 #endif
-
+  
   if ( fileFound )
     {
     //    cout << "cout: opened conf file " << libConfPath << std::endl;
     fileFound=true;
     }
   else
+*/
+  if ( ! fileFound )
     {
     cout << "cout:failed to open conf file " << libConfPath << std::endl;
     return tagCloud;
@@ -1143,6 +1145,7 @@ std_str_hash vtkMRMLNDLibraryBuilder::libFileRead(std::string libConfPath  )
   tagCloud["LibConfPath"]=libConfPath;
   std::string line;
   int lc=0;//line counter to keep track of which line we're on for old style files. 
+  ifstream libConf ( libConfPath.c_str() );
   while (std::getline(libConf, line))
     {
     //    std::cout << "Cout: lib line " << line << std::endl;
