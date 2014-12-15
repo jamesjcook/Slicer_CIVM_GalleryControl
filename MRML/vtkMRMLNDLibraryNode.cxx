@@ -214,7 +214,7 @@ std_str_hash vtkMRMLNDLibraryNode::GetTagCloud()
 void vtkMRMLNDLibraryNode::SetTagCloud(  std_str_hash tagCloud)
 {
   //  if ( tagCloud ) { 
-        std::cout << "tagcloud set.. or at least it should have we've comented it right now. Size was " << tagCloud.size() <<"."<< std::endl;
+        std::cout << "tagcloud set.. ;//or at least it should have we've comented it right now. Size was " << tagCloud.size() <<"."<< std::endl;
 	this->TagCloud=tagCloud;/*
     for ( s_hash_iter tCI=tagCloud->begin(); tCI!=tagCloud->end() ;tCI++ )
       {//subIter->second
