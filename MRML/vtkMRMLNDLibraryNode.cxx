@@ -160,7 +160,7 @@ void vtkMRMLNDLibraryNode::clearSubs(void)
 //----------------------------------------------------------------------------
 std::vector<vtkMRMLNDLibraryNode *> vtkMRMLNDLibraryNode::GetAncestorList(void)
 {
-  std::cout<< "GetAncestorList NOT IMPLIMENTED" << "\n";
+  std::cout<< "Cout: GetAncestorList NOT IMPLIMENTED" << "\n";
   std::vector<vtkMRMLNDLibraryNode *> ancestorlist;
   
   return ancestorlist;
@@ -214,7 +214,9 @@ std_str_hash vtkMRMLNDLibraryNode::GetTagCloud()
 void vtkMRMLNDLibraryNode::SetTagCloud(  std_str_hash tagCloud)
 {
   //  if ( tagCloud ) { 
-        std::cout << "tagcloud set.. ;//or at least it should have we've comented it right now. Size was " << tagCloud.size() <<"."<< std::endl;
+  std::cout << "Cout: tagcloud of size:" << tagCloud.size() 
+	    << " was set."<< std::endl;
+	//or at least it should have we've comented it right now. 
 	this->TagCloud=tagCloud;/*
     for ( s_hash_iter tCI=tagCloud->begin(); tCI!=tagCloud->end() ;tCI++ )
       {//subIter->second
@@ -223,8 +225,6 @@ void vtkMRMLNDLibraryNode::SetTagCloud(  std_str_hash tagCloud)
 	//tagCloud->end()
 	}*/
 	//  }
-
-  
   return;  
 }
 // //----------------------------------------------------------------------------
