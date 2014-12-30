@@ -284,7 +284,7 @@ bool vtkMRMLNDLibraryBuilder::Build(vtkMRMLNDLibraryNode * lib)
       // Process lib.conf file
       std_str_hash subLibCloud=libFileRead(subLibPathList->at(i) + "/lib.conf");
       if (subLibCloud.find("Category") == subLibCloud.end() )
-        subLibCloud.clear();
+        subLibCloud.clear();//if the sublibcloud does not have category it is invalid.
       if (!subLibCloud.empty() )
         {
         std::vector<std::string> libPathParts=this->split(subLibPathList->at(i),delim);
@@ -327,47 +327,48 @@ bool vtkMRMLNDLibraryBuilder::Build(vtkMRMLNDLibraryNode * lib)
     std::cout << "Cout: Clearing pathlist\n";
     subLibPathList->clear();      
     }
-  //// temporary always return after directory listings.
-  //maybe i should add a sublib only flag.
-  //return status;
   this->GetSubFiles(subLibPathList,lib->GetLibRoot());  
-  //if( subLibPathList->size() != lib->FilePaths->size() ) 
-  if (subLibPathList->size() != lib->SubLibraries.size()-subLibPathList->size())
+  //if (subLibPathList->size() != lib->SubLibraries.size()-subLibPathList->size())
     {
-    //    lib->FilePaths->clear();
     char delim = '/';
     for ( int i=0; i< subLibPathList->size(); i++ ) 
       {
-      if ( 0 ) 
+      ////
+      // Process lib.conf file
+      std_str_hash subLibCloud=tagCloud;
+      // our sub build code for example, lef thtis here for now in case we decide that files are also libs
+      vtkMRMLNDLibraryNode * subLib;
+      if ( subLibCloud["childCategory"] != "NoCategory" )
         {
-        std::cout << "Cout: FilePaths add, " << subLibPathList->at(i)<< "\n";    
-        //        lib->FilePaths->push_back(subLibPathList->at(i));
-        }
-      else 
-        {// our sub build code for example, lef thtis here for now in case we decide that files are also libs
-        vtkMRMLNDLibraryNode * subLib;
-	if ( tagCloud["childCategory"] != "NoCategory" )
-          {
-          std::string subCategory=tagCloud["childCategory"];
-          std::vector<std::string> libPathParts=this->split(subLibPathList->at(i),delim);
-          std::cout << "Cout: Build libpointer(constructor call with path), " << subLibPathList->at(i)+"," << libPathParts.back()+"," << subCategory << "\n";
-          // build sublib from path, should create sublib with name and path set.
-          // limited sub gathering for now
-          subLib = new vtkMRMLNDLibraryNode(subLibPathList->at(i),libPathParts.back(),subCategory);
-          subLib->isLeaf=true;
-          //std::cout << "Cout: Setting leaf staus\n";
-          }
-        else 
-          {
-          std::vector<std::string> libPathParts=this->split(subLibPathList->at(i),delim);
-          subLib = new vtkMRMLNDLibraryNode(subLibPathList->at(i),libPathParts.back());
-          subLib->isLeaf=true;
-          }
+        std::string subCategory=subLibCloud["childCategory"];
+        std::vector<std::string> libPathParts=this->split(subLibPathList->at(i),delim);
+        std::cout << "Cout: Build libpointer(constructor call with path), " << subLibPathList->at(i)+"," << libPathParts.back()+"," << subCategory << "\n";
         // build sublib from path, should create sublib with name and path set.
         // limited sub gathering for now
-	//subLib->SetTagCloud(&tagCloud); //last second put the tag cloud into the data lib on load. might need to copy it toa pointer object to avoid falling out of scope.
-	std::cout << "Cout: Add tagcloud" << std::endl ;
+        subLib = new vtkMRMLNDLibraryNode(subLibPathList->at(i),libPathParts.back(),subCategory);
+        subLib->isLeaf=true;
+        //std::cout << "Cout: Setting leaf staus\n";
+        }
+      else 
+        {
+        std::vector<std::string> libPathParts=this->split(subLibPathList->at(i),delim);
+        subLib = new vtkMRMLNDLibraryNode(subLibPathList->at(i),libPathParts.back());
+        subLib->isLeaf=true;
+        }
+      // build sublib from path, should create sublib with name and path set.
+      // limited sub gathering for now
+      //subLib->SetTagCloud(&tagCloud); //last second put the tag cloud into the data lib on load. might need to copy it toa pointer object to avoid falling out of scope.
+      //clean up values in the sublibcloud
+      subLibCloud["Category"]=subLibCloud["childCategory"];
+      subLibCloud.erase("childCategory");
+
+      if ( lib->SubLibraries.find(libPathParts.back()) == lib->SubLibraries.end() 
+           && ( subLibCloud.find("TestingLib") == subLibCloud.end() || testDataOk ) )
+        {
+        std::cout  << "Cout: Add Lib at path " << subLibPathList->at(i) << std::endl;
+        std::cout << "Cout: Add tagcloud" << std::endl ;
         subLib->SetParentNode(lib);
+        subLib->SetTagCloud(subLibCloud);
         lib->SubLibraries[subLib->GetLibName()]=subLib; 
         }
       }
@@ -380,10 +381,8 @@ bool vtkMRMLNDLibraryBuilder::Build(vtkMRMLNDLibraryNode * lib)
       { 
       std::cout << "Cout: subLibPathList empty.\n";
       }
-    } 
-  
-  
-  return status; 
+    }
+    return status; 
 }
 
 //----------------------------------------------------------------------------
