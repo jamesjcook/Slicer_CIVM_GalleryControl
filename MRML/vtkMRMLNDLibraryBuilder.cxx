@@ -338,11 +338,12 @@ bool vtkMRMLNDLibraryBuilder::Build(vtkMRMLNDLibraryNode * lib)
       std_str_hash subLibCloud=tagCloud;
       // our sub build code for example, lef thtis here for now in case we decide that files are also libs
       vtkMRMLNDLibraryNode * subLib;
+      std::vector<std::string> libPathParts=this->split(subLibPathList->at(i),delim);
       if ( subLibCloud["childCategory"] != "NoCategory" )
         {
         std::string subCategory=subLibCloud["childCategory"];
-        std::vector<std::string> libPathParts=this->split(subLibPathList->at(i),delim);
-        std::cout << "Cout: Build libpointer(constructor call with path), " << subLibPathList->at(i)+"," << libPathParts.back()+"," << subCategory << "\n";
+        std::cout << "Cout: Build libpointer(constructor call with path), " 
+		  << subLibPathList->at(i)+"," << libPathParts.back()+"," << subCategory << "\n";
         // build sublib from path, should create sublib with name and path set.
         // limited sub gathering for now
         subLib = new vtkMRMLNDLibraryNode(subLibPathList->at(i),libPathParts.back(),subCategory);
@@ -351,7 +352,6 @@ bool vtkMRMLNDLibraryBuilder::Build(vtkMRMLNDLibraryNode * lib)
         }
       else 
         {
-        std::vector<std::string> libPathParts=this->split(subLibPathList->at(i),delim);
         subLib = new vtkMRMLNDLibraryNode(subLibPathList->at(i),libPathParts.back());
         subLib->isLeaf=true;
         }
