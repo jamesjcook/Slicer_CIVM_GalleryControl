@@ -70,7 +70,7 @@ vtkMRMLNDLibraryBuilder::vtkMRMLNDLibraryBuilder(std::string path)
 //----------------------------------------------------------------------------
 vtkMRMLNDLibraryBuilder::vtkMRMLNDLibraryBuilder(vtkMRMLNDLibraryBuilder & builder)
 {
-   
+  testDataOk=false;
 }
 
 //----------------------------------------------------------------------------
@@ -261,7 +261,10 @@ bool vtkMRMLNDLibraryBuilder::Build(vtkMRMLNDLibraryNode * lib)
     std::cout  << "Cout: Parent didnt give me a LibName, added on build." << std::endl;
     }
 
-  testDataOk=getTestStatus(lib);  //When should testDataOk be true? when env var DATALIBRARIES_TEST exists
+  //When should testDataOk be true? when env var DATALIBRARIES_TEST exists
+  //testDataOk=getTestStatus(lib);  
+  testDataOk=getTestStatus(0);  
+
   std::vector<std::string> * subLibPathList = new std::vector<std::string>;
   this->GetSubDirs(subLibPathList,lib->GetLibRoot());
 /*
