@@ -35,6 +35,8 @@ vtkMRMLNDLibraryNode::vtkMRMLNDLibraryNode(void)
   ParentNode = 0 ;
   // FilePaths = new std::vector<std::string>;
   //TagCloud = 0 ;
+  std_str_hash tagCloud;
+  tagCloud=tagCloud;
   isLeaf = false;
 }
 
@@ -50,6 +52,8 @@ vtkMRMLNDLibraryNode::vtkMRMLNDLibraryNode(vtkMRMLNDLibraryNode & lib)
   ParentNode = 0;
   // FilePaths = new std::vector<std::string>;
   //TagCloud = 0 ;
+  std_str_hash tagCloud;
+  tagCloud=tagCloud;
   isLeaf = false;
 }
 
@@ -63,6 +67,8 @@ vtkMRMLNDLibraryNode::vtkMRMLNDLibraryNode( std::string path, std::string name)
   ParentNode = 0 ;
   // FilePaths = new std::vector<std::string>;
   //TagCloud = 0 ;
+  std_str_hash tagCloud;
+  tagCloud=tagCloud;
   isLeaf = false;
 }
 
@@ -76,6 +82,8 @@ vtkMRMLNDLibraryNode::vtkMRMLNDLibraryNode( std::string path,std::string name,st
   ParentNode = 0 ;
   // FilePaths = new std::vector<std::string>;
   //TagCloud = 0 ;
+  std_str_hash tagCloud;
+  tagCloud=tagCloud;
   isLeaf = false;
 }
 
@@ -114,6 +122,8 @@ vtkMRMLNDLibraryNode::vtkMRMLNDLibraryNode(std::string path)
   ParentNode = 0 ;
   // FilePaths = new std::vector<std::string>;
   //TagCloud = 0 ;
+  std_str_hash tagCloud;
+  tagCloud=tagCloud;
   isLeaf = false;
 }
 
@@ -351,6 +361,7 @@ void vtkMRMLNDLibraryNode::SetMRMLSceneInternal(vtkMRMLScene * newScene)
 void vtkMRMLNDLibraryNode::RegisterNodes()
 {
   assert(this->GetMRMLScene() != 0);
+  this->GetMRMLScene()->RegisterNodeClass( this->GetPointer() );
 }
 
 //---------------------------------------------------------------------------
