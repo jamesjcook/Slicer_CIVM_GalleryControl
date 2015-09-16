@@ -99,12 +99,14 @@ class VTK_VTKMRMLNDLIBRARY_MRML_EXPORT vtkMRMLNDLibraryBuilder : public vtkMRMLN
 
   bool Build(std_str_hash ); // build an nd lib which must be set before hand in our ndlib pointer using a tag cloud at string.
   bool Build(vtkMRMLNDLibraryNode *, std_str_hash );   // build an nd lib using a tag cloud at string.
-  bool ParseCloud(vtkMRMLNDLibraryNode *, std_str_hash );   // build an nd lib using a tag cloud at string.
   
   bool Build(vtkMRMLNDLibraryNode *);                                      // build the nd lib, which presumeable has alredy had its path name and category set.
   bool Build(vtkMRMLNDLibraryNode *,std::string);                          // build lib at path,
   bool Build(vtkMRMLNDLibraryNode *,std::string,std::string );             // build lib at path with name
   bool Build(vtkMRMLNDLibraryNode *,std::string,std::string,std::string ); // build lib at path with name and category
+
+  bool CombineCloud(std_str_hash &, std_str_hash& ,bool ); // combine two hash clouds,used to put parent cloud in childe cloud.  
+  bool ParseCloud(vtkMRMLNDLibraryNode *, std_str_hash );   // build an nd lib using a tag cloud at string.
   
   void ResetLib();   // clear out the lib
   bool ReBuild();    // rebuild the lib(first resets)

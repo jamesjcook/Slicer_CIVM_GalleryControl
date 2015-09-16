@@ -211,12 +211,27 @@ std::string vtkMRMLNDLibraryBuilder::AgeTimeConvert(std::string zeroPadSeconds,f
 //----------------------------------------------------------------------------
 bool vtkMRMLNDLibraryBuilder::Build(std_str_hash tagCloud)
 {
+  std::cout << "build cloud" << std::endl;
   return this->Build(LibPointer,tagCloud); 
 }
 
 //----------------------------------------------------------------------------
 bool vtkMRMLNDLibraryBuilder::Build(vtkMRMLNDLibraryNode * lib, std_str_hash tagCloud)
 {
+  std::cout << "build lib+cloud." << std::endl;
+  //// TODO ADD PARENT CLOUD INTO OURSELVES HERE>
+  if ( lib->GetParentNode() )
+    {
+    std::cout  << "lib:"<< lib->GetLibName()<< " tagCloud is "<<tagCloud.size() 
+               << " big."<<std::endl;
+    CombineCloud(tagCloud,lib->GetParentNode()->GetTagCloud(),0);
+    std::cout  << "lib:"<< lib->GetLibName()<< " tagCloud is now "<<tagCloud.size() 
+               << " big."<<std::endl;
+    } else 
+    {
+    if ( getTestStatus(0) ) 
+      std::cout << "no parent lib, cannot combine." << std::endl;
+    }
   lib->SetTagCloud(tagCloud);
   return this->Build(lib);
 }
@@ -224,12 +239,14 @@ bool vtkMRMLNDLibraryBuilder::Build(vtkMRMLNDLibraryNode * lib, std_str_hash tag
 //----------------------------------------------------------------------------
 bool vtkMRMLNDLibraryBuilder::Build(void) 
 {
+  std::cout << "build void" << std::endl;
   return this->Build(LibPointer);
 }
 
 //----------------------------------------------------------------------------
 bool vtkMRMLNDLibraryBuilder::Build(std::string path)
 {
+  std::cout << "build path" << std::endl;
   return this->Build(LibPointer,path);
 }
 
@@ -237,6 +254,7 @@ bool vtkMRMLNDLibraryBuilder::Build(std::string path)
 //does a create by path of the sublibs in lib. 
 bool vtkMRMLNDLibraryBuilder::Build(vtkMRMLNDLibraryNode * lib)
 {
+  std::cout << "build libpointer " << std::endl;
   bool status=false;
   std_str_hash tagCloud=lib->GetTagCloud();
   if (tagCloud.size()>0) 
@@ -247,7 +265,22 @@ bool vtkMRMLNDLibraryBuilder::Build(vtkMRMLNDLibraryNode * lib)
     { // if tagcloud is empty, read lib file
     std::cout  << "lib:"<< lib->GetLibName()<< ", tagCloud not found, loading! "  << std::endl;    
     tagCloud = libFileRead(lib); //readlib.
-    bool libchange=this->ParseCloud(lib,tagCloud);
+    bool pCloudStatus=this->ParseCloud(lib,tagCloud);//pCloudStatus
+    
+    //// TODO ADD PARENT CLOUD INTO OURSELVES HERE>
+    // i think this causes a failure because the parent doesnt exist in this context.
+    if ( lib->GetParentNode() )
+      {
+      std::cout  << "lib:"<< lib->GetLibName()<< " tagCloud is "<<tagCloud.size() 
+                 << " big."<<std::endl;
+      CombineCloud(tagCloud,lib->GetParentNode()->GetTagCloud(),0);
+      std::cout  << "lib:"<< lib->GetLibName()<< " tagCloud is now "<<tagCloud.size() 
+                 << " big."<<std::endl;
+      } else 
+      {
+      if ( getTestStatus(0) ) 
+        std::cout << "no parent lib, cannot combine." << std::endl;
+      }
     lib->SetTagCloud(tagCloud);
     }
   if ( lib->GetCategory() == "NoCategory" && tagCloud.find("Category") != tagCloud.end() ) 
@@ -255,29 +288,24 @@ bool vtkMRMLNDLibraryBuilder::Build(vtkMRMLNDLibraryNode * lib)
     lib->SetCategory(tagCloud["Category"]);
     std::cout  << "Cout: Parent didnt give me a category, added on build." << std::endl;
     }
-  if ( lib->GetLibName() == "NoName" && tagCloud.find("LibName") != tagCloud.end() ) 
+  if ( lib->GetLibName() == "NoName" )
     { 
-    lib->SetLibName(tagCloud["LibName"]);
-    std::cout  << "Cout: Parent didnt give me a LibName, added on build." << std::endl;
+      std::cout << "Cout: Parent didnt give me a LibName, ";
+      if ( tagCloud.find("LibName") != tagCloud.end() ) 
+	{
+	  lib->SetLibName(tagCloud["LibName"]);
+	  std::cout  << "added on build." << std::endl;
+	} else 
+	{
+	  std::cout << "and none found in tagcloud." << std::endl;
+	}
     }
-
   //When should testDataOk be true? when env var DATALIBRARIES_TEST exists
   //testDataOk=getTestStatus(lib);  
   testDataOk=getTestStatus(0);  
-
   std::vector<std::string> * subLibPathList = new std::vector<std::string>;
   this->GetSubDirs(subLibPathList,lib->GetLibRoot());
-/*
-  //going to let this condition be handled by the add code integral to this loop, this is just doing double work for nothing.
-  std::cout << "Cout: considering " << subLibPathList->size() << " dirs";
-  this->RemoveNonLibDirs(subLibPathList); //remove invalid entries
-  std::cout << "Cout: kept " << subLibPathList->size() << " dirs" << std::endl;
-*/
-  //check to see if there will be a change in size of our sublib list, and only re-create them if there is.
-  // this requires improvement, it should doa check per element that they're all present.
-  //if( subLibPathList->size() != lib->SubLibraries.size() && subLibPathList->size()>0 ) 
     {
-    //lib->clearSubs();
     char delim = '/';
     // for every dir in path make new sublib.
     // check if it exists in dir already, and add if missing.
@@ -285,6 +313,7 @@ bool vtkMRMLNDLibraryBuilder::Build(vtkMRMLNDLibraryNode * lib)
       {
       ////
       // Process lib.conf file
+      // this acts as a check for valid lib it was missing parsecloud in the past. Maybe it still should. 
       std_str_hash subLibCloud=libFileRead(subLibPathList->at(i) + "/lib.conf");
       if (subLibCloud.find("Category") == subLibCloud.end() )
         subLibCloud.clear();//if the sublibcloud does not have category it is invalid.
@@ -294,7 +323,7 @@ bool vtkMRMLNDLibraryBuilder::Build(vtkMRMLNDLibraryNode * lib)
         // at the minimum there should always be a category field in our tag cloud
         vtkMRMLNDLibraryNode * subLib = new vtkMRMLNDLibraryNode(
           subLibPathList->at(i),libPathParts.back(),subLibCloud["Category"]);
-        bool libchange=this->ParseCloud(subLib,subLibCloud);
+        bool sCloudStatus=this->ParseCloud(subLib,subLibCloud);//s for sub CloudStatus
         if ( testDataOk) 
           {
           std::cout << "Cout: vtkMRMLNDLibraryNode constructor call with " << std::endl
@@ -309,9 +338,18 @@ bool vtkMRMLNDLibraryBuilder::Build(vtkMRMLNDLibraryNode * lib)
           {
           std::cout  << "Cout: Add Lib at path " << subLibPathList->at(i) << std::endl;
           subLib->SetParentNode(lib);
+	  //// TODO ADD PARENT CLOUD INTO OURSELVES HERE>
+          std::cout  << "lib:"<< subLib->GetLibName()<< " tagCloud is "<<subLibCloud.size() 
+                     << " big."<<std::endl;
+          CombineCloud(subLibCloud,subLib->GetParentNode()->GetTagCloud(),0);
+          std::cout  << "lib:"<< subLib->GetLibName()<< " tagCloud is now "<<subLibCloud.size() 
+                     << " big."<<std::endl;
           subLib->SetTagCloud(subLibCloud);
           lib->SubLibraries[libPathParts.back()]=subLib; 
           //store subs by disk name, but let our sublibs report their name as what ever they wish.
+          } else 
+          {
+          std::cout << "Cout: DID NOT ADD LIB at path"<< subLibPathList->at(i) << std::endl;
           }
         }
       }
@@ -340,14 +378,14 @@ bool vtkMRMLNDLibraryBuilder::Build(vtkMRMLNDLibraryNode * lib)
       // Process lib.conf file
       std_str_hash * addr;
       addr=&tagCloud;
-      std_str_hash subLibCloud=*addr;
+      std_str_hash subLibCloud=*addr; //copy the parent tagcloud
       // our sub build code for example, lef thtis here for now in case we decide that files are also libs
       vtkMRMLNDLibraryNode * subLib;
       std::vector<std::string> libPathParts=this->split(subLibPathList->at(i),delim);
       if ( subLibCloud["ChildCategory"] != "NoCategory" )
         {
         std::string subCategory=subLibCloud["ChildCategory"];
-        std::cout << "Cout: Build libpointer(constructor call with path), " 
+        std::cout << "Cout: sublib constructor call with path, " 
 		  << subLibPathList->at(i)+"," << libPathParts.back()+"," << subCategory << "\n";
         // build sublib from path, should create sublib with name and path set.
         // limited sub gathering for now
@@ -367,12 +405,22 @@ bool vtkMRMLNDLibraryBuilder::Build(vtkMRMLNDLibraryNode * lib)
       subLibCloud["Category"]=subLibCloud["ChildCategory"];
       subLibCloud.erase("ChildCategory");
 
-      if ( lib->SubLibraries.find(libPathParts.back()) == lib->SubLibraries.end() 
+      //insert new sublib to list 
+      //  if not in list already, AND 
+      //    is not test lib, or (is test lib and test data is ok)
+      //if ( lib->SubLibraries.find(libPathParts.back()) == lib->SubLibraries.end() 
+      if ( lib->SubLibraries.find(subLib->GetLibName()) == lib->SubLibraries.end() 
            && ( subLibCloud.find("TestingLib") == subLibCloud.end() || testDataOk ) )
         {
         std::cout  << "Cout: Add Lib at path " << subLibPathList->at(i) << std::endl;
         std::cout << "Cout: Add tagcloud" << std::endl ;
         subLib->SetParentNode(lib);
+	//// TODO ADD PARENT CLOUD INTO OURSELVES HERE>
+        std::cout  << "lib:"<< subLib->GetLibName()<< " tagCloud is "<<subLibCloud.size() 
+                   << " big."<<std::endl;
+        CombineCloud(subLibCloud,subLib->GetParentNode()->GetTagCloud(),0);
+        std::cout  << "lib:"<< subLib->GetLibName()<< " tagCloud is now "<<subLibCloud.size() 
+                   << " big."<<std::endl;
         subLib->SetTagCloud(subLibCloud);
         lib->SubLibraries[subLib->GetLibName()]=subLib; 
         }
@@ -393,6 +441,7 @@ bool vtkMRMLNDLibraryBuilder::Build(vtkMRMLNDLibraryNode * lib)
 //----------------------------------------------------------------------------
 bool vtkMRMLNDLibraryBuilder::Build(vtkMRMLNDLibraryNode * lib, std::string path)
 {
+  std::cout << "build lib+path" << std::endl;
   char delim='/';
   std::vector<std::string> libPathParts=this->split(path,delim);
   //LibName=libPathParts.back();// this should be modified to give a better name.
@@ -402,12 +451,14 @@ bool vtkMRMLNDLibraryBuilder::Build(vtkMRMLNDLibraryNode * lib, std::string path
 //----------------------------------------------------------------------------
 bool vtkMRMLNDLibraryBuilder::Build(vtkMRMLNDLibraryNode * lib,std::string path, std::string name)
 {
+  std::cout << "build lib+path+name" << std::endl;
   return this->Build(lib,path,name,std::string("NoCategory"));
 }
 
 //----------------------------------------------------------------------------
 bool vtkMRMLNDLibraryBuilder::Build(vtkMRMLNDLibraryNode * lib,std::string path, std::string name,std::string category)
 {
+  std::cout << "build lib+path+name+category" << std::endl;
   lib->SetLibName(name);
   lib->SetCategory(category);
   lib->SetLibRoot(path); 
@@ -758,13 +809,40 @@ void vtkMRMLNDLibraryBuilder::GetFilesInDirectory(std::vector<std::string> &out,
 } // GetFilesInDirectory
 
 //----------------------------------------------------------------------------
+// given tagcloud1 and 2, put the contents of tagcloud2 into tagcloud1.
+// if overwrite is true, overwrite contents of 1 with 2, else ignore those.
+bool vtkMRMLNDLibraryBuilder::CombineCloud(std_str_hash  &tagCloud1, std_str_hash  &tagCloud2,bool overwrite)
+{
+  bool status=false; // did this succeed?
+  if ( !tagCloud2.empty() ) 
+    {
+    std::cout << "Cout:TAG adding tagcloud2 to 1." << std::endl;
+    for ( s_hash_iter tCI=tagCloud2.begin(); tCI!=tagCloud2.end() ;tCI++ )
+      {
+      if ( tagCloud1.find(tCI->first) == tagCloud1.end() || overwrite) 
+        {
+        tagCloud1[tCI->first]=tCI->second;
+        if ( getTestStatus(0) ) //only print on test sys.
+          {
+          std::cout << "Cout:TAG  " <<tCI->first << "=" << tCI->second << std::endl ;
+          }
+        }
+      }
+    } else
+    {
+    std::cout << "Cout:TAG ERROR tagcloud2 is empty. Why did you try to combine?" << std::endl;
+    }
+  return status;
+}
+
+//----------------------------------------------------------------------------
 // takes lib and tagcloud
 // makes sure "required" vars are in the tagcloud
 // fixes libpath if it is different from tagcloud
 // updates lib category if it is missing.
 bool vtkMRMLNDLibraryBuilder::ParseCloud(vtkMRMLNDLibraryNode * lib, std_str_hash  tagCloud)
 {
-  bool status=false;// hold wether we've made changes or not.
+  bool status=false;// hold whether we've made changes or not.
   bool setNewPath=false;
   //// 
   // debug print of the tag cloud
@@ -772,7 +850,7 @@ bool vtkMRMLNDLibraryBuilder::ParseCloud(vtkMRMLNDLibraryNode * lib, std_str_has
     {
     if ( getTestStatus(0) ) //only print on test sys.
       for ( s_hash_iter tCI=tagCloud.begin(); tCI!=tagCloud.end() ;tCI++ )
-        std::cout << "Cout:TAG" <<tCI->first << "=" << tCI->second << std::endl ;
+        std::cout << "Cout:TAG  " <<tCI->first << "=" << tCI->second << std::endl ;
     }
   else 
     {
@@ -1074,7 +1152,6 @@ std_str_hash vtkMRMLNDLibraryBuilder::libFileRead(std::string libConfPath  )
     std::cout << "Cout: ERROR path too long!";
     return tagCloud;
     }
-
   /*
     #ifndef WIN32
     if ( libConf.good() )
@@ -1084,7 +1161,6 @@ std_str_hash vtkMRMLNDLibraryBuilder::libFileRead(std::string libConfPath  )
     #else 
     fileFound = fexists( libConfPath.c_str() );
     #endif
-  
     if ( fileFound )
     {
     //    cout << "Cout: opened conf file " << libConfPath << std::endl;
@@ -1119,7 +1195,7 @@ std_str_hash vtkMRMLNDLibraryBuilder::libFileRead(std::string libConfPath  )
           p.insert(p.begin(),"Category");
         if (lineNum==2) // when its the second line. 
           p.insert(p.begin(),"ChildCategory");
-        } else 
+        } else  //neverrun
         {
         if (lineNum==1) // when its the first line.
           p.push_back("Category");
