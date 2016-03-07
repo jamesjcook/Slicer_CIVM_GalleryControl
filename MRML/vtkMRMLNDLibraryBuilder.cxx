@@ -292,13 +292,13 @@ bool vtkMRMLNDLibraryBuilder::Build(vtkMRMLNDLibraryNode * lib)
     { 
       std::cout << "Cout: Parent didnt give me a LibName, ";
       if ( tagCloud.find("LibName") != tagCloud.end() ) 
-	{
-	  lib->SetLibName(tagCloud["LibName"]);
-	  std::cout  << "added on build." << std::endl;
-	} else 
-	{
-	  std::cout << "and none found in tagcloud." << std::endl;
-	}
+        {
+          lib->SetLibName(tagCloud["LibName"]);
+          std::cout  << "added on build." << std::endl;
+        } else 
+        {
+          std::cout << "and none found in tagcloud." << std::endl;
+        }
     }
   //When should testDataOk be true? when env var DATALIBRARIES_TEST exists
   //testDataOk=getTestStatus(lib);  
@@ -338,7 +338,7 @@ bool vtkMRMLNDLibraryBuilder::Build(vtkMRMLNDLibraryNode * lib)
           {
           std::cout  << "Cout: Add Lib at path " << subLibPathList->at(i) << std::endl;
           subLib->SetParentNode(lib);
-	  //// TODO ADD PARENT CLOUD INTO OURSELVES HERE>
+          //// TODO ADD PARENT CLOUD INTO OURSELVES HERE>
           std::cout  << "lib:"<< subLib->GetLibName()<< " tagCloud is "<<subLibCloud.size() 
                      << " big."<<std::endl;
           CombineCloud(subLibCloud,subLib->GetParentNode()->GetTagCloud(),0);
@@ -349,7 +349,15 @@ bool vtkMRMLNDLibraryBuilder::Build(vtkMRMLNDLibraryNode * lib)
           //store subs by disk name, but let our sublibs report their name as what ever they wish.
           } else 
           {
-          std::cout << "Cout: DID NOT ADD LIB at path"<< subLibPathList->at(i) << std::endl;
+          std::cout << "Cout: DID NOT ADD LIB at path "<< subLibPathList->at(i) << std::endl;
+          if( subLibCloud.find("TestingLib") == subLibCloud.end() )
+            {
+            std::cout << "Cout:  BECAUSE TESTING LIB"<< subLibPathList->at(i) << std::endl;
+            }
+          if ( lib->SubLibraries.find(libPathParts.back()) != lib->SubLibraries.end() ) 
+            {
+            std::cout << "Cout:  BECAUSE DUPLICATE LIB NAME"<< subLibPathList->at(i) << std::endl;
+            }
           }
         }
       }
@@ -386,7 +394,7 @@ bool vtkMRMLNDLibraryBuilder::Build(vtkMRMLNDLibraryNode * lib)
         {
         std::string subCategory=subLibCloud["ChildCategory"];
         std::cout << "Cout: sublib constructor call with path, " 
-		  << subLibPathList->at(i)+"," << libPathParts.back()+"," << subCategory << "\n";
+                  << subLibPathList->at(i)+"," << libPathParts.back()+"," << subCategory << "\n";
         // build sublib from path, should create sublib with name and path set.
         // limited sub gathering for now
         subLib = new vtkMRMLNDLibraryNode(subLibPathList->at(i),libPathParts.back(),subCategory);
@@ -415,7 +423,7 @@ bool vtkMRMLNDLibraryBuilder::Build(vtkMRMLNDLibraryNode * lib)
         std::cout  << "Cout: Add Lib at path " << subLibPathList->at(i) << std::endl;
         std::cout << "Cout: Add tagcloud" << std::endl ;
         subLib->SetParentNode(lib);
-	//// TODO ADD PARENT CLOUD INTO OURSELVES HERE>
+        //// TODO ADD PARENT CLOUD INTO OURSELVES HERE>
         std::cout  << "lib:"<< subLib->GetLibName()<< " tagCloud is "<<subLibCloud.size() 
                    << " big."<<std::endl;
         CombineCloud(subLibCloud,subLib->GetParentNode()->GetTagCloud(),0);
@@ -1095,7 +1103,7 @@ bool vtkMRMLNDLibraryBuilder::fexists(const char *filename)
 #ifdef WIN32
   DWORD dwAttrib = GetFileAttributes(filename);
   return (dwAttrib != INVALID_FILE_ATTRIBUTES && 
-	  !(dwAttrib & FILE_ATTRIBUTE_DIRECTORY));
+          !(dwAttrib & FILE_ATTRIBUTE_DIRECTORY));
 #else
 //#include <fstream>
   ifstream ifile(filename);
@@ -1239,7 +1247,7 @@ std_str_hash vtkMRMLNDLibraryBuilder::libFileRead(std::string libConfPath  )
         QString line= in.readLine();
         //if(!line.empty())
         panelSupportList << line;
-	  
+          
         }
       QRegExp protoCompare("^"+libName+"$");
       if ( panelSupportList.indexOf(protoCompare)>=0 )
