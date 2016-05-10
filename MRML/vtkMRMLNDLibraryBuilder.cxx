@@ -33,7 +33,13 @@
 #endif
 #include <string.h>
 
-
+#ifdef QT_CORE_LIB_NONONO
+#include <QString>
+#include <QtCore>
+#include <QStringList>
+#include <QRegExp>
+#include <QFileInfo>
+#endif
 //#define storable
 
 
@@ -304,6 +310,7 @@ bool vtkMRMLNDLibraryBuilder::Build(vtkMRMLNDLibraryNode * lib)
   //testDataOk=getTestStatus(lib);  
   testDataOk=getTestStatus(0);  
   std::vector<std::string> * subLibPathList = new std::vector<std::string>;
+  // here we could feed in the limit of things getsubdirs should ignore.
   this->GetSubDirs(subLibPathList,lib->GetLibRoot());
     {
     char delim = '/';
@@ -333,7 +340,23 @@ bool vtkMRMLNDLibraryBuilder::Build(vtkMRMLNDLibraryNode * lib)
           }
         // only add a lib if there is no entry matching it yet,
         // and it is not a testinglib, or testing is ok.
+        bool qtPass=1;
+#ifdef QT_CORE_LIB_NONONONO
+        QString filePath = QString::fromStdString(subLibPathList->at(i));//full path to file
+        QFileInfo fInfo;
+        fInfo.setFile(QString::fromStdString(subLibPathList->at(i)));
+//subLibCloud.find("TestingLib")
+      //
+        if( tagCloud.find("FilePattern") != tagCloud.end() // if there is no file pattern, OR
+            || fInfo.fileName().contains(QRegExp(QString::fromStdString(tagCloud["FilePattern"]))) )//if the pattern matches
+          {
+          qtPass=0;
+          }
+#endif
+//*/
+
         if ( lib->SubLibraries.find(libPathParts.back()) == lib->SubLibraries.end() 
+             && qtPass
              && ( subLibCloud.find("TestingLib") == subLibCloud.end() || testDataOk ) )
           {
           std::cout  << "Cout: Add Lib at path " << subLibPathList->at(i) << std::endl;
@@ -350,7 +373,7 @@ bool vtkMRMLNDLibraryBuilder::Build(vtkMRMLNDLibraryNode * lib)
           } else 
           {
           std::cout << "Cout: DID NOT ADD LIB at path "<< subLibPathList->at(i) << std::endl;
-          if( subLibCloud.find("TestingLib") == subLibCloud.end() )
+          if( subLibCloud.find("TestingLib") != subLibCloud.end() )
             {
             std::cout << "Cout:  BECAUSE TESTING LIB"<< subLibPathList->at(i) << std::endl;
             }
@@ -850,6 +873,11 @@ bool vtkMRMLNDLibraryBuilder::CombineCloud(std_str_hash  &tagCloud1, std_str_has
 // updates lib category if it is missing.
 bool vtkMRMLNDLibraryBuilder::ParseCloud(vtkMRMLNDLibraryNode * lib, std_str_hash  tagCloud)
 {
+#ifdef QT_CORE_LIB
+  std::cout << "CoutParseCloud: OMG OMG OMG qt IS AVAILABLE" << std::endl;
+#else
+  std::cout << "CoutParseCloud: >:P no qt for you" << std::endl;
+#endif
   bool status=false;// hold whether we've made changes or not.
   bool setNewPath=false;
   //// 
@@ -1185,12 +1213,33 @@ std_str_hash vtkMRMLNDLibraryBuilder::libFileRead(std::string libConfPath  )
   std::string line;
   int lineNum=0;//line counter to keep track of which line we're on for old style files. 
   ifstream libConf ( libConfPath.c_str() );
+  int omittedLines=0;
   while (std::getline(libConf, line))
     {
     //    std::cout << "Cout: lib line " << line << std::endl;
     lineNum++;
     // Process str
+    // clear leading spaces if any.
+      //int junk_char=0;
+      //while ( line[0] == ' ' || line[0] == "\t" )
+      //junk_char++;// just count the char, remove them in one go. 
+    // better example of remove spaces using real c++! Unofortunately removes all spaces every where. Ideal world we only want to trim.
+    //s.erase( std::remove_if( s.begin(), s.end(), ::isspace ), s.end() );
+//    line.erase( std::remove_if( line.begin(), line.end(), ::isspace ), line.end() );
+    //  line.erase( std::remove_if( line.begin(), line.find_first_not_of(" \t"), ::isspace ), line.find_first_not_of(" \t") );
     // ignore lines starting in #
+    
+    //comment removal and leading space removal
+    // get first non whitespace, run to first comment sigil.(could end up with 0 length).
+    line = line.substr(line.find_first_not_of(" \t"),line.find_first_of('#'));
+
+    std::size_t line_l=line.length();
+    if ( line_l < 0 )
+      {
+      omittedLines++;
+      continue;
+      }
+   
     // split line
     std::vector<std::string> p=this->split(line,'=' );
     //std_str_hash[*p.begin()]=p.back();
@@ -1214,17 +1263,19 @@ std_str_hash vtkMRMLNDLibraryBuilder::libFileRead(std::string libConfPath  )
         }
       //      it=subLibPathList->erase(it);
       }
-    while ( p.size()<2 ) 
-      {
+    
+    //while ( p.size()<2 ) 
+    if(p.size()==1)
       p.push_back("_");
-      }
-    //    std::cout << p.front() << "=" << p.back() << std::endl;
-    tagCloud[p.front()]=p.back();
+    if(p.size()==2)
+      tagCloud[p.front()]=p.back();
     }
+  std::cout << "Cout: omitted lines: " << omittedLines << std::endl;
   //  std::cout << "End Lib Read" << std::endl;
   return tagCloud;
 
-#ifdef qt
+#ifdef qtneverfind
+//QT_CORE_LIB
   /* I DON'T THINK THIS CODE WILL EVER RUN< IT SHOULD BE REMOVED*/
   QString libName =QString::fromStdString(selectedLib->GetLibName());
   QStringList protocols;
@@ -1234,7 +1285,7 @@ std_str_hash vtkMRMLNDLibraryBuilder::libFileRead(std::string libConfPath  )
   //for each panel
   //// SUPPORTLIST HACK.
   QString panelSupportDri = QString::fromStdString(DataStore->GetLibRoot());
-  for (int i = 0; i < panels.size(); ++i)
+  for (int i = 0; i < panelline.size(); ++i)
     {
     this->PrintText("support check for "+panels.at(i));
     QFile panelConfFile(panelSupportDir+"/"+panels.at(i)+".conf");
