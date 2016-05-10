@@ -209,6 +209,13 @@ std::map<std::string,vtkMRMLNDLibraryNode *> vtkMRMLNDLibraryNode::GetSubLibrari
   return SubLibraries;
 }
 
+//----------------------------------------------------------------------------
+void vtkMRMLNDLibraryNode::SetSubLibraries(std::map<std::string,vtkMRMLNDLibraryNode *> newSubs)
+{
+  SubLibraries=newSubs;
+  return;
+}
+
 
 //----------------------------------------------------------------------------
 std_str_hash vtkMRMLNDLibraryNode::GetTagCloud()

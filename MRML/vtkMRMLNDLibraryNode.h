@@ -115,6 +115,8 @@ class VTK_VTKMRMLNDLIBRARY_MRML_EXPORT vtkMRMLNDLibraryNode : public vtkMRMLHier
   std::vector<vtkMRMLNDLibraryNode * >          GetAncestorList(void);
   std::vector<std::string>                      GetCategoryPath(void);
   
+  void SetSubLibraries(std::map<std::string,vtkMRMLNDLibraryNode *>); 
+
 
   //public functions
   // perhaps these reset functions should be private? and only called by our builder?
