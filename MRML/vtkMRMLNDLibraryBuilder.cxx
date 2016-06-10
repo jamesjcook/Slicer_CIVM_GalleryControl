@@ -1111,6 +1111,10 @@ std::vector<std::string> & vtkMRMLNDLibraryBuilder::split(const std::string &s, 
 {
   std::stringstream ss(s);
   std::string item;
+  if (s.empty()) 
+    {
+    return elems;
+    }
   while (std::getline(ss, item, delim)) 
     {
     elems.push_back(item);
@@ -1183,6 +1187,8 @@ std_str_hash vtkMRMLNDLibraryBuilder::libFileRead(std::string libConfPath  )
   std_str_hash tagCloud;
   //int fileFound=false;
   bool fileFound=fexists( libConfPath.c_str() );
+
+
   if (libConfPath.length()>255 )
     {
     std::cout << "Cout: ERROR path too long!";
@@ -1209,15 +1215,25 @@ std_str_hash vtkMRMLNDLibraryBuilder::libFileRead(std::string libConfPath  )
     cout << "Cout:failed to open conf file " << libConfPath << std::endl;
     return tagCloud;
     }
+
+
   tagCloud["LibConfPath"]=libConfPath;
   std::string line;
   int lineNum=0;//line counter to keep track of which line we're on for old style files. 
   ifstream libConf ( libConfPath.c_str() );
   int omittedLines=0;
-  while (std::getline(libConf, line))
+  while (!libConf.eof() && !libConf.bad() && libConf.is_open() && libConfPath.length()<=255 && fileFound )
     {
+    line.clear();
+    std::getline(libConf, line);
     //    std::cout << "Cout: lib line " << line << std::endl;
     lineNum++;
+    // this MUST be checked before we try to substr line due to runtime error generation on consecutive blank lines.
+    if ( line.empty() || libConf.fail() )
+      {
+      omittedLines++;
+      continue;
+      }
     // Process str
     // clear leading spaces if any.
       //int junk_char=0;
@@ -1233,15 +1249,16 @@ std_str_hash vtkMRMLNDLibraryBuilder::libFileRead(std::string libConfPath  )
     // get first non whitespace, run to first comment sigil.(could end up with 0 length).
     line = line.substr(line.find_first_not_of(" \t"),line.find_first_of('#'));
 
-    std::size_t line_l=line.length();
-    if ( line_l < 0 )
+    //std::size_t line_l=line.length();
+    //if ( line_l < 0 )    
+    if ( line.empty() || libConf.fail() )
       {
       omittedLines++;
       continue;
       }
-   
     // split line
     std::vector<std::string> p=this->split(line,'=' );
+    //continue;   
     //std_str_hash[*p.begin()]=p.back();
     //tagcloud["test"]=p.back();
     if (p.size()==1 && ( lineNum==1 || lineNum==2) )// when we do not find an = on a line. 
@@ -1264,14 +1281,61 @@ std_str_hash vtkMRMLNDLibraryBuilder::libFileRead(std::string libConfPath  )
       //      it=subLibPathList->erase(it);
       }
     
-    //while ( p.size()<2 ) 
+    //while ( p.size()<2 )
     if(p.size()==1)
       p.push_back("_");
     if(p.size()==2)
       tagCloud[p.front()]=p.back();
+    else
+      {
+      std::cout << "Cout: line " << lineNum << " blank." << std::endl;
+      }
     }
+  libConf.close();
   std::cout << "Cout: omitted lines: " << omittedLines << std::endl;
   //  std::cout << "End Lib Read" << std::endl;
+  if( omittedLines==lineNum) 
+    {
+    //if(p.size()==0 && tagCloud.size()==0 && ) 
+    std::cout << "Cout: omitted all lines in tag cloud" <<std::endl;
+    }
+  if( tagCloud.size() ==0 )
+    {
+    //if(p.size()==0 && tagCloud.size()==0 && ) 
+    std::cout << "Cout: tag cloud empty" <<std::endl;
+    //tagCloud["_"]="_";
+    std::vector<std::string> p=this->split("_=_",'=' );
+    tagCloud[p.front()]=p.back();
+    }
+  if (libConfPath.length()>255 )
+    {
+    std::cout << "Cout: ERROR path too long!";
+    }
+  /*
+    #ifndef WIN32
+    if ( libConf.good() )
+    {
+    fileFound=true;
+    } 
+    #else 
+    fileFound = fexists( libConfPath.c_str() );
+    #endif
+    if ( fileFound )
+    {
+    //    cout << "Cout: opened conf file " << libConfPath << std::endl;
+    fileFound=true;
+    }
+    else
+  */
+  if ( ! fileFound )
+    {
+    cout << "Cout:failed to open conf file " << libConfPath << std::endl;
+    }
+
+
+
+
+
   return tagCloud;
 
 #ifdef qtneverfind
